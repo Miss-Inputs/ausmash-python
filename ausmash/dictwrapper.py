@@ -1,5 +1,6 @@
 
 from collections.abc import Iterable, Mapping, Sequence
+from copy import deepcopy
 from typing import Any, TypeVar
 
 from .typedefs import JSONDict
@@ -44,4 +45,7 @@ class DictWrapper:
 
 	def updated_copy(self: _T, new_data: JSONDict) -> _T:
 		"""Returns a new instance with the same data as this, but with fields updated as specified by new_data"""
-		return type(self)(dict(self._data.items() | new_data.items()))
+		data = self._data
+		if not isinstance(data, dict):
+			data = dict(data)
+		return type(self)(data | new_data)
