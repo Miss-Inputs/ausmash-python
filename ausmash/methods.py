@@ -98,12 +98,11 @@ def get_active_players(game: Game | str, region: Region | str, season_start: dat
 			if only_count_locals and not is_local:
 				continue
 
-			if series_to_exclude:
-				if tournament.series.name in series_to_exclude:
-					continue
+			if series_to_exclude and tournament.series.name in series_to_exclude:
+				continue
 			
 			event = result.event
-			if event.game != game:
+			if event.game.short_name != (game.short_name if isinstance(game, Game) else game):
 				continue
 			if event.is_redemption_bracket or event.is_side_bracket or event.type != EventType.Singles:
 				continue #Well… we don't really need to? Should a player count as active if they only ever enter redemption or side brackets or doubles
