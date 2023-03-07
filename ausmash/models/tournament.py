@@ -130,6 +130,15 @@ class Tournament(Resource):
 	def matches_date_filter(self, start_date: datetime.date | None = None, end_date: datetime.date | None = None) -> bool:
 		"""Returns true if this tournament is between the start and end dates (both inclusive)"""
 		return (start_date is None or self.date >= start_date) and (end_date is None or self.date <= end_date)
+	
+	@property
+	def start_gg_slug(self) -> str | None:
+		"""Gets the start.gg slug for this tournament by looking at the source_url of this tournament's events, or None if no event was imported from start.gg or had its source URL set."""
+		for event in self.events:
+			url = event.source_url
+			if url and 'start.gg/tournament/' in url:
+				return url.rsplit('/', 1)[-1]
+		return None
 
 class TournamentSeries(DictWrapper):
 	"""Series of tournaments, returned from /series or as part of of /tournament/{id}"""
