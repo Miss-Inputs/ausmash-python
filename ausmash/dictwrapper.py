@@ -5,7 +5,7 @@ from typing import Any, TypeVar, overload
 from .typedefs import JSONDict, JSON
 
 _T = TypeVar('_T', bound='DictWrapper')
-__GetDefaultType = TypeVar('__GetDefaultType')
+_GetDefaultType = TypeVar('_GetDefaultType')
 class DictWrapper:
 	"""Wrapper around a dict/mapping, usually from JSON, providing attribute access as well as dict access"""
 	def __init__(self, d: JSONDict) -> None:
@@ -32,8 +32,8 @@ class DictWrapper:
 	@overload
 	def get(self, key: str) -> JSON | None: ...
 	@overload
-	def get(self, key: str, default: JSON | _T) -> JSON | __GetDefaultType: ...
-	def get(self, key: str, default: __GetDefaultType | None=None) -> JSON | __GetDefaultType | None:
+	def get(self, key: str, default: JSON | _T) -> JSON | _GetDefaultType: ...
+	def get(self, key: str, default: _GetDefaultType | None=None) -> JSON | _GetDefaultType | None:
 		"""Implements collections.abc.Mapping.get"""
 		try:
 			return self[key]

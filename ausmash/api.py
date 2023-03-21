@@ -57,7 +57,7 @@ __cache_dir = Path('~/.cache/ausmash').expanduser()
 
 @cache
 def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
-	cache_filename = __cache_dir/url.removeprefix(AusmashAPISettings().endpoint)
+	cache_filename = __cache_dir/url.removeprefix(AusmashAPISettings().endpoint).removeprefix('/')
 	if params:
 		cache_filename = cache_filename.joinpath('&'.join(f'{k}={v}' for k, v in params))
 	cache_filename = cache_filename.with_suffix('.json')
