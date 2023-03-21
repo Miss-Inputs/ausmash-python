@@ -52,16 +52,30 @@ class _SessionSingleton():
 			cls.__instance._inited = False
 		return cls.__instance
 
+#TODO: Should try and make this portable, but making this work on Windows etc is not a priority because you can just not do that
+__cache_dir = Path('~/.cache/ausmash').expanduser()
+
 @cache
 def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
-	cache_filename = Path(f'~/.cache/ausmash/{url.removeprefix(AusmashAPISettings().endpoint)}').expanduser()
+	cache_filename = __cache_dir/url.removeprefix(AusmashAPISettings().endpoint)
 	if params:
 		cache_filename = cache_filename.joinpath('&'.join(f'{k}={v}' for k, v in params))
 	cache_filename = cache_filename.with_suffix('.json')
 	cache_filename.parent.mkdir(parents=True, exist_ok=True)
 	try:
-		if not _settings.cache_timeout or (datetime.utcnow() - datetime.utcfromtimestamp(cache_filename.stat().st_mtime)) < _settings.cache_timeout:
+		cache_time = datetime.utcfromtimestamp(cache_filename.stat().st_mtime)
+		cache_age = datetime.utcnow() - cache_time
+		if not _settings.cache_timeout or cache_age < _settings.cache_timeout:
 			return json.loads(cache_filename.read_bytes())
+			
+		cache_filename.unlink(missing_ok=True)
+		for parent in cache_filename.parents:
+			if parent == __cache_dir:
+				break
+			try:
+				parent.rmdir()
+			except OSError:
+				pass
 	except FileNotFoundError:
 		pass
 
