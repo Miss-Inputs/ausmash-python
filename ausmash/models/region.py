@@ -26,6 +26,7 @@ class Region(Resource):
 
 	@property
 	def name(self) -> str:
+		"""Full name of this region (in English, for overseas regions)"""
 		return cast(str, self['Name'])
 
 	def __str__(self) -> str:

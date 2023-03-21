@@ -1,6 +1,5 @@
 
 from collections.abc import Iterable, Mapping, Sequence
-from copy import deepcopy
 from typing import Any, TypeVar
 
 from .typedefs import JSONDict

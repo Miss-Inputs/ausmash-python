@@ -66,6 +66,7 @@ class Video(Match):
 	
 	@property
 	def url(self) -> URL:
+		"""URL to watch this video (for now, YouTube watch link)"""
 		return cast(URL, self['Url'])
 
 class Channel(Resource):

@@ -19,8 +19,8 @@ class TrueSkill(DictWrapper):
 	#There is also a Python module for this: https://trueskill.org/
 
 	@classmethod
-	def get_trueskill(self, player: Player) -> Mapping[Game, 'TrueSkill']:
-		trueskills = TrueSkill.wrap_many(call_api(f'players/{player.id}/trueskill'))
+	def get_trueskill(cls, player: Player) -> Mapping[Game, 'TrueSkill']:
+		trueskills = cls.wrap_many(call_api(f'players/{player.id}/trueskill'))
 		return {trueskill.game: trueskill for trueskill in trueskills}
 
 	@property

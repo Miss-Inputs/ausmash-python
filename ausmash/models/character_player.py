@@ -38,9 +38,11 @@ class CharacterPlayer(Player):
 
 	@property
 	def character(self) -> Character:
+		"""The character being played"""
 		return Character(self['Character'])
 	
 	@property
 	def videos(self) -> Sequence[Video]:
+		"""Videos featuring this player playing this character"""
 		#Interestingly this is just an API link to /players/{player ID}/videos/{character ID}
 		return Video.wrap_many(call_api(self['APIVideosLink']))

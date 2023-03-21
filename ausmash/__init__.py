@@ -22,6 +22,7 @@ from .models.result import Result, rounds_from_victory
 from .models.tournament import Tournament, TournamentSeries
 from .models.trueskill import TrueSkill
 from .models.video import Channel, Video
+from .exceptions import NotFoundError, RateLimitException
 
 __all__ = [
 	'Channel',
@@ -69,4 +70,7 @@ __all__ = [
 	'probability_of_winning',
 	'rounds_from_victory',
 	'was_player_pr_during_time',
+
+	'NotFoundError',
+	'RateLimitException'
 ]

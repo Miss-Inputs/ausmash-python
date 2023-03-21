@@ -13,16 +13,20 @@ class Character(Resource):
 
 	@classmethod
 	def all(cls) -> Collection['Character']:
+		"""All characters in all games (using the pocket API)"""
 		return {Character(c).updated_copy({'IconUrl': c['ImageUrl']}) for c in call_api('pocket/characters')}
 
 	@classmethod
 	def characters_in_game(cls, game: Game | str) -> Collection['Character']:
+		"""All characters in a particular game
+		Ensures that the Game field is filled in with all of Game, to avoid extra API calls"""
 		if isinstance(game, str):
 			game = Game(game)
 		return {cls(c).updated_copy({'Game': game._data}) for c in call_api(f'characters/bygame/{game.id}')} #pylint: disable=protected-access
 
 	@classmethod
 	def game_characters_by_name(cls, game: Game | str) -> Mapping[str, 'Character']:
+		"""Returns a mapping of name > character for all characters in a game"""
 		return {c.name: c for c in cls.characters_in_game(game)}
 
 	@property

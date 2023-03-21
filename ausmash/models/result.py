@@ -25,6 +25,8 @@ class _Result(Protocol):
 	def rounds_cleared(self) -> int: ...
 	
 class ResultMixin:
+	"""Utility methods for Result and result-like classes"""
+
 	@property
 	def rounds_cleared(self: _Result) -> int:
 		"""Player has placed X rounds away from the lowest possible placing
@@ -33,7 +35,7 @@ class ResultMixin:
 		return rounds_from_victory(self.total_entrants) - rounds_from_victory(self.placing)
 
 	@property
-	def better_than_other_entrants(self: '_Result') -> Fraction:
+	def better_than_other_entrants(self: _Result) -> Fraction:
 		"""Player's result is higher than this amount of the entrants"""
 		if self.placing == 1:
 			return Fraction(self.total_entrants - 1, self.total_entrants)
@@ -65,6 +67,9 @@ class Result(ResultMixin, DictWrapper):
 	
 	@classmethod
 	def results_for_event(cls, event: Event | ID) -> Sequence['Result']:
+		"""Results for an Event, or event ID
+		Adds an Entrants field to avoid an extra API call for total_entrants
+		Should be ordered from highest placing to lowest?"""
 		if isinstance(event, Event):
 			event = event.id
 		response: Sequence[dict[str, Any]] = call_api(f'events/{event}/results')
@@ -107,10 +112,12 @@ class Result(ResultMixin, DictWrapper):
 
 	@property
 	def tournament(self) -> Tournament:
+		"""Tournament this result is from"""
 		return Tournament(self['Tourney'])
 
 	@property
 	def event(self) -> Event:
+		"""Event this result is from"""
 		return Event(self['Event'])
 
 	@cached_property
@@ -124,11 +131,16 @@ class Result(ResultMixin, DictWrapper):
 
 	@property
 	def player_name(self) -> str:
+		"""Name of the player this result is for, even if that player is not in the database"""
 		return cast(str, self['PlayerName'])
 
 	@property
 	def placing(self) -> int:
+		"""Numeric placing for this result"""
 		return cast(int, self['Result'])
+
+	def __int__(self) -> int:
+		return self.placing
 
 	@property
 	def pool(self) -> int | None:
@@ -138,6 +150,8 @@ class Result(ResultMixin, DictWrapper):
 
 	@property
 	def characters(self) -> Collection[Character]:
+		"""Characters entered for this result
+		How this relates to character data at the match level I guess is up to the player entering their character data"""
 		return Character.wrap_many(self['Characters'])
 
 def rounds_from_victory(result: int) -> int:

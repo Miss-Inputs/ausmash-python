@@ -45,6 +45,7 @@ class Tournament(Resource):
 
 	@property
 	def name(self) -> str:
+		"""Name of ths tournament"""
 		return cast(str, self['Name'])
 	
 	def __str__(self) -> str:
@@ -99,9 +100,13 @@ class Tournament(Resource):
 
 	@property
 	def region(self) -> Region:
+		"""Region that this tournament was in"""
 		#Only RegionShort on partial tournaments, partial Region with ID is on tourneys/{id}
-		return Region(self['Region']) if 'Region' in self._data else Region(self['RegionShort'])
-
+		region = self._data.get('Region')
+		if region:
+			return Region(region)
+		return Region(self['RegionShort'])
+		
 	@property
 	def date(self) -> datetime.date:
 		return datetime.datetime.fromisoformat(self['TourneyDate']).date()
