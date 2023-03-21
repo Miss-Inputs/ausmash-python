@@ -148,7 +148,7 @@ class RankingSequence(DictWrapper):
 	@property
 	def region(self) -> Region | None:
 		"""Region that these rankings are for, or None if not applicable (e.g. national rankings)"""
-		region_short = self._data.get('RegionShort')
+		region_short = self.get('RegionShort')
 		return Region(region_short) if region_short else None
 
 	@property

@@ -69,7 +69,7 @@ class Game(Resource):
 		if 'ID' in self._data or 'APILink' in self._data:
 			return super()._complete
 			
-		short = self._data.get('Short')
+		short = self.get('Short')
 		if short:
 			return Game.as_dict()[short]
 		raise NotImplementedError('Uh oh Game needs ID/Short/APILink')

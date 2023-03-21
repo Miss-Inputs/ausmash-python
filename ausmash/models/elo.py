@@ -45,7 +45,7 @@ class Elo(DictWrapper):
 		return cls.wrap_many(call_api(f'elo/game/{game.id}', params))
 
 	@classmethod
-	def get(cls, player: Player) -> Mapping[Game, 'Elo']:
+	def for_player(cls, player: Player) -> Mapping[Game, 'Elo']:
 		"""Returns empty dict if this player has never had Elo calculated - either they were just added to the database this week, or have never lived in Australia or New Zealand
 		If a player used to live in Australia or New Zealand and is now tagged as being from some other country, then they will have an Elo of 1000 for every game they have played, but the peak Elo and last active date are still the same"""
 		elos = Elo.wrap_many(call_api(f'players/{player.id}/elo'))

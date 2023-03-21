@@ -28,7 +28,7 @@ class Player(Resource):
 		return cls.wrap_many(call_api('players'))
 
 	@classmethod
-	def get(cls, region: 'Region | str', name: str) -> 'Player':
+	def get_player(cls, region: 'Region | str', name: str) -> 'Player':
 		"""Gets the player from this region with this name
 		:raises NotFoundException: If the region does not have a player with that name"""
 		region_short = region.short_name if isinstance(region, Region) else region
@@ -48,7 +48,7 @@ class Player(Resource):
 		if player_name_hint:
 			if player_region_hint:
 				try:
-					player = cls.get(player_region_hint, player_name_hint)
+					player = cls.get_player(player_region_hint, player_name_hint)
 					if str(player.start_gg_player_id) == player_id:
 						return player
 				except NotFoundError:
@@ -71,14 +71,14 @@ class Player(Resource):
 
 	@property
 	def region(self) -> Region:
-		region_dict = self._data.get('Region')
+		region_dict = self.get('Region')
 		if region_dict:
 			return Region(region_dict)
 		
 		#We may have region ID or region short name, ideally use both for our partial proxy
 		partial = {}
-		region_id = self._data.get('RegionID')
-		region_short = self._data.get('RegionShort')
+		region_id = self.get('RegionID')
+		region_short = self.get('RegionShort')
 		if region_id:
 			partial['ID'] = region_id
 		if region_short:

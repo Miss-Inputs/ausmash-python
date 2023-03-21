@@ -102,7 +102,7 @@ class Tournament(Resource):
 	def region(self) -> Region:
 		"""Region that this tournament was in"""
 		#Only RegionShort on partial tournaments, partial Region with ID is on tourneys/{id}
-		region = self._data.get('Region')
+		region = self.get('Region')
 		if region:
 			return Region(region)
 		return Region(self['RegionShort'])

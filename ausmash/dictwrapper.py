@@ -1,17 +1,18 @@
 
-from collections.abc import Iterable, Mapping, Sequence
-from typing import Any, TypeVar
+from collections.abc import Iterable, Sequence
+from typing import Any, TypeVar, overload
 
-from .typedefs import JSONDict
+from .typedefs import JSONDict, JSON
 
 _T = TypeVar('_T', bound='DictWrapper')
+__GetDefaultType = TypeVar('__GetDefaultType')
 class DictWrapper:
 	"""Wrapper around a dict/mapping, usually from JSON, providing attribute access as well as dict access"""
 	def __init__(self, d: JSONDict) -> None:
 		self._data = d
 
 	@classmethod
-	def wrap_many(cls: type[_T], datas: Iterable[Mapping[str, Any]]) -> Sequence[_T]:
+	def wrap_many(cls: type[_T], datas: Iterable[JSONDict]) -> Sequence[_T]:
 		"""Wraps a sequence/iterable of JSON dicts into a sequence of this type"""
 		#TODO: When Python 3.11 comes around to Ubuntu or I otherwise don't feel bad about making it a requirement (maybe in the distant future when 3.10 is EOL), replace TypeVar stuff with Self type hint
 		return tuple(cls(data) for data in datas)
@@ -28,13 +29,23 @@ class DictWrapper:
 	def __getitem__(self, name: str) -> Any:
 		return self._data[name]
 
+	@overload
+	def get(self, key: str) -> JSON | None: ...
+	@overload
+	def get(self, key: str, default: JSON | _T) -> JSON | __GetDefaultType: ...
+	def get(self, key: str, default: __GetDefaultType | None=None) -> JSON | __GetDefaultType | None:
+		"""Implements collections.abc.Mapping.get"""
+		try:
+			return self[key]
+		except KeyError:
+			return default
+
 	def __getattr__(self, name: str) -> Any:
 		"""In case there is something not yet exposed as a property on the subclass, get it from the dictionary"""
 		if name.startswith('__'):
 			#No shenanigans, thank you
 			raise AttributeError(name)
 		try:
-			# return self._data.get(name.title(), self._data[name])
 			return self._data[name]
 		except KeyError as e:
 			raise AttributeError(name) from e

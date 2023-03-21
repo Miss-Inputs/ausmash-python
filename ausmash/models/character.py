@@ -39,13 +39,13 @@ class Character(Resource):
 	@property
 	def game(self) -> Game:
 		#Game, GameShort and GameID are all here… on partial data just GameShort
-		game_dict = self._data.get('Game')
+		game_dict = self.get('Game')
 		if game_dict:
 			return Game(game_dict)
 
 		partial = {}
-		game_id = self._data.get('GameID')
-		game_short = self._data.get('GameShort')
+		game_id = self.get('GameID')
+		game_short = self.get('GameShort')
 		if game_id:
 			partial['ID'] = game_id
 		if game_short:

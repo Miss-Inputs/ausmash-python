@@ -105,7 +105,7 @@ class Result(ResultMixin, DictWrapper):
 	@property
 	def player(self) -> Player | None:
 		"""Returns player who this result is for, or None if it is not someone in the database"""
-		player: JSONDict | None = self._data.get('Player')
+		player: JSONDict | None = self.get('Player')
 		if player:
 			return Player(player)
 		return None
@@ -124,7 +124,7 @@ class Result(ResultMixin, DictWrapper):
 	def total_entrants(self) -> int:
 		"""Number of entrants that were in the event this result is for, including this one
 		If this Result was not from Result.results_for_event, it will require an API call to look up all results for the event to count them"""
-		num_entrants: int | None = self._data.get('Entrants')
+		num_entrants: int | None = self.get('Entrants')
 		if num_entrants:
 			return num_entrants
 		return len(self.results_for_event(self.event))

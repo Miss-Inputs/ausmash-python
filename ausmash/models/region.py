@@ -38,7 +38,7 @@ class Region(Resource):
 		if 'ID' in self._data or 'APILink' in self._data:
 			return super()._complete
 		
-		short = self._data.get('Short')
+		short = self.get('Short')
 		if short:
 			complete = next((region for region in Region.all() if region.short_name == short), None)
 			if complete:

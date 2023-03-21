@@ -59,13 +59,13 @@ class Resource(DictWrapper):
 			
 	@cached_property
 	def _complete(self: _T) -> _T:
-		if self._data.get('is_complete'):
+		if self.get('is_complete'):
 			raise NotImplementedError('This was already a complete resource')
 		complete: dict[str, Any] | None = None
 		if self.api_link:
 			complete = call_api(self.api_link)
 		else:
-			id_ = self._data.get('ID')
+			id_ = self.get('ID')
 			if id_:
 				complete = call_api(f'{self.base_url}/{id_}')
 
