@@ -86,9 +86,10 @@ class Character(Resource):
 
 def get_grouped_characters(game: Game) -> Mapping[Character, tuple[Collection[Character], bool]]:
 	"""Returns characters in this game that belong in some group together, e.g. echo fighters and their original, with the key being a Character with a name for the group of characters (otherwise equivalent to the first of the group), and value being: (a group of those characters, if the characters are considered basically equivalent to each other for most intents and purposes, i.e. if most tier lists would just put the characters in the same slot)
+	This allows for statistics grouped by character to make more sense
 	The Characters in the returned values may not have all fields behave entirely as expected, they are essentially just there for the name"""
 	chars = Character.game_characters_by_name(game)
-	if game.short_name == 'SSB64': #TODO Check if this is the short name that is actually used
+	if game.short_name == 'SSB64':
 		return {
 			chars['Mario'].updated_copy({'Name': 'Mario Bros.'}): ((chars['Mario'], chars['Luigi']), False),
 		}
@@ -101,6 +102,7 @@ def get_grouped_characters(game: Game) -> Mapping[Character, tuple[Collection[Ch
 			#Hmm could put Roy/Marth and Falcon/Ganondorf and Link/YL in here if useful to do so
 		}
 	#Whoops only semi-clones in Brawl, unless the community does group characters together like this and I just didn't know that
+	#And I have no idea about PM
 	if game.short_name in {'SSBWU', 'SSB3DS'}:
 		return {
 			chars['Pit'].updated_copy({'Name': 'Pits'}): ((chars['Pit'], chars['Dark Pit']), True),
