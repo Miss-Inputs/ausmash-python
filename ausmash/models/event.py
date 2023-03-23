@@ -54,6 +54,7 @@ class Event(DictWrapper):
 
 	@property
 	def name(self) -> str:
+		"""Name of this event"""
 		return cast(str, self['Name'])
 
 	def __str__(self) -> str:
@@ -71,6 +72,7 @@ class Event(DictWrapper):
 
 	@property
 	def game(self) -> Game:
+		"""The game being played in this event"""
 		return Game(self['Game'])
 
 	@property

@@ -1,6 +1,7 @@
 from collections.abc import Collection, Sequence
 from datetime import \
     date  # pylint: disable=unused-import #Pylint, are you on drugs? (I guess it's confused by a property being named date?)
+from functools import cache, cached_property
 from typing import cast
 
 from ausmash.api import call_api
@@ -8,11 +9,15 @@ from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import JSONDict
 
 from .character import Character
-from .event import Event
+from .event import BracketStyle, Event, EventType
 from .game import Game
 from .player import Player
 from .tournament import Tournament
 
+
+@cache
+def _number_of_rounds_in_event(event: Event, bracket_side: str | None) -> int:
+	return len([m for m in Match.matches_at_event(event) if m.round_bracket_side == bracket_side])
 
 class Match(DictWrapper):
 	"""Represents a full competitive set/match (grand finals bracket reset in double elimination is two Matches)."""
@@ -55,13 +60,64 @@ class Match(DictWrapper):
 		return Match.wrap_many(call_api(f'characters/{character.id}/matcheslosses'))
 
 	@property
-	def round(self) -> str:
+	def round_name(self) -> str:
 		"""Short string identifying this round within the event, e.g. W1, L1, GF
 		Does not return anything like WF or LF"""
 		return cast(str, self['MatchName'])
 
+	@property
+	def round_number(self) -> int | None:
+		"""Round number, or None if not applicable (does not really make sense for round robin)"""
+		bracket_style = self.event.bracket_style
+		if bracket_style == BracketStyle.RoundRobin:
+			return None
+		try:
+			return int(self.round_name[1:])
+		except ValueError:
+			return None
+	
+	@property
+	def round_bracket_side(self) -> str | None:
+		"""A description of the side of bracket this match was in (Winners, Losers), etc, or None if not applicable
+		Only applicable for double elimination"""
+		if self.event.bracket_style != BracketStyle.DoubleElimination:
+			return None
+		return {'W': 'Winners', 'L': 'Losers', 'G': 'Grands'}.get(self.round_name[0])
+	
+	@cached_property
+	def round_full_name(self) -> str:
+		"""A readable name for this round, including describing WF as Winners Finals etc
+		Might not be unique for round robins"""
+		bracket_style = self.event.bracket_style
+		if bracket_style == BracketStyle.RoundRobin:
+			#Note: Very rarely this is "RR Pool 0" which looks silly but not much else you can return for this
+			return f'RR Pool {self.pool}'
+		round_number = self.round_number
+		if bracket_style == BracketStyle.Swiss:
+			return f'Swiss Pool {self.pool} Round {round_number}'
+		
+		round_name = self.round_name
+		if round_name == 'GF':
+			return 'Grand Finals'
+		if round_name == 'GF2':
+			return 'Grand Finals Bracket Reset'
+		number_of_rounds = _number_of_rounds_in_event(self.event, self.round_bracket_side)
+		side = self.round_bracket_side
+	
+		if round_number == number_of_rounds:
+			name = 'Finals'
+		elif round_number == number_of_rounds - 1:
+			name = 'Semifinals'
+		elif number_of_rounds > 4 and round_number == number_of_rounds - 2:
+			name = 'Quarterfinals'
+		else:
+			name = f'Round {round_number}'
+		if not side:
+			return name
+		return f'{side} {name}'
+
 	def __str__(self) -> str:
-		return f'{self.event.name} {self.round} - {self.winner_name} vs {self.loser_name}'
+		return f'{self.event.name} {self.round_name} - {self.winner_name} vs {self.loser_name}'
 
 	@property
 	def winner(self) -> Player | None:
@@ -88,11 +144,18 @@ class Match(DictWrapper):
 		return Player(team_1) if team_1 else None, Player(team_2) if team_2 else None
 
 	@property
+	def players(self) -> set[Player]:
+		"""All players that are involved in this match and tagged"""
+		return cast(set[Player], ({self.winner, self.loser}.union(self.doubles_winner).union(self.doubles_loser)) - {None})
+
+	@property
 	def tournament(self) -> Tournament:
+		"""Tournament that this match happened at"""
 		return Tournament(self['Tourney'])
 
 	@property
 	def event(self) -> Event:
+		"""Tournament that this match happened in"""
 		return Event(self['Event'])
 	
 	@property
@@ -107,17 +170,84 @@ class Match(DictWrapper):
 
 	@property
 	def winner_name(self) -> str:
-		"""This is still filled in even if winner is not tagged and hence .winner is None"""
+		"""This is still filled in even if winner is not tagged and hence .winner is None
+		This is also present for doubles matches, which may be a team name, or two player names separated by / (but this is not necessarily in the same order as doubles_winner)"""
 		return cast(str, self['WinnerName'])
 	
 	@property
 	def loser_name(self) -> str:
-		"""This is still filled in even if loser is not tagged and hence .loser is None"""
+		"""This is still filled in even if loser is not tagged and hence .loser is None
+		This is also present for doubles matches, which may be a team name, or two player names separated by / (but this is not necessarily in the same order as doubles_loser)"""
 		return cast(str, self['LoserName'])
 
 	@property
+	def winner_description(self) -> str:
+		"""String representation of the winner, with an unknown region if not tagged"""
+		winner = self.winner
+		if winner:
+			return str(winner)
+		if self.event.type == EventType.Teams:
+			doubles_winner_description = self.doubles_winner_description
+			assert doubles_winner_description
+			return ' + '.join(doubles_winner_description)
+		return f'[???] {self.winner_name}'
+
+	@property
+	def loser_description(self) -> str:
+		"""String representation of the loser, with an unknown region if not tagged"""
+		loser = self.loser
+		if loser:
+			return str(loser)
+		if self.event.type == EventType.Teams:
+			doubles_loser_description = self.doubles_loser_description
+			assert doubles_loser_description
+			return ' + '.join(doubles_loser_description)
+		return f'[???] {self.loser_name}'
+	
+	@cached_property
+	def doubles_winner_description(self) -> tuple[str, str] | None:
+		"""String representation of each winner, with unknown region if not tagged, or None if this is not a doubles match"""
+		if self.event.type == EventType.Singles:
+			return None
+		winner_1, winner_2 = self.doubles_winner
+		if winner_1 and winner_2:
+			return str(winner_1), str(winner_2)
+		if ' / ' not in self.winner_name:
+			return f'{self.winner_name} 1', f'{self.winner_name} 2'
+		#Well I guess we hope no untagged players have a slash in their names
+		winner_name_a, winner_name_b = self.winner_name.split(' / ', 1)
+		if winner_1:
+			#Winner 1 is tagged but winner 2 is not, but winner_name can be out of order, so winner 2's name is whichever one winner 1 is not
+			winner_name_2 = winner_name_a if winner_1.name == winner_name_b else winner_name_b
+			return str(winner_1), f'[???] {winner_name_2}'	
+		if winner_2:
+			#winner 1 is not tagged but winner 2 is, but winner_name can be out of order, so their name is whichever one winner 2 is not
+			winner_name_1 = winner_name_a if winner_2.name == winner_name_b else winner_name_b
+			return f'[???] {winner_name_1}', str(winner_2)
+		return f'[???] {winner_name_a}', f'[???] {winner_name_b}'
+		
+	@cached_property
+	def doubles_loser_description(self) -> tuple[str, str] | None:
+		"""String representation of each loser, with unknown region if not tagged, or None if this is not a doubles match"""
+		if self.event.type == EventType.Singles:
+			return None
+		loser_1, loser_2 = self.doubles_loser
+		if loser_1 and loser_2:
+			return str(loser_1), str(loser_2)
+		if ' / ' not in self.loser_name:
+			return f'{self.loser_name} 1', f'{self.loser_name} 2'
+		loser_name_a, loser_name_b = self.loser_name.split(' / ', 1)
+		if loser_1:
+			loser_name_2 = loser_name_a if loser_1.name == loser_name_b else loser_name_b
+			return str(loser_1), f'[???] {loser_name_2}'	
+		if loser_2:
+			loser_name_1 = loser_name_a if loser_2.name == loser_name_b else loser_name_b
+			return f'[???] {loser_name_1}', str(loser_2)
+		return f'[???] {loser_name_a}', f'[???] {loser_name_b}'
+
+	@property
 	def pool(self) -> int | None:
-		"""Not sure this is used anymore"""
+		"""If the event was round robin pools, which pool this match happened in"""
 		return cast(int | None, self['Pool'])
 
 	@property
@@ -132,6 +262,7 @@ class Match(DictWrapper):
 
 	@property
 	def game_count(self) -> int | None:
+		"""Total games in this set, or None if this data is unavailable"""
 		wins = self.game_wins
 		if wins is not None:
 			losses = self.game_losses

@@ -29,6 +29,15 @@ class Video(Match):
 		return set(itertools.chain.from_iterable(channel.videos for channel in Channel.all()))
 
 	@classmethod
+	def for_match(cls, match: Match) -> 'Video | None':
+		"""Video associated with a Match, or None if it does not have one"""
+		for video in cls.videos_at_event(match.event):
+			#No ID on Match, so that will have to do
+			if video.round_name == match.round_name and video.pool == match.pool and video.winner_description == match.winner_description and video.loser_description == match.loser_description:
+				return video
+		return None				
+
+	@classmethod
 	def videos_of_player(cls, player: Player, start_date: date | None=None, end_date: date | None=None, character: Character | None=None) -> Sequence['Video']:
 		"""Videos featuring this player, newest to oldest"""
 		params = {}
