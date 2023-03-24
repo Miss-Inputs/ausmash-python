@@ -61,7 +61,6 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 	if params:
 		cache_filename = cache_filename.joinpath('&'.join(f'{k}={v}' for k, v in params))
 	cache_filename = cache_filename.with_suffix('.json')
-	cache_filename.parent.mkdir(parents=True, exist_ok=True)
 	try:
 		cache_time = datetime.utcfromtimestamp(cache_filename.stat().st_mtime)
 		cache_age = datetime.utcnow() - cache_time
@@ -117,6 +116,7 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 	if response.status_code == 404:
 		raise NotFoundError(response.reason)
 	response.raise_for_status()
+	cache_filename.parent.mkdir(parents=True, exist_ok=True)
 	cache_filename.write_bytes(response.content)
 	return response.json()
 
