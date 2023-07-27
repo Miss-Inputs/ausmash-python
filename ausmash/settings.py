@@ -1,8 +1,7 @@
 
 from datetime import timedelta
 
-from pydantic import BaseSettings
-
+from pydantic_settings import BaseSettings
 
 class AusmashAPISettings(BaseSettings):
 	"""Set your API key in here before using anything else!"""
