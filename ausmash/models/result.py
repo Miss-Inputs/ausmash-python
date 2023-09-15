@@ -95,7 +95,7 @@ class Result(ResultMixin, DictWrapper):
 		return cls.wrap_many(call_api(f'characters/{character.id}/results'))
 
 	def __str__(self) -> str:
-		return f'{self.placing} - #{self.placing}'
+		return f'{self.event.name} - #{self.placing}'
 
 	def __lt__(self, other: object) -> bool:
 		if not isinstance(other, Result):
