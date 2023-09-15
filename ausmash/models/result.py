@@ -102,6 +102,9 @@ class Result(ResultMixin, DictWrapper):
 			raise TypeError(type(other))
 		return self.placing > other.placing #Not a typo, future me! For some reason I keep forgetting when I look at this code again that 1st place is better than 2nd place
 
+	def __hash__(self) -> int:
+		return hash((self.player_name, self.event.name))
+
 	@property
 	def player(self) -> Player | None:
 		"""Returns player who this result is for, or None if it is not someone in the database"""
