@@ -133,6 +133,7 @@ class Elo(DictWrapper):
 
 	@property
 	def badge(self) -> EloBadge | None:
+		"""Badge tier that should be displayed for this user"""
 		if not self.peak:
 			#Presumably, since the peak Elo is technically 1000, though badges are only shown on the Elo breakdown page on the site anyway (I think)
 			return EloBadge.Bronze

@@ -15,7 +15,7 @@ from .region import Region
 
 class Player(Resource):	
 	"""Individual player who plays or has ever played a Super Smash Bros. game at a competitive event.
-	Not all players at an event need to be added to the database, but this would screw with Elo calculation and other stats, so it would be recommended"""
+	Not all players at an event need to be added to the database, but doing so makes Elo more accurate, etc"""
 	base_url = 'players'
 
 	@classmethod
@@ -123,6 +123,8 @@ class Player(Resource):
 
 	@property
 	def biography(self) -> str | None:
+		"""User's biography, if they have written one
+		May contain BBCode markup, including custom [char]character name[/char] tag to display a stock icon"""
 		return cast(str | None, self['Bio'])
 
 	@property
@@ -135,10 +137,12 @@ class Player(Resource):
 
 	@property
 	def result_count(self) -> int:
+		"""Number of results for singles events this player has"""
 		return cast(int, self['ResultCount'])
 	
 	@property
 	def video_count(self) -> int:
+		"""The number of videos on Ausmash featuring this player across their career and all Smash games, though only including singles matches"""
 		return cast(int, self['VideoCount'])
 
 	@property
@@ -182,21 +186,25 @@ class Player(Resource):
 		return {win_rate.opponent: win_rate for win_rate in self.get_win_rates(game, start_date, end_date)}
 
 class WinRate(DictWrapper):
-	"""Wins against a certain opponent, this is specific to a Player"""
+	"""Wins against a certain opponent, this is specific to a Player and Game"""
 	@property
 	def opponent(self) -> Player:
+		"""Opponent that this win rate pertains to"""
 		return Player(self['Opponent'])
 
 	@property
 	def opponent_elo(self) -> int:
+		"""Opponent's Elo in this game"""
 		return cast(int, self['Elo'])
 
 	@property
 	def wins(self) -> int:
+		"""Number of matches where this player wins againt opponent"""
 		return cast(int, self['Wins'])
 	
 	@property
 	def losses(self) -> int:
+		"""Number of matches where this player loses againt opponent"""
 		return cast(int, self['Losses'])
 	
 	@property
@@ -206,6 +214,7 @@ class WinRate(DictWrapper):
 
 	@property
 	def rate(self) -> Fraction:
+		"""This win rate as wins/total"""
 		return Fraction(self.wins, self.total)
 
 	#Percent is rounded to integer from 0-100, not really needed
