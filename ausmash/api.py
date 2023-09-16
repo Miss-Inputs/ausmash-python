@@ -1,14 +1,19 @@
 import logging
-from collections.abc import Mapping
+from collections.abc import Iterable, Iterator, Mapping
 from datetime import date, datetime, timedelta
 from functools import cache
+from pathlib import Path
 from time import sleep
+from urllib.parse import unquote_plus
 
 from requests import Response
+from requests_cache import (EXPIRE_IMMEDIATELY, CachedSession, FileCache,
+                            FileDict)
+from requests_cache.backends.sqlite import AnyPath
+from requests_cache.models import AnyRequest
+from requests_cache.serializers import SerializerType
 
-from ausmash.exceptions import NotFoundError, RateLimitException
-from requests_cache import EXPIRE_IMMEDIATELY, CachedSession
-
+from .exceptions import NotFoundError, RateLimitException
 from .settings import AusmashAPISettings
 from .typedefs import JSON, URL
 
@@ -31,6 +36,39 @@ def _hax_content_type(r: Response, **_):
 	r.headers['Content-Type'] = 'application/json'
 	return r
 
+class _FileCacheWithDirectories(FileCache):
+	"""Like requests_cache filesystem backend, but puts files in subdirectories"""
+	def __init__(self, cache_name: AnyPath = 'http_cache', use_temp: bool = False, decode_content: bool = True, serializer: SerializerType | None = None, **kwargs):
+		super().__init__(cache_name, use_temp, decode_content, serializer, **kwargs)
+		skwargs = {'serializer': serializer, **kwargs} if serializer else kwargs
+		self.responses: _FileDictWithDirectories = _FileDictWithDirectories(cache_name, use_temp=use_temp, decode_content=decode_content, **skwargs)
+
+	def create_key(self, request: AnyRequest, match_headers: Iterable[str] | None = None, **kwargs) -> str:
+		url = request.url.split('://', 1)[1]
+		url = url.split('/', 1)[1] #Don't need hostname here
+		url = url.replace('?', '/')
+		return unquote_plus(url)
+
+class _FileDictWithDirectories(FileDict):
+	def _path(self, key) -> Path:
+		return self.cache_dir.joinpath(key).with_suffix(self.extension)
+
+	def __setitem__(self, key, value):
+		with self._lock:
+			self._path(key).parent.mkdir(parents=True, exist_ok=True)
+		return super().__setitem__(key, value)
+	
+	def __delitem__(self, key):
+		with self._try_io():
+			path = self._path(key)
+			path.unlink()
+			if path.parent != self.cache_dir and len(list(path.parent.iterdir())) == 0:
+				path.parent.rmdir()
+		
+	def paths(self) -> Iterator[Path]:
+		with self._lock:
+			return self.cache_dir.rglob(f'*{self.extension}')
+
 class _SessionSingleton():
 	"""Share a single session for all API requests (presumably that will work and also improve performance), also keep track of how many requests are sent within a certain timeframe so that we don't go over the limit"""
 	__instance = None
@@ -43,7 +81,7 @@ class _SessionSingleton():
 
 		if cache_expiry is None:
 			cache_expiry = EXPIRE_IMMEDIATELY if _settings.cache_timeout is None else _settings.cache_timeout
-		self.sesh = CachedSession('ausmash', 'filesystem', expire_after=cache_expiry, stale_if_error=True, use_cache_dir=True, decode_content=True)
+		self.sesh = CachedSession('ausmash', _FileCacheWithDirectories('ausmash', use_cache_dir=True), expire_after=cache_expiry, stale_if_error=True)
 		self.sesh.cache.delete(expired=True)
 		self.sesh.hooks = {'response': _hax_content_type}
 		self.last_sent: datetime | None = None
