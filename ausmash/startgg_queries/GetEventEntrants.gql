@@ -9,7 +9,9 @@ query GetEventEntrants($slug: String!, $page: Int!, $perPage: Int) {
       nodes {
         name
         seeds {
-          isBye
+          progressionSource {
+            id
+          }
           phaseGroup {
             displayIdentifier
             wave {

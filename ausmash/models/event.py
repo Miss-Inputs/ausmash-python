@@ -4,7 +4,7 @@ import itertools
 from collections.abc import Sequence, Mapping
 from enum import Enum
 import re
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import ID, URL
@@ -124,8 +124,8 @@ class Event(DictWrapper):
 		if not self.startgg_slug or not self.tournament_startgg_slug:
 			return None
 		entrants = get_event_entrants(self.tournament_startgg_slug, self.startgg_slug)
-		startgg_id_seeds: dict[int, int] = {entrant['participants'][0]['player']['id']: entrant['seeds'][0]['seedNum'] for entrant in entrants if len(entrant['participants']) == 1 and len(entrant['seeds']) == 1}
-		startgg_tag_seeds: dict[int, int] = {entrant['participants'][0]['gamerTag'].lower(): entrant['seeds'][0]['seedNum'] for entrant in entrants if len(entrant['participants']) == 1 and len(entrant['seeds']) == 1}
+		startgg_id_seeds: dict[int, int | None] = {entrant['participants'][0]['player']['id']: next((seed for seed in entrant['seeds'] if seed['progressionSource'] is None), None)['seedNum'] for entrant in entrants if len(entrant['participants']) == 1}
+		startgg_tag_seeds: dict[int, int] = {entrant['participants'][0]['gamerTag'].lower(): next((seed for seed in entrant['seeds'] if seed['progressionSource'] is None), None)['seedNum'] for entrant in entrants if len(entrant['participants']) == 1}
 		from .result import Result #Bugger it, naughty import outside of the top to avoid circular nonsense
 		return {result.player: startgg_id_seeds.get(result.player.start_gg_player_id, startgg_tag_seeds.get(result.player_name.lower())) if result.player else None for result in Result.results_for_event(self)}
 
