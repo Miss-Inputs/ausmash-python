@@ -1,14 +1,19 @@
 
+from functools import cached_property
 import itertools
-from collections.abc import Sequence
+from collections.abc import Sequence, Mapping
 from enum import Enum
 import re
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import ID, URL
+from ausmash.startgg_api import get_event_entrants
 
 from .game import Game
+
+if TYPE_CHECKING:
+	from .player import Player
 
 #Whoa mathematics goin on here
 #Top 8 is all unique placings, and then every placing after that follows this pattern, and I don't know what I'm actually doing but this oughta do the trick
@@ -38,6 +43,7 @@ class Event(DictWrapper):
 
 	__redemption_bracket_name = re.compile(r'\b(?:amateur|ammies|redemption|redemmies|ammys|no cigar)\b', re.IGNORECASE) #I thiiink Pissmas 2: No Cigar is some kind of redemption for 49th place?
 	__side_bracket_name = re.compile(r'\b(?:mega smash|squad strike)\b', re.IGNORECASE)
+	__startgg_url = re.compile(r'https?://.*start.gg/tournament/(?P<tournament>[^/]+)/event/(?P<event>[^/]+)')
 
 	@property
 	def id(self) -> ID:
@@ -89,5 +95,38 @@ class Event(DictWrapper):
 	def source_url(self) -> URL | None:
 		"""Returns the link to start.gg or Challonge that this was imported from, or null if it was imported before this field was added to the API (or presumably if tournaments are ever uploaded from TioPro); for usage with those site's APIs to get seeds and things"""
 		return cast(URL | None, self['SourceUrl'])
+
+	@property
+	def startgg_slug(self) -> str | None:
+		"""The event part of the slug (after /event/ in the URL) for this event, or None if this is not from start.gg"""
+		if not self.source_url:
+			return None
+		match = self.__startgg_url.match(self.source_url)
+		if not match:
+			return None
+		return match['event']
+
+	@property
+	def tournament_startgg_slug(self) -> str | None:
+		"""The tournament part of the slug (after /tournament/ in the URL) for this event, or None if this is not from start.gg"""
+		if not self.source_url:
+			return None
+		match = self.__startgg_url.match(self.source_url)
+		if not match:
+			return None
+		return match['tournament']
+	
+	@cached_property
+	def seeds(self) -> Mapping['Player', int] | None:
+		"""Requires start.gg API key, gets player > seed number for this event, attempting to match start.gg player ID to Player
+		Will only do anything for singles events because otherwise ehhh gets weird
+		Otherwise returns None"""
+		if not self.startgg_slug:
+			return None
+		entrants = get_event_entrants(self.tournament_startgg_slug, self.startgg_slug)
+		startgg_id_seeds: dict[int, int] = {entrant['participants'][0]['player']['id']: entrant['seeds'][0]['seedNum'] for entrant in entrants if len(entrant['participants']) == 1 and len(entrant['seeds']) == 1}
+		from .result import Result #Bugger it, naughty import outside of the top to avoid circular nonsense
+		return {result.player: startgg_id_seeds.get(result.player.start_gg_player_id) if result.player else None for result in Result.results_for_event(self)}
+			
 
 __doc__ = Event.__doc__ or __name__

@@ -1,4 +1,4 @@
-from bisect import bisect_left
+from bisect import bisect_right
 from collections.abc import Collection, Sequence
 from datetime import date
 from fractions import Fraction
@@ -13,6 +13,7 @@ from .character import Character
 from .event import Event, possible_placings
 from .player import Player
 from .tournament import Tournament
+
 
 class _Result(Protocol):
 	@property
@@ -36,7 +37,8 @@ class ResultMixin:
 
 	@property
 	def better_than_other_entrants(self: _Result) -> Fraction:
-		"""Player's result is higher than this amount of the entrants"""
+		"""Don't use this yet because it's wrong
+		Player's result is higher than this amount of the entrants"""
 		if self.placing == 1:
 			return Fraction(self.total_entrants - 1, self.total_entrants)
 		if self.placing == 2:
@@ -47,8 +49,9 @@ class ResultMixin:
 
 	@property
 	def better_than_other_entrants_normalized(self: _Result) -> Fraction:
+		"""Don't use this yet because I think it's also wrong
+		Player's result is higher than this amount of the entrants, if the entrants was a perfect power of 2"""
 		#FIXME: I think this is also wrong
-		"""Player's result is higher than this amount of the entrants, if the entrants was a perfect power of 2"""
 		#possible_placings(Result.rounds_from_victory(self.total_entrants)) - possible_placings(Result.rounds_from_victory(self.placing))
 		return Fraction(1, self.total_entrants) #FIXME Okay I think I forgor to implement this
 
@@ -156,8 +159,21 @@ class Result(ResultMixin, DictWrapper):
 		"""Characters entered for this result
 		How this relates to character data at the match level I guess is up to the player entering their character data"""
 		return Character.wrap_many(self['Characters'])
+	
+	@property
+	def seed_performance_rating(self) -> int | None:
+		"""How well this result outperformed the seed, see https://www.pgstats.com/articles/introducing-spr-and-uf
+		Returns None if event is not from start.gg, entrant could not be linked back to start.gg by player ID, etc"""
+		seeds = self.event.seeds
+		if not seeds:
+			return None
+		if self.player not in seeds:
+			return None
+		if seeds[self.player] is None:
+			return None
+		return rounds_from_victory(seeds[self.player]) - rounds_from_victory(self.placing)
 
 def rounds_from_victory(result: int) -> int:
 	"""Normalizes a result (or seed) so that it is just 1 more than the next one
-	Used for SPR and upset factor, see also https://www.pgstats.com/articles/introducing-spr-and-uf"""
-	return bisect_left(possible_placings, result)
+	Used for SPR and upset factor, see also https://www.pgstats.com/articles/spr-uf-extra-mathematical-details"""
+	return bisect_right(possible_placings, result) - 1
