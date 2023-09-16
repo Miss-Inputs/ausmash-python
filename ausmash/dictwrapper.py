@@ -2,6 +2,8 @@
 from collections.abc import Iterable, Sequence
 from typing import Any, TypeVar, overload
 
+from typing_extensions import Self
+
 from .typedefs import JSONDict, JSON
 
 _T = TypeVar('_T', bound='DictWrapper')
@@ -12,9 +14,8 @@ class DictWrapper:
 		self._data = d
 
 	@classmethod
-	def wrap_many(cls: type[_T], datas: Iterable[JSONDict]) -> Sequence[_T]:
+	def wrap_many(cls: type[Self], datas: Iterable[JSONDict]) -> Sequence[Self]:
 		"""Wraps a sequence/iterable of JSON dicts into a sequence of this type"""
-		#TODO: When Python 3.11 comes around to Ubuntu or I otherwise don't feel bad about making it a requirement (maybe in the distant future when 3.10 is EOL), replace TypeVar stuff with Self type hint
 		return tuple(cls(data) for data in datas)
 
 	def __eq__(self, __o: object) -> bool:
@@ -53,7 +54,7 @@ class DictWrapper:
 	def __repr__(self) -> str:
 		return f'{self.__class__.__qualname__}({repr(self._data)})'
 
-	def updated_copy(self: _T, new_data: JSONDict) -> _T:
+	def updated_copy(self: Self, new_data: JSONDict) -> Self:
 		"""Returns a new instance with the same data as this, but with fields updated as specified by new_data"""
 		data = self._data
 		if not isinstance(data, dict):
