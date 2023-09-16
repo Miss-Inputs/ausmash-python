@@ -12,6 +12,7 @@ from ..event import Event
 from ..game import Game
 from ..player import Player
 from ..region import Region
+from ..result import rounds_from_victory
 from ..tournament import Tournament
 
 
@@ -77,6 +78,22 @@ class _BasePocketMatch(DictWrapper):
 	@property
 	def loser_characters(self) -> Collection[Character]:
 		return {Character(c).updated_copy({'IconUrl': c['ImageUrl']}) for c in self['LoserCharacters']}
+
+	@property
+	def upset_factor(self) -> int | None:
+		"""Requires start.gg API key; how much of an upset was this win, see https://www.pgstats.com/articles/introducing-spr-and-uf
+		Can return a negative number if it wasn't an upset
+		Returns None if this match's bracket was not on start.gg, either player could not be found on start.gg, etc"""
+		seeds = self.event.seeds
+		if seeds is None:
+			return None
+		winner_seed = seeds.get(self.winner)
+		loser_seed = seeds.get(self.loser)
+		if winner_seed is None or loser_seed is None:
+			return None
+		
+		return rounds_from_victory(winner_seed) - rounds_from_victory(loser_seed)
+
 
 class _HasWinnerAndLoser(Protocol):
 	@property

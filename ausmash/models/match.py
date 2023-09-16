@@ -6,6 +6,7 @@ from typing import cast
 
 from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
+from ausmash.models.result import rounds_from_victory
 from ausmash.typedefs import ID, JSONDict
 
 from .character import Character
@@ -344,3 +345,18 @@ class Match(DictWrapper):
 	def trueskill_loser_movement(self) -> tuple[int | None, int | None]:
 		"""How much TrueSkill mean each loser lost from this match, with either element being None if loser did not have TrueSkill calculated (not in the database, or has never lived in Australia/NZ) or if this is not a teams match"""
 		return cast(int | None, self['TrueSkillLoser1Movement']), cast(int | None, self['TrueSkillLoser2Movement'])
+
+	@property
+	def upset_factor(self) -> int | None:
+		"""Requires start.gg API key; how much of an upset was this win, see https://www.pgstats.com/articles/introducing-spr-and-uf
+		Can return a negative number if it wasn't an upset
+		Returns None if this match's bracket was not on start.gg, either player could not be found on start.gg, etc"""
+		seeds = self.event.seeds
+		if seeds is None:
+			return None
+		winner_seed = seeds.get(self.winner)
+		loser_seed = seeds.get(self.loser)
+		if winner_seed is None or loser_seed is None:
+			return None
+		
+		return rounds_from_victory(winner_seed) - rounds_from_victory(loser_seed)
