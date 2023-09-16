@@ -6,7 +6,7 @@ from typing import cast
 
 from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import JSONDict
+from ausmash.typedefs import ID, JSONDict
 
 from .character import Character
 from .event import BracketStyle, Event, EventType
@@ -58,6 +58,14 @@ class Match(DictWrapper):
 	def losses_of_character(cls, character: Character) -> Sequence['Match']:
 		"""Matches that have character data recorded as the loser using this character, newest to oldest"""
 		return Match.wrap_many(call_api(f'characters/{character.id}/matcheslosses'))
+
+	@property
+	def id(self) -> ID:
+		"""Unique ID"""
+		return ID(self['ID'])
+	
+	def __hash__(self) -> int:
+		return hash(self.id)
 
 	@property
 	def round_name(self) -> str:
