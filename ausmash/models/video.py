@@ -1,6 +1,6 @@
 from copy import deepcopy
 import itertools
-from collections.abc import Collection, Sequence
+from collections.abc import Collection, Sequence, Iterator
 from datetime import date
 from typing import cast
 
@@ -20,7 +20,10 @@ class Video(Match):
 	def __init__(self, d: JSONDict) -> None:
 		"""Instead of bothering with a .match property, just use Video as a Match"""
 		new_dict = deepcopy(d) if isinstance(d, dict) else dict(d)
-		new_dict.update(new_dict.pop('Match'))
+		match = new_dict.pop('Match')
+		match = deepcopy(match) if isinstance(match, dict) else dict(match)
+		new_dict['match_id'] = match.pop('ID')
+		new_dict.update(match)
 		super().__init__(new_dict)
 
 	@classmethod
@@ -30,12 +33,18 @@ class Video(Match):
 
 	@classmethod
 	def for_match(cls, match: Match) -> 'Video | None':
-		"""Video associated with a Match, or None if it does not have one"""
+		"""First Video associated with a Match, or None if it does not have one"""
 		for video in cls.videos_at_event(match.event):
-			#No ID on Match, so that will have to do
-			if video.round_name == match.round_name and video.pool == match.pool and video.winner_description == match.winner_description and video.loser_description == match.loser_description:
+			if video.match_id == match.id:
 				return video
-		return None				
+		return None
+	
+	@classmethod
+	def iter_all_for_match(cls, match: Match) -> Iterator['Video']:
+		"""Iterates all videos associated with a Match"""
+		for video in cls.videos_at_event(match.event):
+			if video.match_id == match.id:
+				yield video
 
 	@classmethod
 	def videos_of_player(cls, player: Player, start_date: date | None=None, end_date: date | None=None, character: Character | None=None) -> Sequence['Video']:
@@ -64,6 +73,11 @@ class Video(Match):
 	def id(self) -> ID:
 		"""There is no /videos/{id} URL, so it is not a Resource, but it has an ID anyway"""
 		return ID(self['ID'])
+	
+	@property
+	def match_id(self) -> ID:
+		"""ID in the Match property"""
+		return ID(self['match_id'])
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, Video):
