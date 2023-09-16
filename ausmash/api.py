@@ -1,14 +1,11 @@
-import json
 import logging
 from collections.abc import Mapping
 from datetime import date, datetime, timedelta
 from functools import cache
-from pathlib import Path
 from time import sleep
 
-import requests
-
 from ausmash.exceptions import NotFoundError, RateLimitException
+from requests_cache import EXPIRE_IMMEDIATELY, CachedSession
 
 from .settings import AusmashAPISettings
 from .typedefs import JSON, URL
@@ -31,12 +28,16 @@ class _SessionSingleton():
 	"""Share a single session for all API requests (presumably that will work and also improve performance), also keep track of how many requests are sent within a certain timeframe so that we don't go over the limit"""
 	__instance = None
 
-	def __init__(self) -> None:
+	def __init__(self, cache_expiry: timedelta | None = None) -> None:
 		self._inited: bool
 		if self._inited:
 			return
 		self._inited = True
-		self.sesh = requests.session()
+
+		if cache_expiry is None:
+			cache_expiry = EXPIRE_IMMEDIATELY if _settings.cache_timeout is None else _settings.cache_timeout
+		self.sesh = CachedSession('ausmash', 'filesystem', expire_after=cache_expiry, stale_if_error=True, use_cache_dir=True, decode_content=True)
+		self.sesh.cache.delete(expired=True)
 		self.last_sent: datetime | None = None
 		self.requests_per_second = 0
 		self.requests_per_minute = 0
@@ -52,32 +53,8 @@ class _SessionSingleton():
 			cls.__instance._inited = False
 		return cls.__instance
 
-#TODO: Should try and make this portable, but making this work on Windows etc is not a priority because you can just not do that
-__cache_dir = Path('~/.cache/ausmash').expanduser()
-
 @cache
 def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
-	cache_filename = __cache_dir/url.removeprefix(AusmashAPISettings().endpoint).removeprefix('/')
-	if params:
-		cache_filename = cache_filename.joinpath('&'.join(f'{k}={v}' for k, v in params))
-	cache_filename = cache_filename.with_suffix('.json')
-	try:
-		cache_time = datetime.utcfromtimestamp(cache_filename.stat().st_mtime)
-		cache_age = datetime.utcnow() - cache_time
-		if not _settings.cache_timeout or cache_age < _settings.cache_timeout:
-			return json.loads(cache_filename.read_bytes())
-			
-		cache_filename.unlink(missing_ok=True)
-		for parent in cache_filename.parents:
-			if parent == __cache_dir:
-				break
-			try:
-				parent.rmdir()
-			except OSError:
-				pass
-	except FileNotFoundError:
-		pass
-
 	sesh = _SessionSingleton()
 
 	last_sent = sesh.last_sent
@@ -116,8 +93,6 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 	if response.status_code == 404:
 		raise NotFoundError(response.reason)
 	response.raise_for_status()
-	cache_filename.parent.mkdir(parents=True, exist_ok=True)
-	cache_filename.write_bytes(response.content)
 	return response.json()
 
 def call_api(url: str, params: Mapping[str, str | date] | None = None) -> JSON:
