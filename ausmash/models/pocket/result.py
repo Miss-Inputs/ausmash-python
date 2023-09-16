@@ -19,7 +19,7 @@ class PocketResult(ResultMixin, DictWrapper):
 	Seems to only return singles double elimination results"""
 
 	@classmethod
-	def get(cls, player: Player, game: Game) -> Sequence['PocketResult']:
+	def get_results(cls, player: Player, game: Game) -> Sequence['PocketResult']:
 		return PocketResult.wrap_many(call_api(f'pocket/player/results/{player.id}/{game.id}')['Items'])
 
 	@property
