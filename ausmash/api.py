@@ -4,6 +4,8 @@ from datetime import date, datetime, timedelta
 from functools import cache
 from time import sleep
 
+from requests import Response
+
 from ausmash.exceptions import NotFoundError, RateLimitException
 from requests_cache import EXPIRE_IMMEDIATELY, CachedSession
 
@@ -24,6 +26,11 @@ RATE_LIMIT_HOUR = 300000
 RATE_LIMIT_DAY = 8000000 #Probably we won't have to think _this_ far ahead
 RATE_LIMIT_WEEK = 40000000
 
+def _hax_content_type(r: Response, **_):
+	"""requests-cache hardcodes "application/json" without a startswith, so it won't decode the "application/json; charset=utf-8"""
+	r.headers['Content-Type'] = 'application/json'
+	return r
+
 class _SessionSingleton():
 	"""Share a single session for all API requests (presumably that will work and also improve performance), also keep track of how many requests are sent within a certain timeframe so that we don't go over the limit"""
 	__instance = None
@@ -38,6 +45,7 @@ class _SessionSingleton():
 			cache_expiry = EXPIRE_IMMEDIATELY if _settings.cache_timeout is None else _settings.cache_timeout
 		self.sesh = CachedSession('ausmash', 'filesystem', expire_after=cache_expiry, stale_if_error=True, use_cache_dir=True, decode_content=True)
 		self.sesh.cache.delete(expired=True)
+		self.sesh.hooks = {'response': _hax_content_type}
 		self.last_sent: datetime | None = None
 		self.requests_per_second = 0
 		self.requests_per_minute = 0
