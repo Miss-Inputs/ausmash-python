@@ -1,4 +1,5 @@
 from collections.abc import Collection, Mapping
+from functools import cache
 from typing import cast
 
 from ausmash.api import call_api
@@ -6,6 +7,7 @@ from ausmash.resource import Resource
 from ausmash.typedefs import URL
 
 from .game import Game
+
 
 class Character(Resource):
 	"""A playable character as they appear in one particular game"""
@@ -84,6 +86,7 @@ class Character(Resource):
 	def player_count(self) -> int:
 		return cast(int, self['PlayerCount'])
 
+@cache
 def get_grouped_characters(game: Game) -> Mapping[Character, tuple[Collection[Character], bool]]:
 	"""Returns characters in this game that belong in some group together, e.g. echo fighters and their original, with the key being a Character with a name for the group of characters (otherwise equivalent to the first of the group), and value being: (a group of those characters, if the characters are considered basically equivalent to each other for most intents and purposes, i.e. if most tier lists would just put the characters in the same slot)
 	This allows for statistics grouped by character to make more sense
@@ -121,6 +124,7 @@ def get_grouped_characters(game: Game) -> Mapping[Character, tuple[Collection[Ch
 		}
 	return {}
 
+@cache
 def combine_echo_fighters(character: Character) -> Character:
 	"""Returns character if it is not an echo / does not have an echo fighter, or the grouping if it does
 	The returned character might not have fields that entirely make sense other than for Name"""
