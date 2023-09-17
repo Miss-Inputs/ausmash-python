@@ -87,7 +87,11 @@ def get_event_entrants(tournament_slug: str, event_slug: str) -> Sequence[Mappin
 	return entrants
 
 def get_player_pronouns(player_id: int) -> str | None:
-	user = __call_api('GetPlayerPronouns', {'id': player_id})['player']['user']
+	player = __call_api('GetPlayerPronouns', {'id': player_id})['player']
+	if not player:
+		#Might happen if ID isn't found?
+		return None
+	user = player['user']
 	if not user:
 		return None
 	pronouns: str | None = user['genderPronoun']
