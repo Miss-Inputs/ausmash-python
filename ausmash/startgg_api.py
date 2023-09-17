@@ -46,24 +46,27 @@ class _SessionSingleton():
 
 def __call_api(query_name: str, variables: Mapping[str, Any]|None) -> JSON:
 	ss = _SessionSingleton()
-
-	last_sent = ss.last_sent
-	if last_sent is None or (datetime.now() - last_sent) >= __minute:
-		ss.requests_per_minute = 0
-	ss.requests_per_minute += 1
-	if ss.requests_per_minute == RATE_LIMIT_MINUTE:
-		if _settings.sleep_on_rate_limit:
-			logger.warning('Sleeping for 1 minute to avoid start.gg rate limit')
-			sleep(__minute.total_seconds())
-		else:
-			raise RateLimitException(RATE_LIMIT_MINUTE, 'minute')
-		
 	body: dict[str, Any] = {
 		'query': __queries.joinpath(f'{query_name}.gql').read_text('utf-8')
 	}
 	if variables:
 		body['variables'] = variables
 	response = ss.sesh.post(endpoint, json=body, timeout=10)
+	if not response.from_cache:
+		if ss.last_sent is None or (datetime.now() - ss.last_sent) >= __minute:
+			ss.requests_per_minute = 0
+
+		ss.last_sent = datetime.now()
+		ss.requests_per_minute += 1
+		
+		if ss.requests_per_minute + 1 > RATE_LIMIT_MINUTE:
+			#To play it safe here, assume we're going to send another uncached request, which would hit the rate limit
+			if _settings.sleep_on_rate_limit:
+				logger.warning('Sleeping for 1 minute to avoid start.gg rate limit')
+				sleep(__minute.total_seconds())
+			else:
+				raise RateLimitException(RATE_LIMIT_MINUTE, 'minute')
+
 	response.raise_for_status() #It returns 200 on errors, but just in case it ever doesn't
 	j = response.json()
 	if 'errors' in j:

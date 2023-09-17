@@ -101,41 +101,44 @@ class _SessionSingleton():
 
 @cache
 def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
-	sesh = _SessionSingleton()
+	ss = _SessionSingleton()
 
-	last_sent = sesh.last_sent
-	if last_sent is None or (datetime.now() - last_sent) >= __second:
-		sesh.requests_per_second = 0
-	sesh.requests_per_second += 1
-	if sesh.requests_per_second == RATE_LIMIT_SECOND:
-		if _settings.sleep_on_rate_limit:
-			logger.warning('Sleeping for 1 second to avoid rate limit')
-			sleep(__second.total_seconds())
-		else:
-			raise RateLimitException(RATE_LIMIT_SECOND, 'second')
+	response = ss.sesh.get(url, params=params)
+	if not response.from_cache:
+		last_sent = ss.last_sent
+		if last_sent is None or (datetime.now() - last_sent) >= __second:
+			ss.requests_per_second = 0
+		if last_sent is None or (datetime.now() - last_sent) >= __minute:
+			ss.requests_per_minute = 0
+		if last_sent is None or (datetime.now() - last_sent) >= __hour:
+			ss.requests_per_hour = 0
 
-	if last_sent is None or (datetime.now() - last_sent) >= __minute:
-		sesh.requests_per_minute = 0
-	sesh.requests_per_minute += 1
-	if sesh.requests_per_minute == RATE_LIMIT_MINUTE:
-		if _settings.sleep_on_rate_limit:
-			logger.warning('Sleeping for 1 minute to avoid rate limit')
-			sleep(__minute.total_seconds())
-		else:
-			raise RateLimitException(RATE_LIMIT_MINUTE, 'minute')
+		ss.last_sent = datetime.now()
 
-	if last_sent is None or (datetime.now() - last_sent) >= __hour:
-		sesh.requests_per_hour = 0
-	sesh.requests_per_hour += 1
-	if sesh.requests_per_hour == RATE_LIMIT_HOUR:
-		if _settings.sleep_on_rate_limit:
-			logger.warning('Sleeping for 1 hour to avoid rate limit, ggs')
-			sleep(__hour.total_seconds())
-		else:
-			raise RateLimitException(RATE_LIMIT_HOUR, 'hour')
+		ss.requests_per_second += 1
+		if ss.requests_per_second == RATE_LIMIT_SECOND:
+			if _settings.sleep_on_rate_limit:
+				logger.warning('Sleeping for 1 second to avoid rate limit')
+				sleep(__second.total_seconds())
+			else:
+				raise RateLimitException(RATE_LIMIT_SECOND, 'second')
+			
+		ss.requests_per_minute += 1
+		if ss.requests_per_minute == RATE_LIMIT_MINUTE:
+			if _settings.sleep_on_rate_limit:
+				logger.warning('Sleeping for 1 minute to avoid rate limit')
+				sleep(__minute.total_seconds())
+			else:
+				raise RateLimitException(RATE_LIMIT_MINUTE, 'minute')
 
-	response = sesh.sesh.get(url, params=params)
-	sesh.last_sent = datetime.now()
+		ss.requests_per_hour += 1
+		if ss.requests_per_hour == RATE_LIMIT_HOUR:
+			if _settings.sleep_on_rate_limit:
+				logger.warning('Sleeping for 1 hour to avoid rate limit, ggs')
+				sleep(__hour.total_seconds())
+			else:
+				raise RateLimitException(RATE_LIMIT_HOUR, 'hour')		
+
 	if response.status_code == 404:
 		raise NotFoundError(response.reason)
 	response.raise_for_status()
