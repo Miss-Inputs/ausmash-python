@@ -1,0 +1,8 @@
+query GetPlayerPronouns($id: ID!) {
+	player(id: $id) {
+		user {
+			genderPronoun
+			name
+		}
+	}
+}

@@ -8,6 +8,7 @@ from ausmash.dictwrapper import DictWrapper
 from ausmash.exceptions import NotFoundError
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, URL
+from ausmash import startgg_api
 
 from .event import Event
 from .game import Game
@@ -184,6 +185,14 @@ class Player(Resource):
 	def get_win_rate_dict(self, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> Mapping['Player', 'WinRate']:
 		"""get_win_rates as a mapping of {opponent: win rate}"""
 		return {win_rate.opponent: win_rate for win_rate in self.get_win_rates(game, start_date, end_date)}
+	
+	@property
+	def pronouns(self) -> str | None:
+		"""Requires start.gg API key, gets the pronoun field from this player's start.gg profile, or None if they did not enter any or do not have a start.gg user profile"""
+		if not self.start_gg_player_id:
+			return None
+		pronouns = startgg_api.get_player_pronouns(self.start_gg_player_id)
+		return pronouns.capitalize() if pronouns else None #Ensure capitalisation consistency
 
 class WinRate(DictWrapper):
 	"""Wins against a certain opponent, this is specific to a Player and Game"""
