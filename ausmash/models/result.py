@@ -36,26 +36,6 @@ class ResultMixin:
 		return rounds_from_victory(self.total_entrants) - rounds_from_victory(self.placing)
 
 	@property
-	def better_than_other_entrants(self: _Result) -> Fraction:
-		"""Don't use this yet because it's wrong
-		Player's result is higher than this amount of the entrants"""
-		if self.placing == 1:
-			return Fraction(self.total_entrants - 1, self.total_entrants)
-		if self.placing == 2:
-			return Fraction(self.total_entrants - 2, self.total_entrants)
-			#0.0, 0.25, 0.5, 0.625, 0.75, 0.8125, 0.875,
-		#FIXME: This isn't correct I think
-		return Fraction(1, 2 ** self.rounds_cleared)
-
-	@property
-	def better_than_other_entrants_normalized(self: _Result) -> Fraction:
-		"""Don't use this yet because I think it's also wrong
-		Player's result is higher than this amount of the entrants, if the entrants was a perfect power of 2"""
-		#FIXME: I think this is also wrong
-		#possible_placings(Result.rounds_from_victory(self.total_entrants)) - possible_placings(Result.rounds_from_victory(self.placing))
-		return Fraction(1, self.total_entrants) #FIXME Okay I think I forgor to implement this
-
-	@property
 	def result(self: _Result) -> tuple[int, int]:
 		"""Tuple of (placing, total entrants), not sure what to name it"""
 		return (self.placing, self.total_entrants)
