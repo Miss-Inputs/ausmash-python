@@ -86,6 +86,7 @@ class Game(Resource):
 
 	@property
 	def logo_url(self) -> URL:
+		"""Small image of this game's logo, which is used on the website etc"""
 		return cast(URL, self['ImageUrl'])
 
 	#TODO: /rankings/bygame and /rankings/bygameandregion, but those seem to all error at the moment

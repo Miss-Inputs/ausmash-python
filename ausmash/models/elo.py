@@ -39,6 +39,7 @@ class Elo(DictWrapper):
 
 	@classmethod
 	def for_game(cls, game: Game | str, region: Region | str | None = None) -> Collection['Elo']:
+		"""All Elo records for a game, optionally only players in a certain region"""
 		params = {'region': region.short_name if isinstance(region, Region) else region} if region else None
 		if isinstance(game, str):
 			game = Game(game)
@@ -151,6 +152,7 @@ class Elo(DictWrapper):
 
 	@property
 	def days_since_peak(self) -> timedelta | None:
+		"""Days from today since when the player was at their highest Elo, or None if this player's Elo has always been lower than the starting Elo"""
 		if not self.peak_date:
 			return None
 		return date.today() - self.peak_date

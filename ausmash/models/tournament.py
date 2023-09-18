@@ -109,6 +109,7 @@ class Tournament(Resource):
 		
 	@property
 	def date(self) -> datetime.date:
+		"""The day this tournament was held, which is always a single day, so for majors etc it might be just the first day"""
 		return datetime.datetime.fromisoformat(self['TourneyDate']).date()
 	
 	@property
@@ -129,7 +130,7 @@ class Tournament(Resource):
 
 	@property
 	def events(self) -> Sequence[Event]:
-		"""All events uploaded for this tournament. Should be ordered from earliest to latest, as in the admin page"""
+		"""All events uploaded for this tournament. Should be ordered from earliest to latest, as in the admin page, though sometimes it might not be, so actually I don't know the order"""
 		return Event.wrap_many(self['Events'])
 
 	def matches_date_filter(self, start_date: datetime.date | None = None, end_date: datetime.date | None = None) -> bool:
@@ -160,6 +161,7 @@ class TournamentSeries(DictWrapper):
 
 	@classmethod
 	def all(cls) -> Collection['TournamentSeries']:
+		"""All known tournament series on Ausmash"""
 		return cls.wrap_many(call_api('series'))
 
 	@property
@@ -177,6 +179,7 @@ class TournamentSeries(DictWrapper):
 	
 	@property
 	def name(self) -> str:
+		"""Full name of this series"""
 		return cast(str, self['Name'])
 	
 	@property
@@ -191,10 +194,12 @@ class TournamentSeries(DictWrapper):
 	
 	@property
 	def region(self) -> Region:
+		"""Region that these tournaments are held in"""
 		return Region(self['RegionShort'])
 	
 	@property
 	def city(self) -> str:
+		"""City that these tournaments are generally held in, from a defined list of cities"""
 		return cast(str, self['City'])
 
 	@property

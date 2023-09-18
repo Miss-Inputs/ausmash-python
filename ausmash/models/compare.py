@@ -48,6 +48,7 @@ class Comparison(DictWrapper):
 
 	@property
 	def player_1(self) -> Player:
+		"""The first of the two players being compared"""
 		return Player(self['Player1'])
 
 	@property
@@ -57,6 +58,7 @@ class Comparison(DictWrapper):
 
 	@property
 	def player_1_win_rate(self) -> Fraction:
+		"""Fraction of sets where player_1 has won against player_2 out of total"""
 		return Fraction(self.player_1_win_count, self.total_sets)
 
 	#PlayerNWinPercent not really needed, just player_N_win_rate * 100 rounded to nearest integer
@@ -69,6 +71,7 @@ class Comparison(DictWrapper):
 
 	@property
 	def player_2(self) -> Player:
+		"""Second of the two players being compared"""
 		return Player(self['Player2'])
 
 	@property
@@ -78,6 +81,7 @@ class Comparison(DictWrapper):
 
 	@property
 	def player_2_win_rate(self) -> Fraction:
+		"""Fraction of sets where player_2 has won against player_1 out of total"""
 		return Fraction(self.player_2_win_count, self.total_sets)
 
 	@property
@@ -97,6 +101,7 @@ class Comparison(DictWrapper):
 	
 	@property
 	def game(self) -> Game:
+		"""Game to which this comparison applies"""
 		return Game(self['Game'])
 
 def head_to_head(game: Game | str, player: Player, other: Player, start_date: date | None=None, end_date: date | None=None) -> Sequence[Match]:
