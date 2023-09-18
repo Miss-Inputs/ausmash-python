@@ -3,6 +3,7 @@
 #It makes no sense because it's fine with Tournament.date itself returning a date, and also Tournament.date is not in the global scope
 import datetime
 from collections.abc import Collection, Sequence
+import logging
 from typing import cast
 
 from ausmash.api import call_api
@@ -10,9 +11,10 @@ from ausmash.dictwrapper import DictWrapper
 from ausmash.resource import Resource
 from ausmash.typedefs import ID
 
-from .event import Event
+from .event import Event, BracketStyle
 from .region import Region
 
+logger = logging.getLogger(__name__)
 
 class Tournament(Resource):
 	"""A competitive tournament, which should have one or more Events (or none if it has not happened yet)"""
@@ -131,7 +133,7 @@ class Tournament(Resource):
 	@property
 	def events(self) -> Sequence[Event]:
 		"""All events uploaded for this tournament. Should be ordered from earliest to latest, as in the admin page, though sometimes it might not be, so actually I don't know the order"""
-		return Event.wrap_many(self['Events'])
+		return [Event(e) for e in self['Events']]
 
 	def matches_date_filter(self, start_date: datetime.date | None = None, end_date: datetime.date | None = None) -> bool:
 		"""Returns true if this tournament is between the start and end dates (both inclusive)"""
@@ -145,6 +147,45 @@ class Tournament(Resource):
 			if url and 'start.gg/tournament/' in url:
 				return url.rsplit('/', 1)[-1]
 		return None
+	
+	def pro_bracket_for_event(self, e: Event) -> Event | None:
+		"""If e is a round robin pools that progresses into a different Event, return that Event
+		If e is not, or could not tell what the pro bracket is, return None
+		:raises ValueError: if e is not part of this tournament"""
+		events = self.events
+		if e not in events:
+			raise ValueError(f'{e.id} {e} does not belong to this tournament')
+		if e.is_redemption_bracket:
+			return None
+		if e.bracket_style != BracketStyle.RoundRobin:
+			return None
+		potential_events = [event for event in events if e.game == event.game and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.DoubleElimination and not event.is_redemption_bracket]
+		if not potential_events:
+			return None
+		if len(potential_events) > 1:
+			logger.warning('Getting confused, pro bracket for %s at %s could be: %s', e, self, potential_events)
+			return None
+		return potential_events[0]
+	
+	def pools_for_event(self, e: Event) -> Event | None:
+		"""If e is a pro bracket that another round robin pools Event progresses into, return that Event
+		If e is not, or could not tell what the pools event is, return None
+		:raises ValueError: if e is not part of this tournament"""
+		events = self.events
+		if e not in events:
+			raise ValueError(f'{e.id} {e} does not belong to this tournament')
+		if e.is_redemption_bracket:
+			return None
+		if e.bracket_style != BracketStyle.DoubleElimination:
+			return None
+		potential_events = [event for event in events if e.game == event.game and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.RoundRobin]
+		if not potential_events:
+			return None
+		if len(potential_events) > 1:
+			logger.warning('Getting confused, pro bracket for %s at %s could be: %s', e, self, potential_events)
+			return None
+		return potential_events[0]
+	
 
 class TournamentSeries(DictWrapper):
 	"""Series of tournaments, returned from /series or as part of of /tournament/{id}"""
