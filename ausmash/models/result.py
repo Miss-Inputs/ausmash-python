@@ -107,13 +107,23 @@ class Result(ResultMixin, DictWrapper):
 		return Event(self['Event'])
 
 	@cached_property
-	def total_entrants(self) -> int:
+	def number_of_entrants(self) -> int:
 		"""Number of entrants that were in the event this result is for, including this one
-		If this Result was not from Result.results_for_event, it will require an API call to look up all results for the event to count them"""
+		If this Result was not from Result.results_for_event, it will require an API call to look up all results for the event to count them
+		More specifically this phase, if they are uploaded as separate events"""
 		num_entrants: int | None = self.get('Entrants')
 		if num_entrants:
 			return num_entrants
 		return len(self.results_for_event(self.event))
+	
+	@cached_property
+	def total_entrants(self) -> int:
+		"""Like number_of_entrants, but if this was a result in a pro bracket, it will count the number of entrants in pools instead of only who made it into pro bracket
+		Pools should correctly have the number of all players and not just how many in each pool"""
+		pools = self.tournament.pools_for_event(self.event)
+		if pools:
+			return len(self.results_for_event(pools))
+		return self.number_of_entrants
 
 	@property
 	def player_name(self) -> str:
@@ -133,6 +143,11 @@ class Result(ResultMixin, DictWrapper):
 		"""Apparently this is an int? Sure why not
 		Not often used, as brackets just don't often get uploaded that way"""
 		return cast(int | None, self['Pool'])
+	
+	@cached_property
+	def number_of_pools(self) -> int:
+		"""Number of unique pools at this event, or just 1 if it does not have pools"""
+		return len({r.pool for r in self.results_for_event(self.event)})
 
 	@property
 	def characters(self) -> Collection[Character]:
