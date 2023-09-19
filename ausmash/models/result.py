@@ -24,7 +24,7 @@ class _Result(Protocol):
 
 	@property
 	def rounds_cleared(self) -> int: ...
-	
+
 class ResultMixin:
 	"""Utility methods for Result and result-like classes"""
 
@@ -36,8 +36,8 @@ class ResultMixin:
 		return rounds_from_victory(self.total_entrants) - rounds_from_victory(self.placing)
 
 	@property
-	def result(self: _Result) -> tuple[int, int]:
-		"""Tuple of (placing, total entrants), not sure what to name it"""
+	def as_tuple(self: _Result) -> tuple[int, int]:
+		"""Tuple of (placing, total entrants), not really sure what to name it"""
 		return (self.placing, self.total_entrants)
 	
 	@property
@@ -76,6 +76,30 @@ class Result(ResultMixin, DictWrapper):
 		"""Results with character data recorded as using this character, newest to oldest
 		Not necessarily any result where a match was played using this character, as the match-level character data can be different and more specific if the player so desires"""
 		return cls.wrap_many(call_api(f'characters/{character.id}/results'))
+
+	@staticmethod
+	def get_pools_drown_placing(pool_result: int, people_who_made_it_out: int, highest_drown_placing: int, number_of_pools: int, lowest_placing: int, number_of_people_in_this_pools_round: int) -> int:
+		"""Gets an effective placing for a whole tournament if player drowned, that is more useful than just the individual placing in the pool, so if you were one placing away from making it out to top 8 you would get 9th or if 2 placings away you would get 13th, etc
+		people_who_made_it_out and highest_drown_placing would usually be the same, but maybe they are not in the case of any swiss/waterfall/etc weirdness
+		:param pool_result: Numeric placing for the pools event
+		:param people_who_made_it_out: Number of players who made it out to the next phase e.g pro bracket
+		:param highest_drown_placing: Highest possible placing for any player who did not make it out of pools, which for most simple cases of 1 pool phase into 1 pro bracket phase can just be equal to people_who_made_it_out
+		:param number_of_pools: Number of different pools in this pools phase
+		:param lowest_placing: Lowest possible placing for this tournament, which can just be the number of entrants for the purposes of this function
+		:param number_of_people_in_this_pools_round: Number of entrants for this pools phase"""
+		#Placing within this pool
+		placing_to_not_drown = people_who_made_it_out // number_of_pools
+		#Because not all pools will have an even number of entrants, this is how many people are in each pool at the very least, and some other pools might have one more but this works for these calculations
+		min_people_in_every_pool = number_of_people_in_this_pools_round // number_of_pools
+
+		#All the placings for those whomst drowned in pools should be lower (which is a bigger number) than those who placed in pro bracket, but not lower (not bigger number) than the whole tournament because that makes no sense
+		drown_placings = [p for p in possible_placings if highest_drown_placing < p <= lowest_placing]
+		
+		index = int(((pool_result - (placing_to_not_drown + 1)) / (min_people_in_every_pool - placing_to_not_drown)) * len(drown_placings))
+		index = max(index, 0)
+		if index >= len(drown_placings):
+			index = len(drown_placings) - 1
+		return drown_placings[index]
 
 	def __str__(self) -> str:
 		return f'{self.event.name} - #{self.placing}'
@@ -159,6 +183,8 @@ class Result(ResultMixin, DictWrapper):
 	def seed_performance_rating(self) -> int | None:
 		"""How well this result outperformed the seed, see https://www.pgstats.com/articles/introducing-spr-and-uf
 		Returns None if event is not from start.gg, entrant could not be linked back to start.gg by player ID, etc"""
+		if not self.player:
+			return None
 		seeds = self.event.seeds
 		if not seeds:
 			return None
@@ -166,7 +192,27 @@ class Result(ResultMixin, DictWrapper):
 			return None
 		if seeds[self.player] is None:
 			return None
-		return rounds_from_victory(seeds[self.player]) - rounds_from_victory(self.placing)
+		return rounds_from_victory(seeds[self.player]) - rounds_from_victory(self.real_placing)
+	
+	@cached_property
+	def real_placing(self) -> int:
+		"""Returns a placing that makes sense for comparison purposes, even if this is an RR pools event and player drowned (rather than returning the result for just within that pool), e.g. if top 2 of each pool makes it out into top 8, this returns 9th instead of 3rd and 13th instead of 4th, etc, of course returning the pro bracket result if that was achieved
+		Maybe this needs a better name? I dunno"""
+		#TODO: I dunno what would happen if this is used on a swiss or waterfall bracket, probably not work how I think it works
+
+		pro_bracket = self.tournament.pro_bracket_for_event(self.event)
+		if pro_bracket:
+			pro_bracket_results = Result.results_for_event(pro_bracket)
+			pro_bracket_size = pro_bracket_results[0].number_of_entrants
+			pro_bracket_result = next((r for r in pro_bracket_results if r.player == self.player), None)
+			if pro_bracket_result:
+				return pro_bracket_result.placing
+			
+			#glub glub glub
+			return Result.get_pools_drown_placing(self.placing, pro_bracket_size, pro_bracket_size, self.number_of_pools, self.number_of_entrants, self.number_of_entrants)
+
+		return self.placing
+
 
 def rounds_from_victory(result: int) -> int:
 	"""Normalizes a result (or seed) so that it is just 1 more than the next one
