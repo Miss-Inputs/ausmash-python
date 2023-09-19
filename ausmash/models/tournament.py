@@ -159,7 +159,7 @@ class Tournament(Resource):
 			return None
 		if e.bracket_style != BracketStyle.RoundRobin:
 			return None
-		potential_events = [event for event in events if e.game == event.game and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.DoubleElimination and not event.is_redemption_bracket]
+		potential_events = [event for event in events if e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.DoubleElimination and not event.is_redemption_bracket]
 		if not potential_events:
 			return None
 		if len(potential_events) > 1:
@@ -178,7 +178,7 @@ class Tournament(Resource):
 			return None
 		if e.bracket_style != BracketStyle.DoubleElimination:
 			return None
-		potential_events = [event for event in events if e.game == event.game and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.RoundRobin]
+		potential_events = [event for event in events if e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.RoundRobin]
 		if not potential_events:
 			return None
 		if len(potential_events) > 1:
@@ -245,4 +245,5 @@ class TournamentSeries(DictWrapper):
 
 	@property
 	def tournaments(self) -> Collection[Tournament]:
+		"""All tournaments that are part of this series"""
 		return {Tournament(t).updated_copy({'Series': self._data}) for t in call_api(f'tourneys/byseries/{self.id}')}
