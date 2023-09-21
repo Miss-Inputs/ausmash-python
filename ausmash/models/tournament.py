@@ -55,13 +55,20 @@ class Tournament(Resource):
 
 	@property
 	def __split_abbrev_name(self) -> tuple[bool, str, str]:
+		"""Returns: (Does tournament name start with series name, abbreviated name of series, name remainder)"""
 		name = self.name.replace(' #', ' ')
 		
 		series_name = self.series.name.casefold()
 		series_name_len = len(series_name)
 		series_abbrev_name = self.series.abbrev_name
 		if not name.casefold().startswith(series_name):
-			return False, series_abbrev_name, name.rsplit(' - ', 1)[0]
+			if name.casefold().startswith(series_abbrev_name.casefold()):
+				name = name.replace(series_abbrev_name, series_name)
+			elif self.region.short_name == 'WA' and name.startswith('Smashfest'):
+				#Some are just named Smashfest and the date, but that might not be a unique series name
+				name = name.replace('Smashfest', self.series.name)
+			else:
+				return False, series_abbrev_name, name.rsplit(' - ', 1)[0]
 		name = name.rsplit(' @ ', 1)[0]
 		
 		if name[series_name_len: series_name_len + 2] in {': ', ', ', '. '}:
@@ -198,6 +205,7 @@ class TournamentSeries(DictWrapper):
 		'Guf n\' Watch @ GUF Bendigo': 'GUF', #Or should this be abbrev'd to GUF & Watch specifically
 		'Super Barista Bros': 'SBB',
 		'CouchWarriors RanBat': 'CW RanBat',
+		'Murdoch Monthly': 'Murdoch',
 	}
 
 	@classmethod
