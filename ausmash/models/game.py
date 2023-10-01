@@ -18,11 +18,26 @@ class Game(Resource):
 		else:
 			super().__init__(d)
 
+
 	@classmethod
 	def all(cls) -> Sequence['Game']:
 		"""Returns all known games, ordered from newest to oldest.
 		Uses the pocket API, which has the ImageUrl field accessible already without another request to get by ID, though there is no APILink field (but that might not be needed)"""
 		return cls.wrap_many(call_api('pocket/games'))
+
+	@classmethod
+	def from_name(cls, name: str) -> 'Game':
+		"""Returns a Game matching the name given, either full_name or name, or acronym
+		:raises KeyError: if no game has that name"""
+		all_games = cls.all()
+		for game in all_games:
+			if name in {game.name, game.full_name}:
+				return game
+		#Only try by acronym as a fallback, because I dunno
+		for game in all_games:
+			if game.short_name == name:
+				return game
+		raise KeyError(name)
 
 	@classmethod
 	def as_dict(cls) -> Mapping[str, 'Game']:
@@ -71,7 +86,10 @@ class Game(Resource):
 			
 		short = self.get('Short')
 		if short:
-			return Game.as_dict()[short]
+			all_games_dict = Game.as_dict()
+			if short in all_games_dict:
+				return all_games_dict[short]
+			raise KeyError(f'Game with short name = {short} not found')
 		raise NotImplementedError('Uh oh Game needs ID/Short/APILink')
 
 	@property

@@ -1,4 +1,4 @@
-from collections.abc import Collection
+from collections.abc import Collection, Mapping
 from functools import cached_property
 from typing import cast
 
@@ -23,6 +23,41 @@ class Region(Resource):
 	def all(cls) -> Collection['Region']:
 		"""All regions known to Ausmash, i.e. all states of Australia, ACT, NT, New Zealand, and some other countries where other players who have competed in Australian tournaments live (where whoever added that player to Ausmash would decide what counts as a country and what part of the world counts as which country)"""
 		return cls.wrap_many(call_api('regions'))
+	
+	@classmethod
+	def all_oceania(cls) -> Collection['Region']:
+		"""All states and terrorities of Australia, and the secret far southeast state (New Zealand)"""
+		return {r for r in cls.all() if not r.is_international}
+	
+	@classmethod
+	def all_australia(cls) -> Collection['Region']:
+		"""All states and terrorities of Australia (that are known by Ausmash)
+		Not compliant with section 6 of the constitution!"""
+		return {r for r in cls.all() if not r.is_international and r.short_name != 'NZ'}
+	
+	@classmethod
+	def all_international(cls) -> Collection['Region']:
+		"""All other countries that are not Australia or New Zealand that are listed on Ausmash"""
+		return {r for r in cls.all() if r.is_international}
+	
+	@classmethod
+	def from_name(cls, name: str) -> 'Region':
+		"""Returns a Game matching the name given, either full_name or name, or acronym
+		:raises KeyError: if no game has that name"""
+		all_regions = cls.all()
+		for region in all_regions:
+			if region.name == name:
+				return region
+		#Only try by acronym as a fallback, because I dunno
+		for region in all_regions:
+			if region.short_name == name:
+				return region
+		raise KeyError(name)
+
+	@classmethod
+	def as_dict(cls) -> Mapping[str, 'Region']:
+		"""Returns all games as a mapping with the short name as the key"""
+		return {region.short_name: region for region in cls.all()}
 
 	@property
 	def name(self) -> str:
@@ -54,7 +89,7 @@ class Region(Resource):
 
 	@property
 	def colour(self) -> tuple[int, int, int]:
-		"""Returns tuple of (red, blue, green)"""
+		"""Returns tuple of (red, blue, green) for a colour apparently associated with the region"""
 		return cast(tuple[int, int, int], tuple(bytes.fromhex(self.colour_string[1:7])))
 		
 	@property
@@ -70,5 +105,6 @@ class Region(Resource):
 	@property
 	def is_international(self) -> bool:
 		"""Checks whether this region is somewhere outside Australia/NZ
-		This is not actually on the API, it does it by seeing if there are any cities (tournament series need cities to be added, if this is not a region that tournaments can be uploaded for, it has no reason to have cities)"""
-		return bool(self.cities)
+		This is not actually on the API, it does it by seeing if there are any cities (tournament series need cities to be added, if this is not a region that tournaments can be uploaded for, it has no reason to have cities)
+		Could be hardcoded instead I guess"""
+		return not bool(self.cities)
