@@ -87,16 +87,17 @@ class Character(Resource):
 		return cast(int, self['PlayerCount'])
 
 @cache
-def get_grouped_characters(game: Game) -> Mapping[Character, tuple[Collection[Character], bool]]:
+def get_grouped_characters(game: Game | str) -> Mapping[Character, tuple[Collection[Character], bool]]:
 	"""Returns characters in this game that belong in some group together, e.g. echo fighters and their original, with the key being a Character with a name for the group of characters (otherwise equivalent to the first of the group), and value being: (a group of those characters, if the characters are considered basically equivalent to each other for most intents and purposes, i.e. if most tier lists would just put the characters in the same slot)
 	This allows for statistics grouped by character to make more sense
-	The Characters in the returned values may not have all fields behave entirely as expected, they are essentially just there for the name"""
+	The Characters in the returned values may not have all fields behave entirely as expected, they are essentially just there for the name, though ID is purposely kept the same as the base character"""
 	chars = Character.game_characters_by_name(game)
-	if game.short_name == 'SSB64':
+	game_short_name = game if isinstance(game, str) else game.short_name
+	if game_short_name == 'SSB64':
 		return {
 			chars['Mario'].updated_copy({'Name': 'Mario Bros.'}): ((chars['Mario'], chars['Luigi']), False),
 		}
-	if game.short_name == 'SSBM':
+	if game_short_name == 'SSBM':
 		return {
 			chars['Mario'].updated_copy({'Name': 'Marios'}): ((chars['Mario'], chars['Dr. Mario']), False),
 			chars['Fox'].updated_copy({'Name': 'Spacies'}): ((chars['Fox'], chars['Falco']), False),
@@ -106,12 +107,13 @@ def get_grouped_characters(game: Game) -> Mapping[Character, tuple[Collection[Ch
 		}
 	#Whoops only semi-clones in Brawl, unless the community does group characters together like this and I just didn't know that
 	#And I have no idea about PM
-	if game.short_name in {'SSBWU', 'SSB3DS'}:
+	if game_short_name in {'SSBWU', 'SSB3DS'}:
 		return {
 			chars['Pit'].updated_copy({'Name': 'Pits'}): ((chars['Pit'], chars['Dark Pit']), True),
 			chars['Marth'].updated_copy({'Name': 'Marcina'}): ((chars['Marth'], chars['Lucina']), False),
+			#Dr. Mario is officially considered a clone of Mario, but nah
 		}
-	if game.short_name == 'SSBU':
+	if game_short_name == 'SSBU':
 		return {
 			chars['Peach'].updated_copy({'Name': 'Princesses'}): ((chars['Peach'], chars['Daisy']), True),
 			chars['Pit'].updated_copy({'Name': 'Pits'}): ((chars['Pit'], chars['Dark Pit']), True),
