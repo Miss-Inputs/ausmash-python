@@ -1,13 +1,22 @@
-from collections.abc import Collection, Mapping
-from functools import cache
+from collections.abc import Collection, Mapping, MutableMapping
+from functools import cache, lru_cache
 from typing import cast
 
 from ausmash.api import call_api
 from ausmash.resource import Resource
 from ausmash.typedefs import URL
+from ausmash.utils import parse_data
 
 from .game import Game
 
+
+@lru_cache(maxsize=1)
+def _load_character_info():
+	return parse_data('character_info')
+
+@lru_cache(maxsize=1)
+def _load_character_game_info():
+	return parse_data('character_game_info')
 
 class Character(Resource):
 	"""A playable character as they appear in one particular game"""
@@ -85,52 +94,64 @@ class Character(Resource):
 	@property
 	def player_count(self) -> int:
 		return cast(int, self['PlayerCount'])
+	
+	def __add_info(self):
+		if 'has_info' in self._data:
+			return
+		data = _load_character_info()
+		if self.name in data:
+			extra_data = data[self.name]
+			extra_data['has_info'] = True
+			if isinstance(self._data, MutableMapping):
+				self._data.update(extra_data)
+			else:
+				self._data = self._data | extra_data
+	
+	def __add_game_info(self):
+		if 'has_game_info' in self._data:
+			return
+		data = _load_character_game_info()
+		if self.game.short_name in data:
+			game_info = data[self.game.short_name]
+			if self.name in game_info:
+				extra_data = game_info[self.name]
+				extra_data['has_game_info'] = True
+				if isinstance(self._data, MutableMapping):
+					self._data.update(extra_data)
+				else:
+					self._data = self._data | extra_data
+	
+	@property
+	def universe(self) -> str | None:
+		"""Universe/series/etc this character is from"""
+		self.__add_info()
+		return self.get('universe')
+	
+	@property
+	def character_groups(self) -> Collection[str]:
+		"""If this character is similar enough to another in their game that they might be grouped together, returns the names of those combined groups, if any"""
+		self.__add_game_info()
+		groups = self.get('groups')
+		if groups:
+			return groups
+		return []
 
-@cache
-def get_grouped_characters(game: Game | str) -> Mapping[Character, tuple[Collection[Character], bool]]:
-	"""Returns characters in this game that belong in some group together, e.g. echo fighters and their original, with the key being a Character with a name for the group of characters (otherwise equivalent to the first of the group), and value being: (a group of those characters, if the characters are considered basically equivalent to each other for most intents and purposes, i.e. if most tier lists would just put the characters in the same slot)
-	This allows for statistics grouped by character to make more sense
-	The Characters in the returned values may not have all fields behave entirely as expected, they are essentially just there for the name, though ID is purposely kept the same as the base character"""
-	chars = Character.game_characters_by_name(game)
-	game_short_name = game if isinstance(game, str) else game.short_name
-	if game_short_name == 'SSB64':
-		return {
-			chars['Mario'].updated_copy({'Name': 'Mario Bros.'}): ((chars['Mario'], chars['Luigi']), False),
-		}
-	if game_short_name == 'SSBM':
-		return {
-			chars['Mario'].updated_copy({'Name': 'Marios'}): ((chars['Mario'], chars['Dr. Mario']), False),
-			chars['Fox'].updated_copy({'Name': 'Spacies'}): ((chars['Fox'], chars['Falco']), False),
-			chars['Mario'].updated_copy({'Name': 'Mario Bros.'}): ((chars['Mario'], chars['Luigi']), False),
-			chars['Pikachu'].updated_copy({'Name': 'Pikachu/Pichu'}): ((chars['Pikachu'], chars['Pichu']), False),
-			#Hmm could put Roy/Marth and Falcon/Ganondorf and Link/YL in here if useful to do so
-		}
-	#Whoops only semi-clones in Brawl, unless the community does group characters together like this and I just didn't know that
-	#And I have no idea about PM
-	if game_short_name in {'SSBWU', 'SSB3DS'}:
-		return {
-			chars['Pit'].updated_copy({'Name': 'Pits'}): ((chars['Pit'], chars['Dark Pit']), True),
-			chars['Marth'].updated_copy({'Name': 'Marcina'}): ((chars['Marth'], chars['Lucina']), False),
-			#Dr. Mario is officially considered a clone of Mario, but nah
-		}
-	if game_short_name == 'SSBU':
-		return {
-			chars['Peach'].updated_copy({'Name': 'Princesses'}): ((chars['Peach'], chars['Daisy']), True),
-			chars['Pit'].updated_copy({'Name': 'Pits'}): ((chars['Pit'], chars['Dark Pit']), True),
-			chars['Samus'].updated_copy({'Name': 'Samuses'}): ((chars['Samus'], chars['Dark Samus']), True),
-			chars['Simon'].updated_copy({'Name': 'Belmonts'}): ((chars['Simon'], chars['Richter']), True),
-			chars['Roy'].updated_copy({'Name': 'Chroy'}): ((chars['Roy'], chars['Chrom']), False),
-			chars['Ryu'].updated_copy({'Name': 'Shotos'}): ((chars['Ryu'], chars['Ken']), False),
-			chars['Marth'].updated_copy({'Name': 'Marcina'}): ((chars['Marth'], chars['Lucina']), False),
-			chars['Pikachu'].updated_copy({'Name': 'Rats'}): ((chars['Pikachu'], chars['Pichu']), False),
-		}
-	return {}
+	@property
+	def echo_fighter_group(self) -> str | None:
+		"""If this character is an echo fighter or has one, that is more often than not similar enough to be combined in tier lists etc or other statistics, return the combined name for those characters, else None"""
+		self.__add_game_info()
+		return self.get('echo_group')
+	
+	def effectively_equal(self, other: 'Character') -> bool:
+		"""Returns true if these objects refer to the same character, or if one is the echo fighter of another"""
+		if self.echo_fighter_group and other.echo_fighter_group:
+			return self.echo_fighter_group == other.echo_fighter_group
+		return self == other
 
 @cache
 def combine_echo_fighters(character: Character) -> Character:
 	"""Returns character if it is not an echo / does not have an echo fighter, or the grouping if it does
 	The returned character might not have fields that entirely make sense other than for Name"""
-	for group, (characters, is_equivalent) in get_grouped_characters(character.game).items():
-		if is_equivalent and character in characters:
-			return group
+	if character.echo_fighter_group:
+		return character.updated_copy({'Name': character.echo_fighter_group})
 	return character

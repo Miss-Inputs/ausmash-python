@@ -1,0 +1,936 @@
+//Some character info specific to that character's appearance in each game
+//Type == individual isn't represented on Ausmash, but I guess I got carried away, so whatever
+//groups: If this character is sometimes grouped together with another for statistical purposes, the names of those groups
+//echo_group: Like groups, but where a character is almost the same as one another (an echo fighter, officially in Ultimate), the name of that combination, only one is allowed
+//type: starter (assumed if omitted), unlockable, transformation, creatable, dlc, individual
+//vs_matches_to_unlock: How many VS mode matches required to unlock the character, if relevant to that game
+//component_of: If type == individual, which composite character this is an individual part of
+//transformation_of: If type == transformation, the character that this character transforms from, else leave out
+//unlock_order: For Ultimate, order in the Classic Mode unlock tree if type == unlockable
+//unlock_tree: For Ultimate, starter character of this character's Classic Mode unlock tree if type == unlockable
+//release_date: If type == dlc, date this character became available
+//bundle: If type == dlc, bundle this character is available in if any
+//internal_name: Internal name/filename/etc inside the game code
+{
+	"SSB3DS": {
+		"Bayonetta": {
+			"release_date": "2016-02-03",
+			"type": "dlc"
+		},
+		"Bowser Jr.": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 100
+		},
+		"Cloud": {
+			"release_date": "2015-12-15",
+			"type": "dlc"
+		},
+		"Corrin": {
+			"release_date": "2016-02-03",
+			"type": "dlc"
+		},
+		"Dark Pit": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 50
+		},
+		"Dr. Mario": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 60
+		},
+		"Duck Hunt Duo": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 110
+		},
+		"Falco": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 20
+		},
+		"Ganondorf": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 80
+		},
+		"Jigglypuff": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 120
+		},
+		"Lucas": {
+			"release_date": "2015-06-14",
+			"type": "dlc"
+		},
+		"Lucina": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 40
+		},
+		"Mewtwo": {
+			"release_date": "2015-04-15", //Via Club Nintendo promo, proper release 2015-04-28
+			"type": "dlc"
+		},
+		"Mii Brawler": {
+			"type": "creatable"
+		},
+		"Mii Gunner": {
+			"type": "creatable"
+		},
+		"Mii Swordfighter": {
+			"type": "creatable"
+		},
+		"Mr. Game and Watch": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 90
+		},
+		"Ness": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 10
+		},
+		"ROB": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 70
+		},
+		"Roy": {
+			"release_date": "2015-06-14",
+			"type": "dlc"
+		},
+		"Ryu": {
+			"release_date": "2015-06-14",
+			"type": "dlc"
+		},
+		"Wario": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 30
+		}
+	},
+	"SSB64": {
+		"Captain Falcon": {
+			"internal_name": "Captain",
+			"type": "unlockable"
+		},
+		"Donkey Kong": {
+			"internal_name": "Donkey"
+		},
+		"Jigglypuff": {
+			"internal_name": "Purin",
+			"type": "unlockable"
+		},
+		"Luigi": {
+			"groups": [
+				"Mario Bros."
+			],
+			"type": "unlockable"
+		},
+		"Mario": {
+			"groups": [
+				"Mario Bros."
+			]
+		},
+		"Ness": {
+			"internal_name": "Nes",
+			"type": "unlockable"
+		},
+		"Pikachu": {
+			"internal_name": "Pikacyu" //[sic]
+		}
+		//Unplayable: Master Hand (Boss), Metal Mario (Metal), Polygon Team (N + char name), Giant DK (GDonkey)
+	},
+	"SSBB": {
+		"Bowser": {
+			"internal_name": "koopa"
+		},
+		"Captain Falcon": {
+			"internal_name": "captain",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 70
+		},
+		"Charizard": {
+			"component_of": "Pokémon Trainer",
+			"internal_name": "pokelizardon",
+			"type": "individual"
+		},
+		"Diddy Kong": {
+			"internal_name": "diddy"
+		},
+		"Donkey Kong": {
+			"internal_name": "donkey"
+		},
+		"Falco": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 50
+		},
+		"Ganondorf": {
+			"internal_name": "ganon",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 200
+		},
+		"Ice Climbers": {
+			"internal_name": "popo"
+		},
+		"Ivysaur": {
+			"component_of": "Pokémon Trainer",
+			"internal_name": "pokefushigisou",
+			"type": "individual"
+		},
+		"Jigglypuff": {
+			"internal_name": "purin",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 350
+		},
+		"King Dedede": {
+			"internal_name": "dedede"
+		},
+		"Lucario": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 100
+		},
+		"Luigi": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 22
+		},
+		"Marth": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 10
+		},
+		"Mr. Game and Watch": {
+			"internal_name": "gamewatch",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 250
+		},
+		"Ness": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 5
+		},
+		"Pikmin & Olimar": {
+			"internal_name": "pikmin"
+		},
+		"Pokémon Trainer": {
+			"internal_name": "poketrainer"
+		},
+		"Popo": {
+			"component_of": "Ice Climbers",
+			"type": "individual"
+		},
+		"ROB": {
+			"internal_name": "robot",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 160
+		},
+		"Sheik": {
+			"transformation_of": "Zelda",
+			"type": "transformation"
+		},
+		"Snake": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 130
+		},
+		"Sonic": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 300
+		},
+		"Squirtle": {
+			"component_of": "Pokémon Trainer",
+			"internal_name": "pokezenigame",
+			"type": "individual"
+		},
+		"Toon Link": {
+			"internal_name": "toonlink",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 400
+		},
+		"Wolf": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 450
+		},
+		"Zero Suit Samus": {
+			"internal_name": "szerosuit",
+			"transformation_of": "Samus",
+			"type": "transformation"
+		}
+		//Unplayable: Giga Bowser (gkoopa), Wario-Man (warioman), Green Alloy (zakoball), Yellow Alloy (zakochild), Blue Alloy (zakogirl), Red Alloy (zakoboy)
+		//Whoops only semi-clones in Brawl, unless the community does group characters together like this and I just didn't know that
+	},
+	"SSBM": {
+		"Bowser": {
+			"internal_name": "KOOPA"
+		},
+		"Captain Falcon": {
+			"internal_name": "CAPTAIN"
+		},
+		"Donkey Kong": {
+			"internal_name": "DONKEY"
+		},
+		"Dr. Mario": {
+			"groups": [
+				"Marios"
+			],
+			"internal_name": "DRMARIO",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 200
+		},
+		"Falco": {
+			"groups": [
+				"Spacies"
+			],
+			"type": "unlockable",
+			"vs_matches_to_unlock": 300
+		},
+		"Fox": {
+			"groups": [
+				"Spacies"
+			]
+		},
+		"Ganondorf": {
+			"internal_name": "GANON",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 600
+		},
+		"Ice Climbers": {
+			"internal_name": "POPONANA"
+		},
+		"Jigglypuff": {
+			"internal_name": "PURIN",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 50
+		},
+		"Luigi": {
+			"groups": [
+				"Mario Bros."
+			],
+			"type": "unlockable",
+			"vs_matches_to_unlock": 800
+		},
+		"Mario": {
+			"groups": [
+				"Mario Bros.",
+				"Marios"
+			]
+		},
+		"Marth": {
+			"internal_name": "MARS",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 400
+		},
+		"Mr. Game and Watch": {
+			"internal_name": "GAMEWATCH",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 1000
+		},
+		"Pichu": {
+			"groups": [
+				"Rats"
+			],
+			"type": "unlockable",
+			"vs_matches_to_unlock": 200
+		},
+		"Pikachu": {
+			"groups": [
+				"Rats"
+			]
+		},
+		"Popo": {
+			"component_of": "Ice Climbers",
+			"type": "individual"
+		},
+		"Roy": {
+			"internal_name": "EMBLEM",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 900
+		},
+		"Sheik": {
+			"internal_name": "SE->ZE",
+			"transformation_of": "Zelda",
+			"type": "transformation"
+		},
+		"Young Link": {
+			"internal_name": "CLINK",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 500
+		},
+		"Zelda": {
+			"internal_name": "ZE->SE"
+		}
+		//Unplayable: Master Hand (MASTERH), Male Wire Frame (BOY), Female Wire Frame (GIRL), Giga Bowser (GKOOPS), Crazy Hand (CREZYH), Sandbag, Nana
+		//Roy/Marth, Falcon/Ganondorf and Link/YL could be groups?	
+	},
+	"SSBU": {
+		"Banjo & Kazooie": {
+			"bundle": "Fighters Pass 1",
+			"internal_name": "buddy",
+			"release_date": "2019-09-04",
+			"type": "dlc"
+		},
+		"Bayonetta": {
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Mario"
+		},
+		"Bowser": {
+			"internal_name": "koopa",
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Donkey Kong"
+		},
+		"Bowser Jr.": {
+			"internal_name": "koopajr",
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Fox"
+		},
+		"Byleth": {
+			"bundle": "Fighters Pass 1",
+			"internal_name": "master",
+			"release_date": "2020-01-28",
+			"type": "dlc"
+		},
+		"Captain Falcon": {
+			"internal_name": "captain",
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Fox"
+		},
+		"Charizard": {
+			"component_of": "Pokémon Trainer",
+			"internal_name": "plizardon",
+			"type": "individual"
+		},
+		"Chrom": {
+			"groups": [
+				"Chroy"
+			],
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Yoshi"
+		},
+		"Cloud": {
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Samus"
+		},
+		"Corrin": {
+			"internal_name": "kamui",
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Kirby"
+		},
+		"Daisy": {
+			"echo_group": "Princesses",
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Fox"
+		},
+		"Dark Pit": {
+			"echo_group": "Pits",
+			"internal_name": "pitb",
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Samus"
+		},
+		"Dark Samus": {
+			"echo_group": "Samuses",
+			"internal_name": "samusd",
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Samus"
+		},
+		"Diddy Kong": {
+			"internal_name": "diddy",
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Donkey Kong"
+		},
+		"Donkey Kong": {
+			"internal_name": "donkey"
+		},
+		"Dr. Mario": {
+			"internal_name": "mariod",
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Mario"
+		},
+		"Duck Hunt Duo": {
+			"internal_name": "duckhunt",
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Donkey Kong"
+		},
+		"Falco": {
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Fox"
+		},
+		"Ganondorf": {
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Yoshi"
+		},
+		"Greninja": {
+			"internal_name": "gekkouga",
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Donkey Kong"
+		},
+		"Hero": {
+			"bundle": "Fighters Pass 1",
+			"internal_name": "brave",
+			"release_date": "2019-07-30",
+			"type": "dlc"
+		},
+		"Ice Climbers": {
+			"internal_name": "popo", //hmm
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Link"
+		},
+		"Ike": {
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Mario"
+		},
+		"Incineroar": {
+			"internal_name": "gaogaen",
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Samus"
+		},
+		"Inkling": {
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Samus"
+		},
+		"Isabelle": {
+			"internal_name": "shizue",
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Pikachu"
+		},
+		"Ivysaur": {
+			"component_of": "Pokémon Trainer",
+			"internal_name": "pfushigisou",
+			"type": "individual"
+		},
+		"Jigglypuff": {
+			"internal_name": "purin",
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Kirby"
+		},
+		"Joker": {
+			"bundle": "Fighters Pass 1",
+			"internal_name": "jack",
+			"release_date": "2019-04-17",
+			"type": "dlc"
+		},
+		"Kazuya": {
+			"bundle": "Fighters Pass 2",
+			"internal_name": "demon",
+			"release_date": "2021-06-29",
+			"type": "dlc"
+		},
+		"Ken": {
+			"groups": [
+				"Shotos"
+			],
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Yoshi"
+		},
+		"King Dedede": {
+			"internal_name": "dedede",
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Donkey Kong"
+		},
+		"King K. Rool": {
+			"internal_name": "krool",
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Link"
+		},
+		"Little Mac": {
+			"internal_name": "littlemac",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Mario"
+		},
+		"Lucario": {
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Yoshi"
+		},
+		"Lucas": {
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Kirby"
+		},
+		"Lucina": {
+			"groups": [
+				"Marcina"
+			],
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Yoshi"
+		},
+		"Luigi": {
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Mario"
+		},
+		"Marth": {
+			"groups": [
+				"Marcina"
+			],
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Yoshi"
+		},
+		"Mega Man": {
+			"internal_name": "rockman",
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Pikachu"
+		},
+		"Metaknight": {
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Link"
+		},
+		"Mewtwo": {
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Fox"
+		},
+		"Mii Brawler": {
+			"internal_name": "miifighter",
+			"type": "creatable"
+		},
+		"Mii Gunner": {
+			"internal_name": "miigunner",
+			"type": "creatable"
+		},
+		"Mii Swordfighter": {
+			"internal_name": "miiswordsman",
+			"type": "creatable"
+		},
+		"Min Min": {
+			"bundle": "Fighters Pass 2",
+			"internal_name": "tantan",
+			"release_date": "2020-06-29",
+			"type": "dlc"
+		},
+		"Mr. Game and Watch": {
+			"internal_name": "gamewatch",
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Pikachu"
+		},
+		"Mythra": {
+			"component_of": "Pyra / Mythra",
+			"internal_name": "elight",
+			"type": "individual"
+		},
+		"Ness": {
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Kirby"
+		},
+		"Pac-Man": {
+			"internal_name": "pacman",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Kirby"
+		},
+		"Palutena": {
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Kirby"
+		},
+		"Peach": {
+			"echo_group": "Princesses",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Fox"
+		},
+		"Pichu": {
+			"groups": [
+				"Rats"
+			],
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Pikachu"
+		},
+		"Pikachu": {
+			"groups": [
+				"Rats"
+			]
+		},
+		"Pikmin & Olimar": {
+			"internal_name": "pikmin",
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Mario"
+		},
+		"Piranha Plant": {
+			"internal_name": "packun",
+			"release_date": "2019-01-29", //My Nintendo promo, normal release 2019-02-01
+			"type": "dlc"
+		},
+		"Pit": {
+			"echo_group": "Pits",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Samus"
+		},
+		"Pokémon Trainer": {
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Donkey Kong",
+			"internal_name": "ptrainer"
+		},
+		"Popo": {
+			"component_of": "Ice Climbers",
+			"type": "individual"
+		},
+		"Pyra": {
+			"component_of": "Pyra / Mythra",
+			"internal_name": "eflame",
+			"type": "individual"
+		},
+		"Pyra / Mythra": {
+			"bundle": "Fighters Pass 2",
+			"internal_name": "element",
+			"release_date": "2021-03-04",
+			"type": "dlc"
+		},
+		"Richter": {
+			"echo_group": "Belmonts",
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Link"
+		},
+		"Ridley": {
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Yoshi"
+		},
+		"ROB": {
+			"internal_name": "robot",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Pikachu"
+		},
+		"Robin": {
+			"internal_name": "reflet",
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Kirby"
+		},
+		"Rosalina & Luma": {
+			"internal_name": "rosetta",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Donkey Kong"
+		},
+		"Roy": {
+			"groups": [
+				"Chroy"
+			],
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Mario"
+		},
+		"Ryu": {
+			"groups": [
+				"Shotos"
+			],
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Yoshi"
+		},
+		"Samus": {
+			"echo_group": "Samuses"
+		},
+		"Sephiroth": {
+			"bundle": "Fighters Pass 2",
+			"internal_name": "edge",
+			"release_date": "2020-12-17", //Via Sephiroth Challenge, proper release 2020-12-22
+			"type": "dlc"
+		},
+		"Sheik": {
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Donkey Kong"
+		},
+		"Shulk": {
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Pikachu"
+		},
+		"Simon": {
+			"echo_group": "Belmonts",
+			"type": "unlockable",
+			"unlock_order": 3,
+			"unlock_tree": "Link"
+		},
+		"Snake": {
+			"type": "unlockable",
+			"unlock_order": 5,
+			"unlock_tree": "Link"
+		},
+		"Sonic": {
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Mario"
+		},
+		"Sora": {
+			"bundle": "Fighters Pass 2",
+			"internal_name": "trail",
+			"release_date": "2021-10-18",
+			"type": "dlc"
+		},
+		"Squirtle": {
+			"component_of": "Pokémon Trainer",
+			"internal_name": "pzenigame",
+			"type": "individual"
+		},
+		"Steve": {
+			"bundle": "Fighters Pass 2",
+			"internal_name": "pickel",
+			"release_date": "2020-10-13",
+			"type": "dlc"
+		},
+		"Terry": {
+			"bundle": "Fighters Pass 1",
+			"internal_name": "dolly",
+			"release_date": "2019-11-06",
+			"type": "dlc"
+		},
+		"Toon Link": {
+			"internal_name": "toonlink",
+			"type": "unlockable",
+			"unlock_order": 8,
+			"unlock_tree": "Link"
+		},
+		"Villager": {
+			"internal_name": "murabito",
+			"type": "unlockable",
+			"unlock_order": 1,
+			"unlock_tree": "Pikachu"
+		},
+		"Wario": {
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Samus"
+		},
+		"Wii Fit Trainer": {
+			"internal_name": "wiifit",
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Samus"
+		},
+		"Wolf": {
+			"type": "unlockable",
+			"unlock_order": 7,
+			"unlock_tree": "Fox"
+		},
+		"Young Link": {
+			"internal_name": "younglink",
+			"type": "unlockable",
+			"unlock_order": 6,
+			"unlock_tree": "Link"
+		},
+		"Zelda": {
+			"type": "unlockable",
+			"unlock_order": 4,
+			"unlock_tree": "Kirby"
+		},
+		"Zero Suit Samus": {
+			"internal_name": "szerosuit",
+			"type": "unlockable",
+			"unlock_order": 2,
+			"unlock_tree": "Fox"
+		}
+	},
+	"SSBWU": {
+		"Bayonetta": {
+			"release_date": "2016-02-03",
+			"type": "dlc"
+		},
+		"Cloud": {
+			"release_date": "2015-12-15",
+			"type": "dlc"
+		},
+		"Corrin": {
+			"release_date": "2016-02-03",
+			"type": "dlc"
+		},
+		"Dark Pit": {
+			"echo_group": "Pits",
+			"type": "unlockable",
+			"vs_matches_to_unlock": 40
+		},
+		"Dr. Mario": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 50
+		},
+		"Duck Hunt Duo": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 100
+		},
+		"Falco": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 10
+		},
+		"Lucas": {
+			"release_date": "2015-06-14",
+			"type": "dlc"
+		},
+		"Lucina": {
+			"groups": [
+				"Marcina"
+			],
+			"type": "unlockable",
+			"vs_matches_to_unlock": 30
+		},
+		"Marth": {
+			"groups": [
+				"Marcina"
+			]
+		},
+		"Mewtwo": {
+			"release_date": "2015-04-15", //Via Club Nintendo promo, proper release 2015-04-28
+			"type": "dlc"
+		},
+		"Mii Brawler": {
+			"type": "creatable"
+		},
+		"Mii Gunner": {
+			"type": "creatable"
+		},
+		"Mii Swordfighter": {
+			"type": "creatable"
+		},
+		"Mr. Game and Watch": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 80
+		},
+		"Pit": {
+			"echo_group": "Pits"
+		},
+		"ROB": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 60
+		},
+		"Roy": {
+			"release_date": "2015-06-14",
+			"type": "dlc"
+		},
+		"Ryu": {
+			"release_date": "2015-06-14",
+			"type": "dlc"
+		},
+		"Wario": {
+			"type": "unlockable",
+			"vs_matches_to_unlock": 20
+		}
+		//3DS should have the same groups information, but the unlockability etc is different
+		//Dr. Mario is officially considered a clone of Mario, but nobody does that
+	}
+	//No idea about PM
+}

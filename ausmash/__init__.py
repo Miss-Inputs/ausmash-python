@@ -1,7 +1,6 @@
 
 from .methods import is_current_pr, is_pr_win, get_active_players, get_matches_of_player_in_game, get_players_of_character, get_videos_of_player_in_game, was_player_pr_during_time
-from .models.character import (Character, combine_echo_fighters,
-                               get_grouped_characters)
+from .models.character import (Character, combine_echo_fighters)
 from .models.compare import (Comparison, compare_common_rankings, head_to_head,
                              head_to_head_videos)
 from .models.elo import Elo, EloBadge, probability_of_winning
@@ -57,7 +56,6 @@ __all__ = [
 	'combine_echo_fighters',
 	'compare_common_rankings',
 	'get_active_players',
-	'get_grouped_characters',
 	'get_matches_of_player_in_game',
 	'get_players_of_character',
 	'get_videos_of_player_in_game',

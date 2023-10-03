@@ -1,0 +1,1200 @@
+//Info about characters that applies to all games they are in, because why not
+//Okay yeah I've definitely gotten carried away here
+//universe: Franchise, universe, whichever, I think universe is the official term
+//owner: Copyright owner if not Nintendo (i.e. specify this if third party)
+//abbrev: Commonly used abbreviation if any
+//number: Official fighter number
+//gender: male, female, etc, could theoretically include all sorts of things but Nintendo are cowards, otherwise selectable (via alts) or unspecified (if a species etc) or multiple (if character is two characters in one that are different)
+//first_appearance: {game: game this character first appeared in ever, date: first date that game was released anywhere, platform}
+//full_name: Canonical full name because I don't know why
+//other_names: Other names for the character that might be used (why am I doing this?)
+//costume_for: If this character appears as a costume for another, which one
+{
+	"Alex": {
+		"costume_for": "Steve",
+		"first_appearance": {
+			"date": "2014-09-02",
+			"game": "Minecraft Java Edition v1.8",
+			"platform": "PC"
+		},
+		"gender": "female"
+	},
+	"Alph": {
+		"costume_for": "Pikmin & Olimar",
+		"first_appearance": {
+			"date": "2013-07-13",
+			"game": "Pikmin 3",
+			"platform": "Wii U"
+		},
+		"gender": "male"
+	},
+	"Banjo & Kazooie": {
+		"abbrev": "Banjo",
+		"first_appearance": {
+			"date": "1997-11-21",
+			"game": "Diddy Kong Racing",
+			"platform": "N64"
+		},
+		"gender": "multiple",
+		"number": 73,
+		"owner": "Microsoft",
+		"universe": "Banjo-Kazooie"
+	},
+	"Bayonetta": {
+		"abbrev": "Bayo", //Might be less common
+		"first_appearance": {
+			"date": "2009-10-29",
+			"game": "Bayonetta",
+			"platform": "PS3" //And Xbox 360 at the same time…
+		},
+		"gender": "female",
+		"number": 63,
+		"owner": "Sega",
+		"universe": "Bayonetta"
+	},
+	"Bowser": {
+		"first_appearance": {
+			"date": "1985-09-13",
+			"game": "Super Mario Bros.",
+			"platform": "NES"
+		},
+		"full_name": "Bowser Koopa",
+		"gender": "male",
+		"number": 14,
+		"universe": "Mario"
+	},
+	"Bowser Jr.": {
+		"first_appearance": {
+			"date": "2002-07-19",
+			"game": "Super Mario Sunshine",
+			"platform": "GameCube"
+		},
+		"full_name": "Bowser Koopa Jr.",
+		"gender": "male", //selectable via costume (Wendy)
+		"number": 58,
+		"universe": "Mario"
+	},
+	"Byleth": {
+		"first_appearance": {
+			"date": "2019-07-26",
+			"game": "Fire Emblem: Three Houses",
+			"platform": "Switch"
+		},
+		"full_name": "Byleth Eisner",
+		"gender": "selectable",
+		"number": 75,
+		"universe": "Fire Emblem"
+	},
+	"Captain Falcon": {
+		"abbrev": "Falcon",
+		"first_appearance": {
+			"date": "1990-11-21",
+			"game": "F-Zero",
+			"platform": "SNES"
+		},
+		"full_name": "Douglas Jay Falcon",
+		"gender": "male",
+		"number": 11,
+		"universe": "F-Zero"
+	},
+	"Charizard": {
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		"gender": "unspecified",
+		"number": 35,
+		"universe": "Pokémon"
+	},
+	"Chrom": {
+		"first_appearance": {
+			"date": "2012-04-19",
+			"game": "Fire Emblem: Awakening",
+			"platform": "3DS"
+		},
+		"gender": "male",
+		"number": 25,
+		"universe": "Fire Emblem"
+	},
+	"Cloud": {
+		"first_appearance": {
+			"date": "1997-01-31",
+			"game": "Final Fantasy 7",
+			"platform": "PS1"
+		},
+		"full_name": "Cloud Strife",
+		"gender": "male",
+		"number": 61,
+		"owner": "Square Enix",
+		"universe": "Final Fantasy"
+	},
+	"Corrin": {
+		"first_appearance": {
+			"date": "2015-06-25",
+			"game": "Fire Emblem Fates",
+			"platform": "3DS"
+		},
+		"gender": "selectable",
+		"number": 62,
+		"universe": "Fire Emblem"
+	},
+	"Daisy": {
+		"first_appearance": {
+			"date": "1989-04-21",
+			"game": "Super Mario Land",
+			"platform": "Game Boy"
+		},
+		"gender": "female",
+		"number": 13,
+		"universe": "Mario"
+	},
+	"Dark Pit": {
+		"first_appearance": {
+			"date": "2012-03-22",
+			"game": "Kid Icarus: Uprising",
+			"platform": "3DS"
+		},
+		"gender": "male",
+		"number": 28,
+		"universe": "Kid Icarus"
+	},
+	"Dark Samus": {
+		"first_appearance": {
+			"date": "2004-11-15", //North America, Japanese date is used for All-Star mode
+			"game": "Metroid Prime 2",
+			"platform": "GameCube"
+		},
+		"gender": "female", //Kinda? I haven't played Metroid Prime 2 please don't cancel me
+		"number": 4,
+		"universe": "Metroid"
+	},
+	"Diddy Kong": {
+		"abbrev": "Diddy",
+		"first_appearance": {
+			"date": "1994-11-26",
+			"game": "Donkey Kong Country",
+			"platform": "SNES"
+		},
+		"gender": "male",
+		"number": 36,
+		"universe": "Donkey Kong"
+	},
+	"Donkey Kong": {
+		"first_appearance": {
+			"date": "1981-07-09",
+			"game": "Donkey Kong",
+			"platform": "Arcade"
+		},
+		"gender": "male",
+		"number": 2,
+		"universe": "Donkey Kong"
+	},
+	"Dr. Mario": {
+		"abbrev": "Doc",
+		"first_appearance": {
+			"date": "1990-07-27",
+			"game": "Dr. Mario",
+			"platform": "NES" //Released for Game Boy and NES simultaneously, just to annoy me; NES would probably be considered the lead platform though the Game Boy version is a Masterpiece in SSBWU. I guess if you really wanted to nitpick the PlayChoice-10 prototype version could have been considered "released" if it was in one location, but then who knows when it actually was
+		},
+		"gender": "male",
+		"number": 18,
+		"universe": "Mario"
+	},
+	"Duck Hunt Duo": {
+		//"Duck Hunt" in North American versions
+		"abbrev": "Duck Hunt",
+		"first_appearance": {
+			"date": "1984-04-21",
+			"game": "Duck Hunt",
+			"platform": "NES"
+		},
+		"gender": "multiple", //Dog is apparently male, duck might not be (and the player holding the gun if you count that)
+		"number": 59,
+		"universe": "Duck Hunt"
+	},
+	"Eight": {
+		"costume_for": "Hero",
+		"first_appearance": {
+			"date": "2004-11-27",
+			"game": "Dragon Quest 8",
+			"platform": "PS2"
+		},
+		"gender": "male",
+		"owner": "Square Enix"
+	},
+	"Enderman": {
+		"costume_for": "Steve",
+		"first_appearance": {
+			"date": "2011-09-14",
+			"game": "Minecraft Beta v1.8",
+			"platform": "PC"
+		},
+		"gender": "agender",
+		"owner": "Microsoft"
+	},
+	"Erdrick": {
+		"costume_for": "Hero",
+		"first_appearance": {
+			"date": "1988-02-10",
+			"game": "Dragon Quest 3",
+			"platform": "NES"
+		},
+		"gender": "male",
+		"other_names": [
+			"Arus",
+			"Arusu",
+			"Alus",
+			"Legendary Hero",
+			"Loto"
+		],
+		"owner": "Square Enix"
+	},
+	"Falco": {
+		"first_appearance": {
+			"date": "1993-02-21",
+			"game": "Star Fox",
+			"platform": "SNES"
+		},
+		"full_name": "Falco Lombardi",
+		"gender": "male",
+		"number": 20,
+		"universe": "Star Fox"
+	},
+	"Fox": {
+		"first_appearance": {
+			"date": "1993-02-21",
+			"game": "Star Fox",
+			"platform": "SNES"
+		},
+		"full_name": "Fox McCloud",
+		"gender": "male",
+		"number": 7,
+		"universe": "Star Fox"
+	},
+	"Ganondorf": {
+		"abbrev": "Ganon",
+		"first_appearance": {
+			"date": "1998-11-21",
+			//Kind of, first apperance of human form
+			"game": "The Legend of Zelda: Ocarina of Time",
+			"platform": "N64"
+		},
+		"full_name": "Ganondorf Dragmire",
+		"gender": "male",
+		"number": 23,
+		"universe": "Legend of Zelda"
+	},
+	"Greninja": {
+		"first_appearance": {
+			"date": "2013-10-12",
+			"game": "Pokémon X and Y",
+			"platform": "3DS"
+		},
+		"gender": "unspecified",
+		"number": 50,
+		"universe": "Pokémon"
+	},
+	"Hero": {
+		"first_appearance": {
+			"date": "1988-02-10",
+			"game": "Dragon Quest 3",
+			"platform": "NES"
+		},
+		"gender": "male",
+		"number": 72,
+		"owner": "Square Enix",
+		"universe": "Dragon Quest"
+	},
+	"Ice Climbers": {
+		"abbrev": "Icies",
+		"first_appearance": {
+			"date": "1985-01-30",
+			"game": "Ice Climber",
+			"platform": "NES"
+		},
+		"gender": "multiple",
+		"number": 15,
+		"universe": "Ice Climber"
+	},
+	"Iggy": {
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"full_name": "Iggy Koopa",
+		"gender": "male"
+	},
+	"Ike": {
+		"first_appearance": {
+			"date": "2005-04-20",
+			"game": "Fire Emblem: Path of Radiance",
+			"platform": "GameCube"
+		},
+		"gender": "male",
+		"number": 32,
+		"universe": "Fire Emblem"
+	},
+	"Incineroar": {
+		"first_appearance": {
+			"date": "2016-11-18",
+			"game": "Pokémon Sun and Moon",
+			"platform": "3DS"
+		},
+		"gender": "unspecified",
+		"number": 69,
+		"universe": "Pokémon"
+	},
+	"Inkling": {
+		"first_appearance": {
+			"date": "2015-05-28",
+			"game": "Splatoon",
+			"platform": "Wii U"
+		},
+		"gender": "selectable",
+		"number": 64,
+		"universe": "Splatoon"
+	},
+	"Isabelle": {
+		"first_appearance": {
+			"date": "2012-11-08",
+			"game": "Animal Crossing: New Leaf",
+			"platform": "3DS"
+		},
+		"gender": "female",
+		"number": 68,
+		"universe": "Animal Crossing"
+	},
+	"Ivysaur": {
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		"gender": "unspecified",
+		"number": 34,
+		"universe": "Pokémon"
+	},
+	"Jigglypuff": {
+		"abbrev": "Jiggs",
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		"gender": "unspecified",
+		"number": 12,
+		"universe": "Pokémon"
+	},
+	"Joker": {
+		"first_appearance": {
+			"date": "2016-09-15",
+			"game": "Persona 5",
+			"platform": "PS4" //And PS3 at the same time…
+		},
+		"full_name": "Ren Amamiya",
+		"gender": "male",
+		"number": 71,
+		"owner": "Sega", //via Atlus
+		"universe": "Persona"
+	},
+	"Kazuya": {
+		"first_appearance": {
+			"date": "1994-12-09",
+			"game": "Tekken",
+			"platform": "Arcade"
+		},
+		"full_name": "Kazuya Mishima",
+		"gender": "male",
+		"number": 81,
+		"owner": "Bandai Namco",
+		"universe": "Tekken"
+	},
+	"Ken": {
+		"first_appearance": {
+			"date": "1987-08-30",
+			"game": "Street Fighter",
+			"platform": "Arcade"
+		},
+		"full_name": "Ken Masters",
+		"gender": "male",
+		"number": 60,
+		"owner": "Capcom",
+		"universe": "Street Fighter"
+	},
+	"King Dedede": {
+		"abbrev": "Dedede",
+		"first_appearance": {
+			"date": "1992-04-27",
+			"game": "Kirby's Dream Land",
+			"platform": "Game Boy"
+		},
+		"gender": "male",
+		"number": 39,
+		"universe": "Kirby"
+	},
+	"King K. Rool": {
+		"abbrev": "K. Rool",
+		"first_appearance": {
+			"date": "1994-11-26",
+			"game": "Donkey Kong Country",
+			"platform": "SNES"
+		},
+		"gender": "male",
+		"number": 67,
+		"universe": "Donkey Kong"
+	},
+	"Kirby": {
+		"first_appearance": {
+			"date": "1992-04-27",
+			"game": "Kirby's Dream Land",
+			"platform": "Game Boy"
+		},
+		"gender": "male", //The subject of much debate about localization, but he is referred to as such
+		"number": 6,
+		"universe": "Kirby"
+	},
+	"Knuckles": {
+		//Only appears as fanmade character in Project M so far, but since that is on Ausmash, he will be listed here
+		"full_name": "Knuckles the Echidna",
+		"gender": "male",
+		"owner": "Sega",
+		"universe": "Sonic",
+		"first_appearance": {
+			"game": "Sonic the Hedgehog 3",
+			"platform": "Mega Drive",
+			"date": "1994-02-02"
+		}
+	},
+	"Larry": {
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"full_name": "Larry Koopa",
+		"gender": "male"
+	},
+	"Leaf": {
+		"costume_for": "Pokémon Trainer",
+		"first_appearance": {
+			"game": "Pokémon Fire Red & Leaf Green",
+			"platform": "GBA",
+			"date": "2004-01-29"
+		},
+		"gender": "female"
+	},
+	"Lemmy": {
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"full_name": "Lemmy Koopa",
+		"gender": "male"
+	},
+	"Link": {
+		"first_appearance": {
+			"date": "1986-02-21",
+			"game": "The Legend of Zelda",
+			"platform": "FDS"
+		},
+		"gender": "male",
+		"number": 3,
+		"universe": "Legend of Zelda"
+	},
+	"Little Mac": {
+		"first_appearance": {
+			"date": "1984-02-17",
+			"game": "Punch-Out!!",
+			"platform": "Arcade"
+		},
+		"gender": "male",
+		"number": 49,
+		"universe": "Punch-Out"
+	},
+	"Lucario": {
+		"first_appearance": {
+			"date": "2006-09-28",
+			"game": "Pokémon Diamond and Pearl",
+			"platform": "DS"
+		},
+		"gender": "unspecified",
+		"number": 41,
+		"universe": "Pokémon"
+	},
+	"Lucas": {
+		"first_appearance": {
+			"date": "2006-04-20",
+			"game": "Mother 3",
+			"platform": "GBA"
+		},
+		"gender": "male",
+		"number": 37,
+		"universe": "Mother" //Although officially listed as EarthBound
+	},
+	"Lucina": {
+		"first_appearance": {
+			"date": "2012-04-19",
+			"game": "Fire Emblem: Awakening",
+			"platform": "3DS"
+		},
+		"gender": "female",
+		"number": 21,
+		"universe": "Fire Emblem"
+	},
+	"Ludwig": {
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"full_name": "Ludwig von Koopa",
+		"gender": "male"
+	},
+	"Luigi": {
+		"first_appearance": {
+			"date": "1983-06-21",
+			"game": "Mario Bros.",
+			"platform": "Arcade"
+		},
+		"gender": "male",
+		"number": 9,
+		"universe": "Mario"
+	},
+	"Luminary": {
+		"costume_for": "Hero",
+		"first_appearance": {
+			"date": "2017-07-29",
+			"game": "Dragon Quest 11",
+			"platform": "PS4" //And for 3DS at the same time, but PS4 would definitely be the lead platform here
+		},
+		"gender": "male",
+		"other_names": [
+			"Eleven"
+		],
+		"owner": "Square Enix"
+	},
+	"Mario": {
+		"first_appearance": {
+			"date": "1981-07-09",
+			"game": "Donkey Kong",
+			"platform": "Arcade"
+		},
+		"gender": "male",
+		"number": 1,
+		"universe": "Mario"
+	},
+	"Marth": {
+		"first_appearance": {
+			"date": "1990-04-20",
+			"game": "Fire Emblem: Shadow Dragon and the Blade of Light",
+			"platform": "NES"
+		},
+		"full_name": "Marth Lowell",
+		"gender": "male",
+		"number": 21,
+		"universe": "Fire Emblem"
+	},
+	"Mega Man": {
+		"first_appearance": {
+			"date": "1987-12-17",
+			"game": "Mega Man",
+			"platform": "NES"
+		},
+		"gender": "male",
+		"number": 46,
+		"owner": "Capcom",
+		"universe": "Mega Man"
+	},
+	"Metaknight": {
+		//All games on Ausmash have the name spelled as "Metaknight"
+		"abbrev": "Meta Knight", //Not an abbreviation, but much more common
+		"first_appearance": {
+			"date": "1993-03-23",
+			"game": "Kirby's Adventure",
+			"platform": "NES"
+		},
+		"gender": "male",
+		"number": 27,
+		"universe": "Kirby"
+	},
+	"Mewtwo": {
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		"gender": "agender",
+		"number": 24,
+		"universe": "Pokémon"
+	},
+	"Mii Brawler": {
+		"first_appearance": {
+			"date": "2006-11-19",
+			"game": "Mii Channel", //Wii Sports also on the same day
+			"platform": "Wii"
+		},
+		"gender": "selectable",
+		"number": 51,
+		"universe": "Super Smash Bros." //Considered original character and not Mii universe
+	},
+	"Mii Gunner": {
+		"first_appearance": {
+			"date": "2006-11-19",
+			"game": "Mii Channel", //Wii Sports also on the same day
+			"platform": "Wii"
+		},
+		"gender": "selectable",
+		"number": 53,
+		"universe": "Super Smash Bros." //Considered original character and not Mii universe
+	},
+	"Mii Swordfighter": {
+		"first_appearance": {
+			"date": "2006-11-19",
+			"game": "Mii Channel", //Wii Sports also on the same day
+			"platform": "Wii"
+		},
+		"gender": "selectable",
+		"number": 52,
+		"universe": "Super Smash Bros." //Considered original character and not Mii universe
+	},
+	"Min Min": {
+		"first_appearance": {
+			"date": "2017-06-16",
+			"game": "ARMS",
+			"platform": "Switch"
+		},
+		"gender": "female",
+		"number": 76,
+		"universe": "ARMS"
+	},
+	"Morton": {
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"full_name": "Morton Koopa Jr.",
+		"gender": "male"
+	},
+	"Mr. Game and Watch": {
+		"abbrev": "Game & Watch",
+		"first_appearance": {
+			"date": "1980-04-28",
+			"game": "Ball",
+			"platform": "LCD handheld"
+		},
+		"gender": "male",
+		"number": 26,
+		"universe": "Game & Watch" //Technically an original character, but not considered Super Smash Bros like the Miis are, because Sakurai works in mysterious ways
+	},
+	"Mythra": {
+		"first_appearance": {
+			"date": "2017-12-01",
+			"game": "Xenoblade Chronicles 2",
+			"platform": "Switch"
+		},
+		"gender": "female",
+		"number": 80,
+		"universe": "Xenoblade"
+	},
+	"Ness": {
+		"first_appearance": {
+			"date": "1994-08-27",
+			"game": "EarthBound",
+			"platform": "SNES"
+		},
+		"gender": "male",
+		"number": 10,
+		"universe": "Mother"
+	},
+	"Pac-Man": {
+		"first_appearance": {
+			"date": "1980-05-22",
+			"game": "Pac-Man",
+			"platform": "Arcade"
+		},
+		"gender": "male",
+		"number": 55,
+		"owner": "Bandai Namco",
+		"universe": "Pac-Man"
+	},
+	"Palutena": {
+		"first_appearance": {
+			"date": "1986-12-19",
+			"game": "Kid Icarus",
+			"platform": "FDS"
+		},
+		"gender": "female",
+		"number": 54,
+		"universe": "Kid Icarus"
+	},
+	"Peach": {
+		"first_appearance": {
+			"date": "1985-09-13",
+			"game": "Super Mario Bros.",
+			"platform": "NES"
+		},
+		"full_name": "Peach Toadstool",
+		"gender": "female",
+		"number": 13,
+		"universe": "Mario"
+	},
+	"Pichu": {
+		"first_appearance": {
+			"date": "1999-11-21",
+			"game": "Pokémon Gold and Silver",
+			"platform": "GBC"
+		},
+		"gender": "unspecified",
+		"number": 19,
+		"universe": "Pokémon"
+	},
+	"Pikachu": {
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		"gender": "unspecified", //Pikachu Libre alt is specifically female, the rest are not
+		"number": 8,
+		"universe": "Pokémon"
+	},
+	"Pikachu Libre": {
+		"costume_for": "Pikachu",
+		"first_appearance": {
+			"date": "2014-11-21",
+			"game": "Pokémon Omega Ruby & Alpha Sapphire",
+			"platform": "3DS"
+		},
+		"gender": "female"
+	},
+	"Pikmin & Olimar": {
+		"abbrev": "Olimar",
+		"first_appearance": {
+			"date": "2001-10-26",
+			"game": "Pikmin",
+			"platform": "GameCube"
+		},
+		"gender": "male", //I guess if you wanted to nitpick, the Pikmin might not be, but nobody counts them as being part of the character
+		"number": 40,
+		"universe": "Pikmin"
+	},
+	"Piranha Plant": {
+		"abbrev": "Plant",
+		"first_appearance": {
+			"date": "1985-09-13",
+			"game": "Super Mario Bros.",
+			"platform": "NES"
+		},
+		"gender": "unspecified",
+		"number": 70,
+		"universe": "Mario"
+	},
+	"Pit": {
+		"first_appearance": {
+			"date": "1986-12-19",
+			"game": "Kid Icarus",
+			"platform": "FDS"
+		},
+		"gender": "male",
+		"number": 28,
+		"universe": "Kid Icarus"
+	},
+	"Pokémon Trainer": {
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		//Gets 3 fighter numbers
+		"gender": "selectable",
+		"universe": "Pokémon"
+	},
+	"Pyra": {
+		"first_appearance": {
+			"date": "2017-12-01",
+			"game": "Xenoblade Chronicles 2",
+			"platform": "Switch"
+		},
+		"gender": "female",
+		"number": 79,
+		"universe": "Xenoblade"
+	},
+	"Pyra / Mythra": {
+		//Spelled with the space on Ausmash
+		//Gets 2 fighter numbers
+		"abbrev": "Pythra", //The source of much controversy, because I don't know why
+		"first_appearance": {
+			"date": "2017-12-01",
+			"game": "Xenoblade Chronicles 2",
+			"platform": "Switch"
+		},
+		"gender": "female",
+		"universe": "Xenoblade"
+	},
+	"Richter": {
+		"first_appearance": {
+			"date": "1993-10-29",
+			"game": "Castlevania: Rondo of Blood",
+			"platform": "PC Engine CD"
+		},
+		"full_name": "Richter Belmont",
+		"gender": "male",
+		"number": 66,
+		"owner": "Konami",
+		"universe": "Castlevania"
+	},
+	"Ridley": {
+		"first_appearance": {
+			"date": "1986-08-06",
+			"game": "Metroid",
+			"platform": "FDS"
+		},
+		"gender": "male",
+		"number": 65,
+		"other_names": [
+			"Geoform 187"
+		],
+		"universe": "Metroid"
+	},
+	"ROB": {
+		"first_appearance": {
+			"date": "1985-07-26",
+			//Does not actually appear in Robot Series games, so technically first appears in Kirby's Dream Land 3
+			"game": "Stack-Up",
+			"platform": "NES"
+		},
+		"full_name": "Robotic Operating Buddy",
+		"gender": "male",
+		"number": 42,
+		"other_names": [
+			"HVC-012"
+		],
+		"universe": "R.O.B." //This is what it is officially, even though he is from real life, and the two games were called "Robot Series" at the time
+	},
+	"Robin": {
+		"first_appearance": {
+			"date": "2012-04-19",
+			"game": "Fire Emblem: Awakening",
+			"platform": "3DS"
+		},
+		"gender": "selectable",
+		"number": 56,
+		"universe": "Fire Emblem"
+	},
+	"Rosalina & Luma": {
+		"abbrev": "Rosalina",
+		"first_appearance": {
+			"date": "2007-11-01",
+			"game": "Super Mario Galaxy",
+			"platform": "Wii"
+		},
+		"gender": "multiple",
+		"number": 48,
+		"universe": "Mario"
+	},
+	"Roy": {
+		"first_appearance": {
+			"date": "2001-11-21",
+			"game": "Super Smash Bros. Melee", //lol xd
+			"platform": "GameCube"
+		},
+		"gender": "male",
+		"number": 25,
+		"universe": "Fire Emblem"
+	},
+	"Roy Koopa": {
+		//Not allowed to just be called Roy
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"gender": "male"
+	},
+	"Ryu": {
+		"first_appearance": {
+			"date": "1987-08-30",
+			"game": "Street Fighter",
+			"platform": "Arcade"
+		},
+		"full_name": "Ryu Hoshi",
+		"gender": "male",
+		"number": 60,
+		"owner": "Capcom",
+		"universe": "Street Fighter"
+	},
+	"Samus": {
+		"first_appearance": {
+			"date": "1986-08-06",
+			"game": "Metroid",
+			"platform": "FDS"
+		},
+		"full_name": "Samus Aran",
+		"gender": "female",
+		"number": 4,
+		"universe": "Metroid"
+	},
+	"Sans": {
+		//Only Mii costume that people recognize as a separate character
+		"costume_for": "Mii Gunner",
+		"first_appearance": {
+			"date": "2015-09-15",
+			"game": "Undertale",
+			"platform": "PC"
+		},
+		"gender": "male",
+		"owner": "Toby Fox",
+		"universe": "Undertale"
+	},
+	"Sephiroth": {
+		"first_appearance": {
+			"date": "1997-01-31",
+			"game": "Final Fantasy 7",
+			"platform": "PS1"
+		},
+		"gender": "male",
+		"number": 78,
+		"owner": "Square Enix",
+		"universe": "Final Fantasy"
+	},
+	"Sheik": {
+		"first_appearance": {
+			"date": "1998-11-21",
+			"game": "The Legend of Zelda: Ocarina of Time",
+			"platform": "N64"
+		},
+		"gender": "female", //Open to interpretation/fan theories, but that is the official stance
+		"number": 16,
+		"universe": "Legend of Zelda"
+	},
+	"Shulk": {
+		"first_appearance": {
+			"date": "2010-07-10",
+			"game": "Xenoblade Chronicles",
+			"platform": "Wii"
+		},
+		"gender": "male",
+		"number": 57,
+		"universe": "Xenoblade"
+	},
+	"Simon": {
+		"first_appearance": {
+			"date": "1986-09-26",
+			"game": "Castlevania",
+			"platform": "FDS"
+		},
+		"full_name": "Simon Belmont",
+		"gender": "male",
+		"number": 66,
+		"owner": "Konami",
+		"universe": "Castlevania"
+	},
+	"Snake": {
+		"first_appearance": {
+			"date": "1987-07-13",
+			"game": "Metal Gear",
+			"platform": "MSX2"
+		},
+		"gender": "male",
+		"number": 31,
+		"owner": "Konami",
+		"universe": "Metal Gear"
+	},
+	"Solo": {
+		"costume_for": "Hero",
+		"first_appearance": {
+			"date": "1990-02-11",
+			"game": "Dragon Quest 4",
+			"platform": "NES"
+		},
+		"gender": "male",
+		"other_names": [
+			"Sofia",
+			"Ray",
+			"Yuuril"
+		],
+		"owner": "Square Enix"
+	},
+	"Sonic": {
+		"first_appearance": {
+			"date": "1990-10-03",
+			"game": "Rad Mobile",
+			"platform": "Arcade"
+		},
+		"full_name": "Sonic Maurice Hedgehog",
+		"gender": "male",
+		"number": 38,
+		"owner": "Sega",
+		"universe": "Sonic"
+	},
+	"Sora": {
+		"first_appearance": {
+			"date": "2002-03-28",
+			"game": "Kingdom Hearts",
+			"platform": "PS2"
+		},
+		"gender": "male",
+		"number": 82,
+		"owner": "Disney",
+		"universe": "Kingdom Hearts"
+	},
+	"Squirtle": {
+		"first_appearance": {
+			"date": "1996-02-27",
+			"game": "Pokémon Red and Green",
+			"platform": "Game Boy"
+		},
+		"gender": "unspecified",
+		"number": 33,
+		"universe": "Pokémon"
+	},
+	"Steve": {
+		"first_appearance": {
+			"date": "2009-05-17",
+			"game": "Minecraft",
+			"platform": "PC"
+		},
+		"gender": "male", //selectable via costumes
+		"number": 77,
+		"owner": "Microsoft",
+		"universe": "Minecraft"
+	},
+	"Terry": {
+		"first_appearance": {
+			"date": "1991-11-25",
+			"game": "Fatal Fury",
+			"platform": "Arcade"
+		},
+		"full_name": "Terry Bogard",
+		"gender": "male",
+		"number": 74,
+		"owner": "SNK",
+		"universe": "Fatal Fury"
+	},
+	"Toon Link": {
+		//abbrev: sometimes Tink
+		"first_appearance": {
+			"date": "2002-12-13",
+			"game": "The Legend of Zelda: The Wind Waker",
+			"platform": "GameCube"
+		},
+		"gender": "male",
+		"number": 43,
+		"universe": "Legend of Zelda"
+	},
+	"Villager": {
+		"first_appearance": {
+			"date": "2001-11-21",
+			"game": "Animal Crossing",
+			"platform": "N64"
+		},
+		"gender": "selectable",
+		"number": 45,
+		"universe": "Animal Crossing"
+	},
+	"Wario": {
+		"first_appearance": {
+			"date": "1992-10-21",
+			"game": "Super Mario Land 2",
+			"platform": "Game Boy"
+		},
+		"gender": "male",
+		"number": 30,
+		"universe": "Wario"
+	},
+	"Wendy": {
+		"costume_for": "Bowser Jr.",
+		"first_appearance": {
+			"date": "1988-10-23",
+			"game": "Super Mario Bros. 3",
+			"platform": "NES"
+		},
+		"full_name": "Wendy O. Koopa",
+		"gender": "female"
+	},
+	"Wii Fit Trainer": {
+		"abbrev": "Wii Fit",
+		"first_appearance": {
+			"date": "2007-12-01",
+			"game": "Wii Fit",
+			"platform": "Wii"
+		},
+		"gender": "selectable",
+		"number": 47,
+		"universe": "Wii Fit"
+	},
+	"Wolf": {
+		"first_appearance": {
+			"date": "1997-04-27",
+			"game": "Star Fox 64",
+			"platform": "N64"
+		},
+		"full_name": "Wolf O'Donnell",
+		"gender": "male",
+		"number": 44,
+		"universe": "Star Fox"
+	},
+	"Yoshi": {
+		"first_appearance": {
+			"date": "1990-11-21",
+			"game": "Super Mario World",
+			"platform": "SNES"
+		},
+		"full_name": "T. Yoshisaur Munchakoopas",
+		"gender": "male",
+		"number": 5,
+		"universe": "Yoshi" //Officially, even if normally part of the Mario series 
+	},
+	"Young Link": {
+		"first_appearance": {
+			"date": "1998-11-21",
+			"game": "The Legend of Zelda: Ocarina of Time",
+			"platform": "N64"
+		},
+		"gender": "male",
+		"number": 22,
+		"universe": "Legend of Zelda"
+		//abbrev: Sometimes Yink
+	},
+	"Zelda": {
+		"first_appearance": {
+			"date": "1986-02-21",
+			"game": "The Legend of Zelda",
+			"platform": "FDS"
+		},
+		"gender": "female",
+		"number": 17,
+		"universe": "Legend of Zelda"
+	},
+	"Zero Suit Samus": {
+		"first_appearance": {
+			"date": "2004-05-27",
+			"game": "Metroid: Zero Mission",
+			"platform": "GBA"
+		},
+		"full_name": "Zero Suit Samus Aran",
+		"gender": "female",
+		"number": 29,
+		"universe": "Metroid"
+	},
+	"Zombie": {
+		"costume_for": "Steve",
+		"first_appearance": {
+			"date": "2009-05-17",
+			"game": "Minecraft",
+			"platform": "PC"
+		},
+		"gender": "agender",
+		"owner": "Microsoft"
+	}
+}
