@@ -1,4 +1,5 @@
 from collections.abc import Collection, Mapping, MutableMapping
+from datetime import date
 from functools import cache, lru_cache
 from typing import cast
 
@@ -127,6 +128,44 @@ class Character(Resource):
 		self.__add_info()
 		return self.get('universe')
 	
+	@property
+	def gender(self) -> str | None:
+		"""Gender of this character: "male", "female", "non-binary", "agender", "selectable", "multiple" if multiple characters, "unspecified" if nondescript species, etc"""
+		self.__add_info()
+		return self.get('gender')
+	
+	@property
+	def fighter_number(self) -> int | None:
+		"""Official fighter number for this character"""
+		self.__add_info()
+		return self.get('number')
+	
+	@property
+	def owner(self) -> str:
+		"""Company that owns this character"""
+		self.__add_info()
+		return self.get('owner', 'Nintendo')
+	
+	@property
+	def is_third_party(self) -> bool:
+		"""If character is not owned by Nintendo"""
+		return self.owner != 'Nintendo'
+	
+	@property
+	def type(self) -> str:
+		"""How the character is obtained: starter, unlockable, transformation, creatable, dlc"""
+		self.__add_game_info()
+		return self.get('type', 'starter')
+	
+	@property
+	def release_date(self) -> date | None:
+		"""If this is a DLC character, when they were released"""
+		self.__add_game_info()
+		release_date = self.get('release_date')
+		if release_date:
+			return date.fromisoformat(release_date)
+		return None
+
 	@property
 	def character_groups(self) -> Collection[str]:
 		"""If this character is similar enough to another in their game that they might be grouped together, returns the names of those combined groups, if any"""

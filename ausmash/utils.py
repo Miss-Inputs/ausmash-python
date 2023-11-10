@@ -1,7 +1,6 @@
 import importlib.resources
 import json
 import re
-from typing import Any
 
 from ausmash.typedefs import JSON
 
