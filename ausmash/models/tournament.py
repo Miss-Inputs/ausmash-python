@@ -175,6 +175,8 @@ class Tournament(Resource):
 	def __start_gg_location(self) -> Mapping[str, JSON] | None:
 		if not has_startgg_api_key():
 			return None
+		if not self.start_gg_slug:
+			return None
 		return get_tournament_location(self.start_gg_slug)
 	
 	@property
