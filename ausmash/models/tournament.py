@@ -94,19 +94,26 @@ class Tournament(Resource):
 		return True, series_abbrev_name, name[series_name_len + 1:].removesuffix(' Esports')
 
 	@property
-	def index(self) -> int | str | None:
+	def index(self) -> str | None:
 		"""Number or subtitle etc of this tournament within the series, e.g. "Cool Weekly #3" -> 3"""
 		split = self.__split_abbrev_name
 		if not split[0]:
-			return False
+			return None
 		name_remainder = split[2]
-		if name_remainder == '💯':
+		return name_remainder
+	
+	@property
+	def index_num(self) -> int | None:
+		"""The subtitle of this tournament within its series as with .index, but only returns an int, or None if it is not numeric"""
+		index = self.index
+		if not index:
+			return None
+		if index == '💯':
 			return 100
 		try:
-			return int(name_remainder)
+			return int(index)
 		except ValueError:
-			pass
-		return name_remainder
+			return None
 
 	@property
 	def abbrev_name(self) -> str:
