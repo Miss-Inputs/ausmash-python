@@ -167,6 +167,14 @@ class Tournament(Resource):
 		return None
 	
 	def __other_phase_for_event(self, e: Event, previous=False) -> Event | None:
+		#Can't use functools.cache here… or we could, but it'd cause a memory leak
+		
+		if not hasattr(self, '__phase_event_cache'):
+			self.__phase_event_cache = {}
+		cached = self.__phase_event_cache.get((e.id, previous), ...)
+		if cached is not ...:
+			return cached
+		
 		#While we've documented the order of .events doesn't always work, we have to assume it does
 		event_indices = {e: i for i, e in enumerate(self.events)}
 		index = event_indices.get(e)
@@ -175,21 +183,27 @@ class Tournament(Resource):
 		from .result import Result #Avoid ye olde circular import
 		#Just to be really sure, make sure players from the next phase are all in the previous one
 		results = Result.results_for_event(e)
+		if not results:
+			self.__phase_event_cache[(e.id, previous)] = None
+			return None
 		result_players = {result.player_name for result in results}
 		def all_event_players_are_in_this_event(event: Event) -> bool:
 			return all(result.player_name in result_players for result in Result.results_for_event(event))
 		def all_players_are_in_event(event: Event) -> bool:
 			player_names = {result.player_name for result in Result.results_for_event(event)}
-			return all(player in player_names for player in result_players)
+			return player_names and all(player in player_names for player in result_players)
 
 		potential_events_and_indexes = [(event, i) for event, i in event_indices.items() if (i < index if previous else i > index) and e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and e.is_redemption_bracket == event.is_redemption_bracket and (all_players_are_in_event(event) if previous else all_event_players_are_in_this_event(event))]
-		if not potential_events_and_indexes:
-			return None
-
-		if previous:
-			return max(potential_events_and_indexes, key=operator.itemgetter(1))[0]
-		return min(potential_events_and_indexes, key=operator.itemgetter(1))[0]
 		
+		if not potential_events_and_indexes:
+			phase = None
+		elif previous:
+			phase = max(potential_events_and_indexes, key=operator.itemgetter(1))[0]
+		else:
+			phase = min(potential_events_and_indexes, key=operator.itemgetter(1))[0]
+		self.__phase_event_cache[(e.id, previous)] = phase
+		return phase
+
 	def next_phase_for_event(self, e: Event) -> Event | None:
 		"""If e has a next phase as an Event, e.g. e is a round robin pools that progresses into a pro bracket, return that next phase
 		If e is not, or could not tell what the next is, return None

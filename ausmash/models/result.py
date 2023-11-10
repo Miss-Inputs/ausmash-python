@@ -205,13 +205,14 @@ class Result(ResultMixin, DictWrapper):
 		next_phase = self.tournament.next_phase_for_event(self.event)
 		if next_phase:
 			pro_bracket_results = Result.results_for_event(next_phase)
-			pro_bracket_size = pro_bracket_results[0].number_of_entrants
-			pro_bracket_result = next((r for r in pro_bracket_results if r.player == self.player), None)
-			if pro_bracket_result:
-				return pro_bracket_result.placing
-			
-			#glub glub glub
-			return Result.get_pools_drown_placing(self.placing, pro_bracket_size, pro_bracket_size, self.number_of_pools, self.number_of_entrants, self.number_of_entrants)
+			if pro_bracket_results:
+				pro_bracket_size = pro_bracket_results[0].number_of_entrants
+				pro_bracket_result = next((r for r in pro_bracket_results if r.player == self.player), None)
+				if pro_bracket_result:
+					return pro_bracket_result.placing
+				
+				#glub glub glub
+				return Result.get_pools_drown_placing(self.placing, pro_bracket_size, pro_bracket_size, self.number_of_pools, self.number_of_entrants, self.number_of_entrants)
 
 		return self.placing
 	
