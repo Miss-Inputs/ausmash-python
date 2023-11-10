@@ -48,7 +48,7 @@ class Tournament(Resource):
 		for tournament in cls.search(name):
 			if tournament.name == name:
 				return tournament
-		raise KeyError(tournament)
+		raise KeyError(name)
 
 	@classmethod
 	def upcoming(cls) -> Sequence['Tournament']:
@@ -187,10 +187,27 @@ class Tournament(Resource):
 		return self.__other_phase_for_event(e, False)
 	
 	def previous_phase_for_event(self, e: Event) -> Event | None:
-		"""If e has a previous phase phase as an Event, e.g. e is a pro bracket that is progressed from a round robin pools, return that previous phase
+		"""If e has a previous phase as an Event, e.g. e is a pro bracket that is progressed from a round robin pools, return that previous phase
 		If e is not, or could not tell what the next is, return None
 		:raises ValueError: if e is not part of this tournament"""
 		return self.__other_phase_for_event(e, True)	
+	
+	def start_phase_for_event(self, e: Event) -> Event:
+		"""If e has any previous phases, returns the first one that players start in, or returns e
+		e.g. if there is pools > top 48 > top 8, will return pools for all of pools, top 48, and top 8"""
+		prev = self.previous_phase_for_event(e)
+		if not prev:
+			return e
+		return self.start_phase_for_event(prev)
+	
+	def final_phase_for_event(self, e: Event) -> Event:
+		"""If e has any previous phases, returns the last one that players will aim to end up in, or returns e
+		e.g. if there is pools > top 48 > top 8, will return top 8 for all of pools, top 48, and top 8"""
+		prev = self.next_phase_for_event(e)
+		if not prev:
+			return e
+		return self.final_phase_for_event(prev)
+
 
 class TournamentSeries(DictWrapper):
 	"""Series of tournaments, returned from /series or as part of of /tournament/{id}"""

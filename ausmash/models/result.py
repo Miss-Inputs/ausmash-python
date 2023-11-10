@@ -142,11 +142,12 @@ class Result(ResultMixin, DictWrapper):
 	
 	@cached_property
 	def total_entrants(self) -> int:
-		"""Like number_of_entrants, but if this was a result in a pro bracket, it will count the number of entrants in pools instead of only who made it into pro bracket
+		"""Like number_of_entrants, but if this has multiple phases as events, counts the number of entrants at the start phase
 		Pools should correctly have the number of all players and not just how many in each pool"""
-		pools = self.tournament.previous_phase_for_event(self.event)
-		if pools:
-			return len(self.results_for_event(pools))
+		prev_phase = self.tournament.previous_phase_for_event(self.event)
+		#First check that we have a previous phase, because if we don't, we can use number_of_entrants and potentially optimize the count we already had from .results_for_event
+		if prev_phase:
+			return len(self.results_for_event(self.tournament.start_phase_for_event(prev_phase)))
 		return self.number_of_entrants
 
 	@property
