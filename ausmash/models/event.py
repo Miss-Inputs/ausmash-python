@@ -41,7 +41,7 @@ class Event(DictWrapper):
 	Also not a resource (only obtainable as a result of full Tournament from /tournament/{id}) but has an APILink, which
 	can't really be used to do anything?"""
 
-	__redemption_bracket_name = re.compile(r'\b(?:amateur|ammies|redemption|redemmies|ammys|no cigar)\b', re.IGNORECASE) #I thiiink Pissmas 2: No Cigar is some kind of redemption for 49th place?
+	__redemption_bracket_name = re.compile(r'\b(?:amateur|amateurs|ammies|redemption|redemmies|ammys|no cigar)\b', re.IGNORECASE) #I thiiink Pissmas 2: No Cigar is some kind of redemption for 49th place?
 	__side_bracket_name = re.compile(r'\b(?:mega smash|squad strike)\b', re.IGNORECASE)
 	__startgg_url = re.compile(r'https?://.*start.gg/tournament/(?P<tournament>[^/]+)/event/(?P<event>[^/]+)')
 
