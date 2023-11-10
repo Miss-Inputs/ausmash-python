@@ -200,10 +200,11 @@ class Result(ResultMixin, DictWrapper):
 		"""Returns a placing that makes sense for comparison purposes, even if this is an RR pools event and player drowned (rather than returning the result for just within that pool), e.g. if top 2 of each pool makes it out into top 8, this returns 9th instead of 3rd and 13th instead of 4th, etc, of course returning the pro bracket result if that was achieved
 		Maybe this needs a better name? I dunno"""
 		#TODO: I dunno what would happen if this is used on a swiss or waterfall bracket, probably not work how I think it works
+		#TODO: Add more tests, idiot
 
-		pro_bracket = self.tournament.next_phase_for_event(self.event)
-		if pro_bracket:
-			pro_bracket_results = Result.results_for_event(pro_bracket)
+		next_phase = self.tournament.next_phase_for_event(self.event)
+		if next_phase:
+			pro_bracket_results = Result.results_for_event(next_phase)
 			pro_bracket_size = pro_bracket_results[0].number_of_entrants
 			pro_bracket_result = next((r for r in pro_bracket_results if r.player == self.player), None)
 			if pro_bracket_result:

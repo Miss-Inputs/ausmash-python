@@ -172,10 +172,20 @@ class Tournament(Resource):
 		index = event_indices.get(e)
 		if index is None:
 			raise ValueError(f'{e.id} {e} does not belong to this tournament')
-		potential_events_and_indexes = [(event, i) for event, i in event_indices.items() if (i < index if previous else i > index) and e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and e.is_redemption_bracket == event.is_redemption_bracket]
+		from .result import Result #Avoid ye olde circular import
+		#Just to be really sure, make sure players from the next phase are all in the previous one
+		results = Result.results_for_event(e)
+		result_players = {result.player_name for result in results}
+		def all_event_players_are_in_this_event(event: Event) -> bool:
+			return all(result.player_name in result_players for result in Result.results_for_event(event))
+		def all_players_are_in_event(event: Event) -> bool:
+			player_names = {result.player_name for result in Result.results_for_event(event)}
+			return all(player in player_names for player in result_players)
+
+		potential_events_and_indexes = [(event, i) for event, i in event_indices.items() if (i < index if previous else i > index) and e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and e.is_redemption_bracket == event.is_redemption_bracket and (all_players_are_in_event(event) if previous else all_event_players_are_in_this_event(event))]
 		if not potential_events_and_indexes:
 			return None
-		
+
 		if previous:
 			return max(potential_events_and_indexes, key=operator.itemgetter(1))[0]
 		return min(potential_events_and_indexes, key=operator.itemgetter(1))[0]
