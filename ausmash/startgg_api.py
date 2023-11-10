@@ -44,6 +44,9 @@ class _SessionSingleton():
 			cls.__instance._inited = False
 		return cls.__instance
 
+def has_startgg_api_key() -> bool:
+	return _settings.startgg_api_key is not None
+
 def __call_api(query_name: str, variables: Mapping[str, Any]|None) -> JSON:
 	ss = _SessionSingleton()
 	body: dict[str, Any] = {
@@ -85,6 +88,13 @@ def get_event_entrants(tournament_slug: str, event_slug: str) -> Sequence[Mappin
 			break
 		page += 1
 	return entrants
+
+def get_tournament_location(tournament_slug: str) -> Mapping[str, JSON] | None:
+	result = __call_api('GetTournamentLocation', {'slug': tournament_slug})
+	if not result:
+		#e.g. if tournament does not exist
+		return None
+	return result['tournament']
 
 def get_player_pronouns(player_id: int) -> str | None:
 	player = __call_api('GetPlayerPronouns', {'id': player_id})['player']

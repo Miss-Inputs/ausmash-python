@@ -2,7 +2,8 @@
 #Dumb shit alert: mypy barfs at Tournament.matches_date_filter if the type hint for start_date and end_date is simply date and not datetime.date, as it seems to think that means the Tournament.date property, for some reason; which causes too much screwiness to just slap a type: ignore on I think
 #It makes no sense because it's fine with Tournament.date itself returning a date, and also Tournament.date is not in the global scope
 import datetime
-from collections.abc import Collection, Sequence
+from collections.abc import Collection, Sequence, Mapping
+from functools import cached_property
 import logging
 import operator
 from typing import cast
@@ -10,7 +11,8 @@ from typing import cast
 from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
 from ausmash.resource import Resource
-from ausmash.typedefs import ID
+from ausmash.startgg_api import get_tournament_location, has_startgg_api_key
+from ausmash.typedefs import ID, JSON
 
 from .event import Event
 from .region import Region
@@ -143,10 +145,6 @@ class Tournament(Resource):
 		Everything has one now, so one-off tournaments probably need to be created with their own series"""
 		return TournamentSeries(self['Series'])
 	
-	@property
-	def city(self) -> str:
-		"""City within the region where this tournament was held, or more technically where it was expected to have been held given the series"""
-		return self.series.city
 
 	@property
 	def events(self) -> Sequence[Event]:
@@ -166,6 +164,80 @@ class Tournament(Resource):
 				return url.rsplit('/', 1)[-1]
 		return None
 	
+	@cached_property
+	def __start_gg_location(self) -> Mapping[str, JSON] | None:
+		if not has_startgg_api_key():
+			return None
+		return get_tournament_location(self.start_gg_slug)
+	
+	@property
+	def city(self) -> str:
+		"""City within the region where this tournament was held
+		If a start.gg API key is provided and an event from this tournament had been imported via start.gg, looks that up to get the city
+		If not or if the city is not listed on the start.gg page, returns the city that the series of this tournament usually takes place in"""
+		location = self.__start_gg_location
+		if location:
+			city = location['city']
+			if city:
+				return city
+		return self.series.city
+	
+	@property
+	def latitude(self) -> float | None:
+		"""If a start.gg API key is provided and an event from this tournament had been imported via start.gg, returns the latitude of the venue, if provided
+		Otherwise returns None
+		Presumably, this is WGS84"""
+		location = self.__start_gg_location
+		if location:
+			return location['lat']
+		return None
+
+	@property
+	def longitude(self) -> float | None:
+		"""If a start.gg API key is provided and an event from this tournament had been imported via start.gg, returns the longitude of the venue, if provided
+		Otherwise returns None
+		Presumably, this is WGS84"""
+		location = self.__start_gg_location
+		if location:
+			return location['lng']
+		return None
+	
+	@property
+	def postcode(self) -> str | None:
+		"""If a start.gg API key is provided and an event from this tournament had been imported via start.gg, returns the postcode of the venue's address, if provided
+		Otherwise returns None"""
+		location = self.__start_gg_location
+		if location:
+			return location['postalCode']
+		return None
+	
+	@property
+	def google_maps_place_id(self) -> str | None:
+		"""If a start.gg API key is provided and an event from this tournament had been imported via start.gg, returns the Google Maps place ID of the venue's address, if provided
+		Otherwise returns None"""
+		location = self.__start_gg_location
+		if location:
+			return location['mapsPlaceId']
+		return None
+	
+	@property
+	def venue_address(self) -> str | None:
+		"""If a start.gg API key is provided and an event from this tournament had been imported via start.gg, returns the venue's address, if provided
+		Otherwise returns None"""
+		location = self.__start_gg_location
+		if location:
+			return location['venueAddress']
+		return None
+
+	@property
+	def venue_name(self) -> str | None:
+		"""If a start.gg API key is provided and an event from this tournament had been imported via start.gg, returns the venue's name, if provided
+		Otherwise returns None"""
+		location = self.__start_gg_location
+		if location:
+			return location['venueName']
+		return None
+
 	def __other_phase_for_event(self, e: Event, previous=False) -> Event | None:
 		#Can't use functools.cache here… or we could, but it'd cause a memory leak
 		
@@ -236,6 +308,7 @@ class Tournament(Resource):
 class TournamentSeries(DictWrapper):
 	"""Series of tournaments, returned from /series or as part of of /tournament/{id}"""
 	name_abbreviations = {
+		#TODO: Move to data folder
 		#Does not have to be an acronym necessarily, just as long as it's still distintinguishable by the average person interested in those tournaments
 		'Ultimate Pop-Off Village': 'UPOV',
 		'Dancing Blade': 'DB',

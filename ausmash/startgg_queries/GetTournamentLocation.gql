@@ -1,0 +1,15 @@
+query GetTournamentLocation($slug: String!) {
+	tournament (slug: $slug) {
+		lat
+		lng
+		venueAddress
+		venueName
+		mapsPlaceId
+		
+		city
+		postalCode
+		addrState
+		timezone
+		countryCode
+	}
+}
