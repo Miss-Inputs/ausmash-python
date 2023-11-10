@@ -7,16 +7,15 @@ from ausmash.typedefs import ID
 from .api import call_api
 from .models.character import Character
 from .models.character_player import CharacterPlayer
+from .models.elo import Elo
 from .models.event import EventType
 from .models.game import Game
-from .models.player import Player
-from .models.pocket.match import (PocketMatchWithPOV, PocketVideo,
-                                  _BasePocketMatch)
 from .models.match import Match
+from .models.player import Player
+from .models.pocket.match import PocketMatchWithPOV, PocketVideo, _BasePocketMatch
 from .models.ranking import Ranking
 from .models.region import Region
 from .models.result import Result
-from .models.elo import Elo
 
 __doc__ = """Other API methods that I didn't feel like making into a class method of something in models, or want to import into here, for circular dependency reasons or whatever"""
 __all__ = [
@@ -25,7 +24,6 @@ __all__ = [
 	'get_players_of_character',
 	'get_videos_of_player_in_game',
 	'is_current_pr',
-	'was_player_pr_during_time',
 ]
 
 def get_players_of_character(char: Character) -> Collection[CharacterPlayer]:
@@ -72,14 +70,6 @@ def get_matches_of_player_in_game(player: Player, game: Game | str) -> Sequence[
 		game = Game(game)
 	return __flatten_pocket_match_array(player, call_api(f'pocket/player/matches/{player.id}/{game.id}'), PocketMatchWithPOV)
 
-def was_player_pr_during_time(player: Player, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> bool:
-	"""Returns true if a player was on a PR that was current for a certain timeframe, excluding player showcases"""
-	if isinstance(game, str):
-		game = Game(game)
-	rankings = Ranking.featuring_player(player, start_date, end_date)
-	#Ignore top 40 rankings etc
-	return any(ranking for ranking in rankings if ranking.game == game and not ranking.is_probably_player_showcase)
-
 def is_pr_win(self: _BasePocketMatch | Match) -> bool:
 	"""Returns true if a Match represents a win against a player that was PR at the time
 	This might not work properly…"""
@@ -87,7 +77,7 @@ def is_pr_win(self: _BasePocketMatch | Match) -> bool:
 		#Assume anyone not in the database (or untagged, perhaps deliberately due to being a side event) was not PR
 		return False
 	#TODO: Not entirely sure start_date and end_date are being used correctly here
-	return was_player_pr_during_time(self.loser, self.game, start_date=self.date, end_date=self.date)
+	return Ranking.was_player_pr_during_time(self.loser, self.game, start_date=self.date, end_date=self.date)
 
 def get_active_players(game: Game | str | None, region: Region | str | None, season_start: date | None=None, season_end: date | None=None, minimum_events_to_count: int=1, series_to_exclude: Collection[str] | None=None, only_count_locals: bool=True, only_count_main_bracket: bool=True) -> Collection[Player]:
 	"""Returns a list of players that are considered active according to certain optional parameters

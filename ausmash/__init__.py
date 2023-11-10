@@ -1,12 +1,28 @@
 
-from .methods import is_current_pr, is_pr_win, get_active_players, get_matches_of_player_in_game, get_players_of_character, get_videos_of_player_in_game, was_player_pr_during_time
-from .models.character import (Character, combine_echo_fighters)
-from .models.compare import (Comparison, compare_common_rankings, head_to_head,
-                             head_to_head_videos)
+from .exceptions import NotFoundError, RateLimitException
+from .methods import (
+    get_active_players,
+    get_matches_of_player_in_game,
+    get_players_of_character,
+    get_videos_of_player_in_game,
+    is_current_pr,
+    is_pr_win,
+)
+from .models.character import Character, combine_echo_fighters
+from .models.compare import (
+    Comparison,
+    compare_common_rankings,
+    head_to_head,
+    head_to_head_videos,
+)
 from .models.elo import Elo, EloBadge, probability_of_winning
-from .models.event import (BracketStyle, Event, EventType,
-                           normalized_elimination_bracket_sizes,
-                           possible_placings)
+from .models.event import (
+    BracketStyle,
+    Event,
+    EventType,
+    normalized_elimination_bracket_sizes,
+    possible_placings,
+)
 from .models.game import Game
 from .models.match import Match
 from .models.player import Player, WinRate
@@ -21,7 +37,6 @@ from .models.result import Result, rounds_from_victory
 from .models.tournament import Tournament, TournamentSeries
 from .models.trueskill import TrueSkill
 from .models.video import Channel, Video
-from .exceptions import NotFoundError, RateLimitException
 
 __all__ = [
 	'Channel',
@@ -67,7 +82,6 @@ __all__ = [
 	'possible_placings',
 	'probability_of_winning',
 	'rounds_from_victory',
-	'was_player_pr_during_time',
 
 	'NotFoundError',
 	'RateLimitException'

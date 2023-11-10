@@ -39,7 +39,7 @@ class Ranking(Resource):
 	@classmethod
 	def featuring_player(cls, player: Player, start_date: date | None=None, end_date: date | None=None) -> Sequence['Ranking']:
 		"""Rankings that a certain player has ever been on, from newest to oldest, optionally within a certain timeframe
-		TODO: Document if start_date or end_date are inclusive/exclusive"""
+		TODO: Document if start_date or end_date are inclusive/exclusive (because I dunno/forgor)"""
 		params = {}
 		if start_date:
 			params['startDate'] = start_date.isoformat()
@@ -110,7 +110,23 @@ class Ranking(Resource):
 	def is_active(self) -> bool:
 		#TODO: Please say there is a better way to do this
 		return self in Ranking.all_active()
-		
+
+	@classmethod
+	def get_player_ranks_during_time(cls, player: Player, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> Sequence['Rank']:
+		"""Return any ranks the player had during a timeframe"""
+		if isinstance(game, str):
+			game = Game(game)
+		rankings = cls.featuring_player(player, start_date, end_date)
+		return [rank for rank in (ranking.find_player(player) for ranking in rankings if ranking.game == game) if rank]
+
+	@classmethod
+	def was_player_pr_during_time(cls, player: Player, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> bool:
+		"""Returns true if a player was on a PR that was current for a certain timeframe, excluding player showcases"""
+		if isinstance(game, str):
+			game = Game(game)
+		rankings = cls.featuring_player(player, start_date, end_date)
+		return any(ranking for ranking in rankings if ranking.game == game and not ranking.is_probably_player_showcase)
+
 class Rank(DictWrapper):
 	"""Item of Players array in Ranking"""
 	@property
@@ -159,3 +175,10 @@ class RankingSequence(DictWrapper):
 	def rankings(self) -> Sequence[Ranking]:
 		"""Presumably, the first element is the most recent?"""
 		return Ranking.wrap_many(call_api(f'rankings/bysequence/{self.id}'))
+	
+	def get_ranks_for_player_during_time(self, player: Player, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> Sequence['Rank']:
+		"""Return any ranks in this sequence the player had during a timeframe"""
+		if isinstance(game, str):
+			game = Game(game)
+		rankings = Ranking.featuring_player(player, start_date, end_date)
+		return [rank for rank in (ranking.find_player(player) for ranking in rankings if ranking.sequence == self and ranking.game == game) if rank]
