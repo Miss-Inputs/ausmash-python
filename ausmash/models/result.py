@@ -213,6 +213,11 @@ class Result(ResultMixin, DictWrapper):
 			return Result.get_pools_drown_placing(self.placing, pro_bracket_size, pro_bracket_size, self.number_of_pools, self.number_of_entrants, self.number_of_entrants)
 
 		return self.placing
+	
+	@cached_property
+	def score(self) -> int:
+		"""Returns number of rounds cleared across all phases, or a number that can be used as a score for comparison if round robin was involved"""
+		return rounds_from_victory(self.total_entrants) - rounds_from_victory(self.real_placing)
 
 
 def rounds_from_victory(result: int) -> int:
