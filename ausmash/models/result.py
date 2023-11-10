@@ -144,7 +144,7 @@ class Result(ResultMixin, DictWrapper):
 	def total_entrants(self) -> int:
 		"""Like number_of_entrants, but if this was a result in a pro bracket, it will count the number of entrants in pools instead of only who made it into pro bracket
 		Pools should correctly have the number of all players and not just how many in each pool"""
-		pools = self.tournament.pools_for_event(self.event)
+		pools = self.tournament.previous_phase_for_event(self.event)
 		if pools:
 			return len(self.results_for_event(pools))
 		return self.number_of_entrants
@@ -200,7 +200,7 @@ class Result(ResultMixin, DictWrapper):
 		Maybe this needs a better name? I dunno"""
 		#TODO: I dunno what would happen if this is used on a swiss or waterfall bracket, probably not work how I think it works
 
-		pro_bracket = self.tournament.pro_bracket_for_event(self.event)
+		pro_bracket = self.tournament.next_phase_for_event(self.event)
 		if pro_bracket:
 			pro_bracket_results = Result.results_for_event(pro_bracket)
 			pro_bracket_size = pro_bracket_results[0].number_of_entrants

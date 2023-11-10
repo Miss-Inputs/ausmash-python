@@ -4,6 +4,7 @@
 import datetime
 from collections.abc import Collection, Sequence
 import logging
+import operator
 from typing import cast
 
 from ausmash.api import call_api
@@ -11,7 +12,7 @@ from ausmash.dictwrapper import DictWrapper
 from ausmash.resource import Resource
 from ausmash.typedefs import ID
 
-from .event import Event, BracketStyle
+from .event import Event
 from .region import Region
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,19 @@ class Tournament(Resource):
 		return cls.wrap_many(call_api('tourneys/search', {'q': query}))
 
 	@classmethod
+	def from_name(cls, name: str) -> 'Tournament':
+		"""Returns tournament with exact name
+		:raises KeyError: if no tournament with that name could be found
+		"""
+		for tournament in cls.search(name):
+			if tournament.name == name:
+				return tournament
+		raise KeyError(tournament)
+
+	@classmethod
 	def upcoming(cls) -> Sequence['Tournament']:
 		"""All tournaments occurring in the future
-		TODO: May be more to it - shows DB29 right now (Sun 19 Feb 2023, 7:46pm)? Is this a timezone issue"""
+		TODO: May be more to it - on Sun 19 Feb 2023, 7:46pm, showed Dancing Blade 29 (Sat 18 Feb 2023, 10am-8pm) as upcoming? Is this a timezone issue"""
 		return cls.wrap_many(call_api('tourneys/upcoming'))
 
 	@property
@@ -155,44 +166,31 @@ class Tournament(Resource):
 				return url.rsplit('/', 1)[-1]
 		return None
 	
-	def pro_bracket_for_event(self, e: Event) -> Event | None:
-		"""If e is a round robin pools that progresses into a different Event, return that Event
-		If e is not, or could not tell what the pro bracket is, return None
-		:raises ValueError: if e is not part of this tournament"""
-		events = self.events
-		if e not in events:
+	def __other_phase_for_event(self, e: Event, previous=False) -> Event | None:
+		#While we've documented the order of .events doesn't always work, we have to assume it does
+		event_indices = {e: i for i, e in enumerate(self.events)}
+		index = event_indices.get(e)
+		if index is None:
 			raise ValueError(f'{e.id} {e} does not belong to this tournament')
-		if e.is_redemption_bracket:
+		potential_events_and_indexes = [(event, i) for event, i in event_indices.items() if (i < index if previous else i > index) and e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and e.is_redemption_bracket == event.is_redemption_bracket]
+		if not potential_events_and_indexes:
 			return None
-		if e.bracket_style != BracketStyle.RoundRobin:
-			return None
-		potential_events = [event for event in events if e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.DoubleElimination and not event.is_redemption_bracket]
-		if not potential_events:
-			return None
-		if len(potential_events) > 1:
-			logger.warning('Getting confused, pro bracket for %s at %s could be: %s', e, self, potential_events)
-			return None
-		return potential_events[0]
-	
-	def pools_for_event(self, e: Event) -> Event | None:
-		"""If e is a pro bracket that another round robin pools Event progresses into, return that Event
-		If e is not, or could not tell what the pools event is, return None
+		
+		if previous:
+			return max(potential_events_and_indexes, key=operator.itemgetter(1))[0]
+		return min(potential_events_and_indexes, key=operator.itemgetter(1))[0]
+		
+	def next_phase_for_event(self, e: Event) -> Event | None:
+		"""If e has a next phase as an Event, e.g. e is a round robin pools that progresses into a pro bracket, return that next phase
+		If e is not, or could not tell what the next is, return None
 		:raises ValueError: if e is not part of this tournament"""
-		events = self.events
-		if e not in events:
-			raise ValueError(f'{e.id} {e} does not belong to this tournament')
-		if e.is_redemption_bracket:
-			return None
-		if e.bracket_style != BracketStyle.DoubleElimination:
-			return None
-		potential_events = [event for event in events if e.game == event.game and e.type == event.type and e.is_side_bracket == event.is_side_bracket and event.bracket_style == BracketStyle.RoundRobin]
-		if not potential_events:
-			return None
-		if len(potential_events) > 1:
-			logger.warning('Getting confused, pro bracket for %s at %s could be: %s', e, self, potential_events)
-			return None
-		return potential_events[0]
+		return self.__other_phase_for_event(e, False)
 	
+	def previous_phase_for_event(self, e: Event) -> Event | None:
+		"""If e has a previous phase phase as an Event, e.g. e is a pro bracket that is progressed from a round robin pools, return that previous phase
+		If e is not, or could not tell what the next is, return None
+		:raises ValueError: if e is not part of this tournament"""
+		return self.__other_phase_for_event(e, True)	
 
 class TournamentSeries(DictWrapper):
 	"""Series of tournaments, returned from /series or as part of of /tournament/{id}"""
