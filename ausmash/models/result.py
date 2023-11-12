@@ -201,6 +201,7 @@ class Result(ResultMixin, DictWrapper):
 		Maybe this needs a better name? I dunno"""
 		#TODO: I dunno what would happen if this is used on a swiss or waterfall bracket, probably not work how I think it works
 		#TODO: Add more tests, idiot
+		#Especially for DB35 Melee where this fails…
 
 		next_phase = self.tournament.next_phase_for_event(self.event)
 		if next_phase:

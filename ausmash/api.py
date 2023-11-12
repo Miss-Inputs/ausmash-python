@@ -3,6 +3,7 @@ from collections.abc import Iterable, Iterator, Mapping
 from datetime import date, datetime, timedelta
 from functools import cache
 from pathlib import Path
+import subprocess
 from time import sleep
 from urllib.parse import unquote_plus
 
@@ -12,6 +13,8 @@ from requests_cache import (EXPIRE_IMMEDIATELY, CachedSession, FileCache,
 from requests_cache.backends.sqlite import AnyPath
 from requests_cache.models import AnyRequest
 from requests_cache.serializers import SerializerType
+
+from .version import get_git_version, __version__
 
 from .exceptions import NotFoundError, RateLimitException
 from .settings import AusmashAPISettings
@@ -69,11 +72,20 @@ class _FileDictWithDirectories(FileDict):
 		with self._lock:
 			return self.cache_dir.rglob(f'*{self.extension}')
 
+def get_user_agent() -> str:
+	try:
+		version = get_git_version()
+	except subprocess.CalledProcessError:
+		version = f'v{__version__}'
+	return f'ausmash-python {version}'
+
+#TODO: This should be better reorganized for testability, etc - _SessionSingleton should be something like Client and not a singleton, and there would then be a default_client which is used unless something else sets api.client to something else, and maybe there can be a using_client() context manager
+
 class _SessionSingleton():
 	"""Share a single session for all API requests (presumably that will work and also improve performance), also keep track of how many requests are sent within a certain timeframe so that we don't go over the limit"""
 	__instance = None
 
-	def __init__(self, cache_expiry: timedelta | None = None) -> None:
+	def __init__(self, cache_expiry: timedelta | int | None = None) -> None:
 		self._inited: bool
 		if self._inited:
 			return
@@ -81,7 +93,7 @@ class _SessionSingleton():
 
 		if cache_expiry is None:
 			cache_expiry = EXPIRE_IMMEDIATELY if _settings.cache_timeout is None else _settings.cache_timeout
-		self.sesh = CachedSession('ausmash', _FileCacheWithDirectories('ausmash', use_cache_dir=True), expire_after=cache_expiry, stale_if_error=True)
+		self.sesh = CachedSession('ausmash', _FileCacheWithDirectories('ausmash', use_cache_dir=True), expire_after=cache_expiry, stale_if_error=True, headers={'User-Agent': get_user_agent()})
 		self.sesh.cache.delete(expired=True)
 		self.sesh.hooks = {'response': _hax_content_type}
 		self.last_sent: datetime | None = None

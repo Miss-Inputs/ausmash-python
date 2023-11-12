@@ -10,6 +10,7 @@ from requests_cache import CachedSession
 from ausmash.exceptions import RateLimitException, StartGGException
 from ausmash.settings import AusmashAPISettings
 from ausmash.typedefs import JSON
+from .api import get_user_agent
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class _SessionSingleton():
 			return
 		self._inited = True
 
-		self.sesh = CachedSession('startgg', 'filesystem', use_cache_dir=True, decode_content=True, allowable_methods=['GET', 'POST'])
+		self.sesh = CachedSession('startgg', 'filesystem', use_cache_dir=True, decode_content=True, allowable_methods=['GET', 'POST'], headers={'User-Agent': get_user_agent()})
 		self.last_sent: datetime | None = None
 		self.requests_per_minute = 0
 		
