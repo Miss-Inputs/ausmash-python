@@ -117,17 +117,26 @@ class Event(DictWrapper):
 		return match['tournament']
 	
 	@cached_property
-	def seeds(self) -> Mapping['Player', int | None] | None:
+	def seeds(self) -> Mapping['Player | str', int | None] | None:
 		"""Requires start.gg API key, gets player > seed number for this event, attempting to match start.gg player ID to Player
-		Will only do anything for singles events because otherwise ehhh gets weird
+		Will only return anything for singles events for now
 		Otherwise returns None"""
 		if not self.startgg_slug or not self.tournament_startgg_slug:
 			return None
 		entrants = get_event_entrants(self.tournament_startgg_slug, self.startgg_slug)
-		startgg_id_seeds: dict[int, int | None] = {entrant['participants'][0]['player']['id']: next((seed for seed in entrant['seeds'] if seed['progressionSource'] is None), None)['seedNum'] for entrant in entrants if len(entrant['participants']) == 1}
-		startgg_tag_seeds: dict[int, int] = {entrant['participants'][0]['gamerTag'].lower(): next((seed for seed in entrant['seeds'] if seed['progressionSource'] is None), None)['seedNum'] for entrant in entrants if len(entrant['participants']) == 1}
+		
+		seeds_by_id: dict[int, int | None] = {}
+		seeds_by_tag: dict[str, int | None] = {}
+		for entrant in entrants:
+			if len(entrant['participants']) != 1:
+				continue #TODO: Doubles team seeds, this would need to return Player | str | tuple[Player | str, Player | str] instead
+			seed = next((seed['seedNum'] for seed in entrant['seeds'] if seed['progressionSource'] is None), None)
+			seeds_by_id[entrant['participants'][0]['player']['id']] = seed
+			seeds_by_tag[entrant['participants'][0]['gamerTag'].lower()] = seed
+			seeds_by_tag[entrant['name'].lower()] = seed
+
 		from .result import \
 		    Result  # Bugger it, naughty import outside of the top to avoid circular nonsense
-		return {result.player: startgg_id_seeds.get(result.player.start_gg_player_id, startgg_tag_seeds.get(result.player_name.lower())) if result.player else None for result in Result.results_for_event(self)}
+		return {result.player or result.player_name: seeds_by_id.get(result.player.start_gg_player_id if result.player else None, seeds_by_tag.get(result.player_name.lower())) for result in Result.results_for_event(self)}
 
 __doc__ = Event.__doc__ or __name__

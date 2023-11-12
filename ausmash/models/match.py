@@ -354,8 +354,8 @@ class Match(DictWrapper):
 		seeds = self.event.seeds
 		if seeds is None:
 			return None
-		winner_seed = seeds.get(self.winner)
-		loser_seed = seeds.get(self.loser)
+		winner_seed = seeds.get(self.winner or self.winner_name)
+		loser_seed = seeds.get(self.loser or self.loser_name)
 		if winner_seed is None or loser_seed is None:
 			return None
 		
