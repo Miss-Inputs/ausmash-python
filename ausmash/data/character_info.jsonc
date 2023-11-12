@@ -295,6 +295,96 @@
 		"number": 50,
 		"universe": "Pokémon"
 	},
+	"Guest A (Mii Brawler)": {
+		"gender": "male",
+		"costume_for": "Mii Brawler",
+		"full_name": "Buggy"
+	},
+	"Guest A (Mii Swordfighter)": {
+		"gender": "male",
+		"costume_for": "Mii Swordfighter",
+		"full_name": "Buggy"
+	},
+	"Guest A (Mii Gunner)": {
+		"gender": "male",
+		"costume_for": "Mii Gunner",
+		"full_name": "Buggy"
+	},
+	"Guest B (Mii Brawler)": {
+		"gender": "male",
+		"costume_for": "Mii Brawler",
+		"full_name": "Bee"
+	},
+	"Guest B (Mii Swordfighter)": {
+		"gender": "male",
+		"costume_for": "Mii Swordfighter",
+		"full_name": "Bee"
+	},
+	"Guest B (Mii Gunner)": {
+		"gender": "male",
+		"costume_for": "Mii Gunner",
+		"full_name": "Bee"
+	},
+	"Guest C (Mii Brawler)": {
+		"gender": "male",
+		"costume_for": "Mii Brawler",
+		"full_name": "Hubble"
+	},
+	"Guest C (Mii Swordfighter)": {
+		"gender": "male",
+		"costume_for": "Mii Swordfighter",
+		"full_name": "Hubble"
+	},
+	"Guest C (Mii Gunner)": {
+		"gender": "male",
+		"costume_for": "Mii Gunner",
+		"full_name": "Hubble"
+	},
+	"Guest D (Mii Brawler)": {
+		"gender": "female",
+		"costume_for": "Mii Brawler",
+		"full_name": "Nugget"
+	},
+	"Guest D (Mii Swordfighter)": {
+		"gender": "female",
+		"costume_for": "Mii Swordfighter",
+		"full_name": "Nugget"
+	},
+	"Guest D (Mii Gunner)": {
+		"gender": "female",
+		"costume_for": "Mii Gunner",
+		"full_name": "Nugget"
+	},	
+	"Guest E (Mii Brawler)": {
+		"gender": "female",
+		"costume_for": "Mii Brawler",
+		"full_name": "Mango"
+	},
+	"Guest E (Mii Swordfighter)": {
+		"gender": "female",
+		"costume_for": "Mii Swordfighter",
+		"full_name": "Mango"
+	},
+	"Guest E (Mii Gunner)": {
+		"gender": "female",
+		"costume_for": "Mii Gunner",
+		"full_name": "Mango"
+	},
+	"Guest F (Mii Brawler)": {
+		"gender": "female",
+		"costume_for": "Mii Brawler",
+		"full_name": "Shigi"
+	},
+	"Guest F (Mii Swordfighter)": {
+		"gender": "female",
+		"costume_for": "Mii Swordfighter",
+		"full_name": "Shigi"
+	},
+	"Guest F (Mii Gunner)": {
+		"gender": "female",
+		"costume_for": "Mii Gunner",
+		"full_name": "Shigi"
+	},
 	"Hero": {
 		"first_appearance": {
 			"date": "1988-02-10",
