@@ -117,12 +117,6 @@ class Player(Resource):
 		return cast(URL | None, self['FacebookUrl'])
 
 	@property
-	def ssbworld_url(self) -> URL | None:
-		"""Link to this user's SSBWorld profile, if they added this to their player page
-		Note that SSBWorld is no longer an active site and has stoppd accepting new contributions"""
-		return cast(URL | None, self['SSBWorldUrl'])
-
-	@property
 	def biography(self) -> str | None:
 		"""User's biography, if they have written one
 		May contain BBCode markup, including custom [char]character name[/char] tag to display a stock icon"""
