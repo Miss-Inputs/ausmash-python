@@ -42,7 +42,7 @@ class _SessionSingleton:
 
 	def __new__(cls: type['_SessionSingleton']) -> '_SessionSingleton':
 		if not cls.__instance:
-			cls.__instance = super(_SessionSingleton, cls).__new__(cls)
+			cls.__instance = super().__new__(cls)
 			cls.__instance._inited = False
 		return cls.__instance
 

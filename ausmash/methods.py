@@ -1,8 +1,6 @@
 from collections.abc import Collection, MutableMapping, Sequence
 from datetime import date
-from typing import Any, TypeVar
-
-from ausmash.typedefs import ID
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from .api import call_api
 from .models.character import Character
@@ -16,6 +14,9 @@ from .models.pocket.match import PocketMatchWithPOV, PocketVideo, _BasePocketMat
 from .models.ranking import Ranking
 from .models.region import Region
 from .models.result import Result
+
+if TYPE_CHECKING:
+	from ausmash.typedefs import ID
 
 __doc__ = """Other API methods that I didn't feel like making into a class method of something in models, or want to import into here, for circular dependency reasons or whatever"""
 __all__ = [
@@ -92,7 +93,7 @@ def get_active_players(game: Game | str | None, region: Region | str | None, sea
 	@param only_count_main_bracket: Don't count a player as attending a tournament if they only entered redemption, a side bracket, or doubles
 	"""
 
-	players: dict[Player, tuple[set[ID], set[ID]]] = {} #Locals tournament IDs, interstate tournament IDs
+	players: dict[Player, tuple[set['ID'], set['ID']]] = {} #Locals tournament IDs, interstate tournament IDs
 	
 	players_to_check = (e.player for e in Elo.for_game(game, region) if not season_start or (e.last_active >= season_start)) if game else Player.all(region)
 	for player in players_to_check:

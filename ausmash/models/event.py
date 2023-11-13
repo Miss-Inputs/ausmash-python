@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 #2 ** 16 is just an arbitrary maximum and I doubt there would be more entrants in a tournament ever than that
 	#(item for sublist in list_of_lists for item in sublist)
 normalized_elimination_bracket_sizes: Sequence[int] = tuple(2 ** n for n in range(1, 16)) #2 ** 16 is just arbitrarily the highest bracket size we will even think about
-possible_placings: Sequence[int] = (1, 2) + tuple(itertools.chain.from_iterable((n + 1, int(n * 1.5) + 1) for n in normalized_elimination_bracket_sizes))
+possible_placings: Sequence[int] = (1, 2, *tuple(itertools.chain.from_iterable((n + 1, int(n * 1.5) + 1) for n in normalized_elimination_bracket_sizes)))
 
 class EventType(str, Enum):
 	"""Values for Event.type"""
