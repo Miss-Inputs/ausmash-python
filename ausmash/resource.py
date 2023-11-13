@@ -1,6 +1,6 @@
 import logging
 from functools import cached_property
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from ausmash.api import call_api
 from ausmash.exceptions import NotFoundError
@@ -8,9 +8,11 @@ from ausmash.exceptions import NotFoundError
 from .dictwrapper import DictWrapper
 from .typedefs import ID, URL, JSONDict
 
+if TYPE_CHECKING:
+	from typing_extensions import Self
+
 logger = logging.getLogger(__name__)
 
-_T = TypeVar('_T', bound='Resource') #Dang I dunno what else to call type vars
 class Resource(DictWrapper):
 	"""Something accessible directly by REST methods, with a /{base_url}/{id} endpoint that returns all fields. Acts as a proxy object for its own type, requesting APILink or the ID if it needs to access a field that isn't defined because this was returned from a property of something else etc"""
 	base_url: str | None = None
@@ -48,7 +50,7 @@ class Resource(DictWrapper):
 		return hash(self.id)
 
 	@classmethod
-	def get_by_id(cls: type[_T], id_: ID) -> _T:
+	def get_by_id(cls: type['Self'], id_: ID) -> 'Self':
 		"""Gets a new instance of this resource from an ID representing it
 		:raises NotFoundError: If the request for this ID did not find anything
 		:raises HTTPError: If some other HTTP error happens"""
@@ -58,7 +60,7 @@ class Resource(DictWrapper):
 			raise NotFoundError(f'{cls.__qualname__} with ID {id_} not found') from e
 			
 	@cached_property
-	def _complete(self: _T) -> _T:
+	def _complete(self: 'Self') -> 'Self':
 		if self._data.get('is_complete'):
 			raise NotImplementedError('This was already a complete resource')
 		complete: dict[str, Any] | None = None

@@ -13,7 +13,7 @@ from requests_cache.backends.sqlite import AnyPath
 from requests_cache.models import AnyRequest
 from requests_cache.serializers import SerializerType
 
-from .exceptions import NotFoundError, RateLimitException
+from .exceptions import NotFoundError, RateLimitError
 from .settings import AusmashAPISettings
 from .typedefs import JSON, URL
 from .version import __version__, get_git_version
@@ -131,7 +131,7 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 				logger.warning('Sleeping for 1 second to avoid rate limit')
 				sleep(__second.total_seconds())
 			else:
-				raise RateLimitException(RATE_LIMIT_SECOND, 'second')
+				raise RateLimitError(RATE_LIMIT_SECOND, 'second')
 			
 		ss.requests_per_minute += 1
 		if ss.requests_per_minute == RATE_LIMIT_MINUTE:
@@ -139,7 +139,7 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 				logger.warning('Sleeping for 1 minute to avoid rate limit')
 				sleep(__minute.total_seconds())
 			else:
-				raise RateLimitException(RATE_LIMIT_MINUTE, 'minute')
+				raise RateLimitError(RATE_LIMIT_MINUTE, 'minute')
 
 		ss.requests_per_hour += 1
 		if ss.requests_per_hour == RATE_LIMIT_HOUR:
@@ -147,7 +147,7 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 				logger.warning('Sleeping for 1 hour to avoid rate limit, ggs')
 				sleep(__hour.total_seconds())
 			else:
-				raise RateLimitException(RATE_LIMIT_HOUR, 'hour')		
+				raise RateLimitError(RATE_LIMIT_HOUR, 'hour')		
 
 	if response.status_code == 404:
 		raise NotFoundError(response.reason)

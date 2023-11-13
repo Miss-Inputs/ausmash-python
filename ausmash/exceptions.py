@@ -2,7 +2,7 @@
 from typing import Any
 
 
-class RateLimitException(Exception):
+class RateLimitError(Exception):
 	"""Raised if user wants that instead of sleeping, if a request would go over the API limit
 	(Otherwise, the server would return a "connection reset by peer" error)"""
 	def __init__(self, max_requests: int, time_period: str) -> None:
@@ -13,7 +13,7 @@ class RateLimitException(Exception):
 class NotFoundError(Exception):
 	"""Raised if something returned a 404 error"""
 
-class StartGGException(Exception):
+class StartGGError(Exception):
 	"""Raised because GraphQL is annoying and returns 200 if there was an error"""
 	
 	def _format_error(self, error: dict[str, Any]):

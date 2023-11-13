@@ -7,7 +7,7 @@ from typing import Any
 
 from requests_cache import CachedSession
 
-from ausmash.exceptions import RateLimitException, StartGGException
+from ausmash.exceptions import RateLimitError, StartGGError
 from ausmash.settings import AusmashAPISettings
 from ausmash.typedefs import JSON
 
@@ -70,12 +70,12 @@ def __call_api(query_name: str, variables: Mapping[str, Any]|None) -> JSON:
 				logger.warning('Sleeping for 1 minute to avoid start.gg rate limit')
 				sleep(__minute.total_seconds())
 			else:
-				raise RateLimitException(RATE_LIMIT_MINUTE, 'minute')
+				raise RateLimitError(RATE_LIMIT_MINUTE, 'minute')
 
 	response.raise_for_status() #It returns 200 on errors, but just in case it ever doesn't
 	j = response.json()
 	if 'errors' in j:
-		raise StartGGException(j['errors'])
+		raise StartGGError(j['errors'])
 	return j['data']
 
 def get_event_entrants(tournament_slug: str, event_slug: str) -> Sequence[Mapping[str, JSON]]:

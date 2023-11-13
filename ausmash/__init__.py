@@ -1,5 +1,5 @@
 
-from .exceptions import NotFoundError, RateLimitException
+from .exceptions import NotFoundError, RateLimitError
 from .methods import (
     get_active_players,
     get_matches_of_player_in_game,
@@ -84,5 +84,5 @@ __all__ = [
 	'rounds_from_victory',
 
 	'NotFoundError',
-	'RateLimitException'
+	'RateLimitError'
 ]
