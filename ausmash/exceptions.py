@@ -18,7 +18,10 @@ class StartGGException(Exception):
 	
 	def _format_error(self, error: dict[str, Any]):
 		#extensions should be dict like {'category': 'graphql'}, locations should be list of dict e.g. [{'line': 1, 'column': 40}] but I cbf doing anything with that
-		return f'{error["errorId"]}: {error["message"]}\nextensions: {error["extensions"]}, locations: {error["locations"]}'
+		message = f'{error["errorId"]}: {error["message"]}\nextensions: {error["extensions"]}'
+		if 'locations' in error:
+			message += f', locations: {error["locations"]}'
+		return message
 		
 	def __init__(self, errors: list[dict[str, Any]]) -> None:
 		self.errors = errors
