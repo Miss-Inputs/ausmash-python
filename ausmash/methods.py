@@ -17,7 +17,7 @@ from .models.ranking import Ranking
 from .models.region import Region
 from .models.result import Result
 
-__doc__ = '''Other API methods that I didn't feel like making into a class method of something in models, or want to import into here, for circular dependency reasons or whatever'''
+__doc__ = """Other API methods that I didn't feel like making into a class method of something in models, or want to import into here, for circular dependency reasons or whatever"""
 __all__ = [
 	'get_active_players',
 	'get_matches_of_player_in_game',
