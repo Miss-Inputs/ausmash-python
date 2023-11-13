@@ -1,6 +1,7 @@
 from collections.abc import Collection, Sequence
-from datetime import \
-    date  # pylint: disable=unused-import #Pylint, are you on drugs? (I guess it's confused by a property being named date?)
+from datetime import (
+	date,  # pylint: disable=unused-import #Pylint, are you on drugs? (I guess it's confused by a property being named date?)
+)
 from functools import cache, cached_property
 from typing import cast
 

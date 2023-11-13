@@ -4,7 +4,7 @@ from typing import Any, TypeVar, overload
 
 from typing_extensions import Self
 
-from .typedefs import JSONDict, JSON
+from .typedefs import JSON, JSONDict
 
 _T = TypeVar('_T', bound='DictWrapper')
 _GetDefaultType = TypeVar('_GetDefaultType')
@@ -52,7 +52,7 @@ class DictWrapper:
 			raise AttributeError(name) from e
 
 	def __repr__(self) -> str:
-		return f'{self.__class__.__qualname__}({repr(self._data)})'
+		return f'{self.__class__.__qualname__}({self._data!r})'
 
 	def updated_copy(self: Self, new_data: JSONDict) -> Self:
 		"""Returns a new instance with the same data as this, but with fields updated as specified by new_data"""

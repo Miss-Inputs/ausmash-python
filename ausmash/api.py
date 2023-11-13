@@ -1,24 +1,22 @@
 import logging
+import subprocess
 from collections.abc import Iterable, Iterator, Mapping
 from datetime import date, datetime, timedelta
 from functools import cache
 from pathlib import Path
-import subprocess
 from time import sleep
 from urllib.parse import unquote_plus
 
 from requests import Response
-from requests_cache import (EXPIRE_IMMEDIATELY, CachedSession, FileCache,
-                            FileDict)
+from requests_cache import EXPIRE_IMMEDIATELY, CachedSession, FileCache, FileDict
 from requests_cache.backends.sqlite import AnyPath
 from requests_cache.models import AnyRequest
 from requests_cache.serializers import SerializerType
 
-from .version import get_git_version, __version__
-
 from .exceptions import NotFoundError, RateLimitException
 from .settings import AusmashAPISettings
 from .typedefs import JSON, URL
+from .version import __version__, get_git_version
 
 _settings = AusmashAPISettings()
 
@@ -81,7 +79,7 @@ def get_user_agent() -> str:
 
 #TODO: This should be better reorganized for testability, etc - _SessionSingleton should be something like Client and not a singleton, and there would then be a default_client which is used unless something else sets api.client to something else, and maybe there can be a using_client() context manager
 
-class _SessionSingleton():
+class _SessionSingleton:
 	"""Share a single session for all API requests (presumably that will work and also improve performance), also keep track of how many requests are sent within a certain timeframe so that we don't go over the limit"""
 	__instance = None
 

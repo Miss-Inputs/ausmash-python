@@ -1,22 +1,23 @@
 import pytest
+
 from ausmash import Tournament
 
 #TODO: This is probably the wrong way to unit test since it relies on online data, but I dunno what I'm doing yet
 #Probably supposed to mock a response from /tournaments/{id} (and look up by ID and not name) and /event/{id}/results or something
 
-@pytest.fixture
+@pytest.fixture()
 def big_cheese_4():
 	return Tournament.from_name('The Big Cheese #4')
 
-@pytest.fixture
+@pytest.fixture()
 def big_cheese_4_events(big_cheese_4: Tournament):
 	return {e.name: e for e in big_cheese_4.events}
 
-@pytest.fixture
+@pytest.fixture()
 def the_action():
 	return Tournament(16537)
 
-@pytest.fixture
+@pytest.fixture()
 def the_action_events(the_action: Tournament):
 	return {e.name: e for e in the_action.events}
 

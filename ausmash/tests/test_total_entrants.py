@@ -1,12 +1,14 @@
 
 import pytest
-from ausmash import Tournament, Result
 
-@pytest.fixture
+from ausmash import Result, Tournament
+
+
+@pytest.fixture()
 def tournament():
 	return Tournament.from_name('The Big Cheese #4')
 
-@pytest.fixture
+@pytest.fixture()
 def events(tournament: Tournament):
 	return {e.name: e for e in tournament.events}
 

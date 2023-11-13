@@ -1,6 +1,6 @@
-from copy import deepcopy
 import itertools
-from collections.abc import Collection, Sequence, Iterator
+from collections.abc import Collection, Iterator, Sequence
+from copy import deepcopy
 from datetime import date
 from typing import cast
 
@@ -94,7 +94,7 @@ class Video(Match):
 
 class Channel(Resource):
 	"""A YouTube channel that has had videos of matches uploaded to it"""
-	base_url = "channels"
+	base_url = 'channels'
 
 	@classmethod
 	def all(cls) -> Collection['Channel']:

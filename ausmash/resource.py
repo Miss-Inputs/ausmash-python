@@ -37,7 +37,7 @@ class Resource(DictWrapper):
 		return ID(self['ID'])
 
 	def __repr__(self) -> str:
-		return f'{self.__class__.__qualname__}({repr(self.id)})'
+		return f'{self.__class__.__qualname__}({self.id!r})'
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, type(self)):

@@ -1,6 +1,6 @@
 from collections.abc import Collection, Sequence
-from typing import cast
 from datetime import date
+from typing import cast
 
 from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
@@ -19,7 +19,7 @@ class Ranking(Resource):
 	Start date is not currently exposed via the API, and I never quite figured out if that's when
 	the PR season that this ranking took data from started, or when this ranking started being the most current one…"""
 
-	base_url = "rankings"
+	base_url = 'rankings'
 
 	@classmethod
 	def all(cls) -> Sequence['Ranking']:

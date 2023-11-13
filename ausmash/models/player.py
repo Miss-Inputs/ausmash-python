@@ -3,16 +3,17 @@ from datetime import date
 from fractions import Fraction
 from typing import cast
 
+from ausmash import startgg_api
 from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
 from ausmash.exceptions import NotFoundError
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, URL
-from ausmash import startgg_api
 
 from .event import Event
 from .game import Game
 from .region import Region
+
 
 class Player(Resource):	
 	"""Individual player who plays or has ever played a Super Smash Bros. game at a competitive event.

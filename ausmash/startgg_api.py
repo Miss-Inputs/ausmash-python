@@ -10,6 +10,7 @@ from requests_cache import CachedSession
 from ausmash.exceptions import RateLimitException, StartGGException
 from ausmash.settings import AusmashAPISettings
 from ausmash.typedefs import JSON
+
 from .api import get_user_agent
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ __minute = timedelta(minutes=1)
 RATE_LIMIT_MINUTE = 80
 
 
-class _SessionSingleton():
+class _SessionSingleton:
 	"""Keep track of our cached session and also how many requests have been sent"""
 	__instance = None
 

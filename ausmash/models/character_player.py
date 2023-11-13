@@ -9,6 +9,7 @@ from .character import Character
 from .player import Player
 from .video import Video
 
+
 class CharacterPlayer(Player):
 	"""An item in players_of_character, has Player but also containing a few other fields"""
 
@@ -19,7 +20,7 @@ class CharacterPlayer(Player):
 		super().__init__(new_dict)
 
 	def __str__(self) -> str:
-		return f'{super().__str__()}\'s {self.character}'
+		return f"{super().__str__()}'s {self.character}"
 
 	@property
 	def elo_gained(self) -> int:

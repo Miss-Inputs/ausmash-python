@@ -8,10 +8,11 @@ from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
 
 from .game import Game
-from .player import Player
-from .video import Video
 from .match import Match
+from .player import Player
 from .ranking import Ranking
+from .video import Video
+
 
 class Comparison(DictWrapper):
 	"""Comparison of stats returned from /compare/*/stats"""

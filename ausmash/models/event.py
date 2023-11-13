@@ -135,8 +135,9 @@ class Event(DictWrapper):
 			seeds_by_tag[entrant['participants'][0]['gamerTag'].lower()] = seed
 			seeds_by_tag[entrant['name'].lower()] = seed
 
-		from .result import \
-		    Result  # Bugger it, naughty import outside of the top to avoid circular nonsense
+		from .result import (
+			Result,  # Bugger it, naughty import outside of the top to avoid circular nonsense
+		)
 		return {result.player or result.player_name: seeds_by_id.get(result.player.start_gg_player_id if result.player else None, seeds_by_tag.get(result.player_name.lower())) for result in Result.results_for_event(self)}
 
 __doc__ = Event.__doc__ or __name__

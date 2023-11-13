@@ -1,17 +1,18 @@
 from collections.abc import Collection, Sequence
 from datetime import date, datetime
 from typing import cast
-from ausmash.api import call_api
 
+from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
 
 from ..character import Character
 from ..event import Event
+from ..game import Game
+from ..player import Player
 from ..region import Region
 from ..result import ResultMixin
 from ..tournament import Tournament
-from ..game import Game
-from ..player import Player
+
 
 class PocketResult(ResultMixin, DictWrapper):
 	"""Item from /pocket/player/results

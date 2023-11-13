@@ -2,10 +2,10 @@
 #Dumb shit alert: mypy barfs at Tournament.matches_date_filter if the type hint for start_date and end_date is simply date and not datetime.date, as it seems to think that means the Tournament.date property, for some reason; which causes too much screwiness to just slap a type: ignore on I think
 #It makes no sense because it's fine with Tournament.date itself returning a date, and also Tournament.date is not in the global scope
 import datetime
-from collections.abc import Collection, Sequence, Mapping
-from functools import cached_property
 import logging
 import operator
+from collections.abc import Collection, Mapping, Sequence
+from functools import cached_property
 from typing import cast
 
 from ausmash.api import call_api
@@ -261,7 +261,7 @@ class Tournament(Resource):
 		index = event_indices.get(e)
 		if index is None:
 			raise ValueError(f'{e.id} {e} does not belong to this tournament')
-		from .result import Result #Avoid ye olde circular import
+		from .result import Result  #Avoid ye olde circular import
 		#Just to be really sure, make sure players from the next phase are all in the previous one
 		results = Result.results_for_event(e)
 		if not results:
@@ -323,7 +323,7 @@ class TournamentSeries(DictWrapper):
 		'Dancing Blade': 'DB',
 		'Okay This Is Epping': 'Epping',
 		'Friday Night Smash': 'FNS',
-		'Guf n\' Watch @ GUF Bendigo': 'GUF', #Or should this be abbrev'd to GUF & Watch specifically
+		"Guf n' Watch @ GUF Bendigo": 'GUF', #Or should this be abbrev'd to GUF & Watch specifically
 		'Super Barista Bros': 'SBB',
 		'CouchWarriors RanBat': 'CW RanBat',
 		'Murdoch Monthly': 'Murdoch',
