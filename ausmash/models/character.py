@@ -5,7 +5,7 @@ from typing import cast
 
 from ausmash.api import call_api
 from ausmash.resource import Resource
-from ausmash.typedefs import ID, URL, JSONDict
+from ausmash.typedefs import URL, JSONDict
 from ausmash.utils import parse_data
 
 from .game import Game
@@ -193,29 +193,61 @@ class CombinedCharacter(Character):
 	Considers the combination of name and game to be equal, so it can be used as dictionary keys, etc
 	"""
 	
-	def __init__(self, char: Character | JSONDict | ID) -> None:
-		if isinstance(char, Character):
-			d = dict(char._data)
-			d['Name'] = char.echo_fighter_group or char.name
-			super().__init__(d)
-		else:
-			#Required for _complete to work
-			super().__init__(char)
+	def __init__(self, name: str, chars: Collection[Character]) -> None:
+		if not chars:
+			raise ValueError('chars cannot be empty')
+		self.group_name = name
+		self.chars = chars
+		self._first_char = next(iter(chars))
+		super().__init__(self._first_char._data)
+
+	@property
+	def name(self) -> str:
+		return self.group_name
+
+	def __repr__(self) -> str:
+		return f'{type(self).__qualname__}({self.group_name!r}, {self.chars!r})'
 	
+	@property
+	#type: ignore[override] #shhhh
+	def _complete(self) -> 'Character':
+		"""Return the complete version of the first character.
+		
+		This ensures all inherited properties and methods will at least do something, although it might not always make sense. Most things should probably be overridden directly."""
+		return self._first_char._complete
+
 	def __hash__(self) -> int:
-		return hash((self.name, self.game))
+		return hash((self.group_name, self.game))
 	
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, Character):
 			return False
-		return self.name == __o.name and self.game == __o.game
+		#TODO: Should this compare true with Character objects that have this as an echo group? Or would that just be weird
+		return self.group_name == __o.name and self.game == __o.game
+	
+	#TODO:
+	#add_info() should add instead any information that is common between .chars, e.g. Peach + Daisy should end up having gender = female still
+	#colour and colour_string should maybe be averaged
+	#match_count, player_count, result_count should be added together
+
+@cache
+def _echo_groups_in_game(game: Game | str) -> Mapping[str, CombinedCharacter]:
+	chars = Character.game_characters_by_name(game)
+	if isinstance(game, Game):
+		game = game.short_name
+	groups: dict[str, list[Character]] = {}
+	game_info: JSONDict = _load_character_game_info().get(game)
+	for char_name, char in game_info.items():
+		if 'echo_group' in char:
+			groups.setdefault(char['echo_group'], []).append(chars[char_name])
+	return {name: CombinedCharacter(name, group_chars) for name, group_chars in groups.items()}
 
 @cache
 def combine_echo_fighters(character: Character) -> Character:
 	"""Returns character if it is not an echo / does not have an echo fighter, or the grouping if it does.
 	
-	The returned character might not have fields that entirely make sense other than for Name
+	The returned character might not have fields that entirely make sense other than for Name.
 	"""
 	if character.echo_fighter_group:
-		return CombinedCharacter(character)
+		return _echo_groups_in_game(character.game)[character.echo_fighter_group]
 	return character
