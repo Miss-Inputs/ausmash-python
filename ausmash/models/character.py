@@ -5,7 +5,7 @@ from typing import cast
 
 from ausmash.api import call_api
 from ausmash.resource import Resource
-from ausmash.typedefs import URL
+from ausmash.typedefs import URL, JSONDict, ID
 from ausmash.utils import parse_data
 
 from .game import Game
@@ -187,10 +187,35 @@ class Character(Resource):
 			return self.echo_fighter_group == other.echo_fighter_group
 		return self == other
 
+class CombinedCharacter(Character):
+	"""May be returned from combine_echo_fighters.
+
+	Considers the combination of name and game to be equal, so it can be used as dictionary keys, etc
+	"""
+	
+	def __init__(self, char: Character | JSONDict | ID) -> None:
+		if isinstance(char, Character):
+			d = dict(char._data)
+			d['Name'] = char.echo_fighter_group or char.name
+			super().__init__(d)
+		else:
+			#Required for _complete to work
+			super().__init__(char)
+	
+	def __hash__(self) -> int:
+		return hash((self.name, self.game))
+	
+	def __eq__(self, __o: object) -> bool:
+		if not isinstance(__o, Character):
+			return False
+		return self.name == __o.name and self.game == __o.game
+
 @cache
 def combine_echo_fighters(character: Character) -> Character:
-	"""Returns character if it is not an echo / does not have an echo fighter, or the grouping if it does
-	The returned character might not have fields that entirely make sense other than for Name"""
+	"""Returns character if it is not an echo / does not have an echo fighter, or the grouping if it does.
+	
+	The returned character might not have fields that entirely make sense other than for Name
+	"""
 	if character.echo_fighter_group:
-		return character.updated_copy({'Name': character.echo_fighter_group})
+		return CombinedCharacter(character)
 	return character
