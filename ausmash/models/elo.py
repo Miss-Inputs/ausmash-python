@@ -1,4 +1,3 @@
-
 import itertools
 from collections.abc import Collection, Mapping
 from datetime import date, datetime, time, timedelta
@@ -17,6 +16,7 @@ from .region import Region
 
 class EloBadge(IntEnum):
 	"""Possible tier badges for Elo, with value = minimum required for that tier"""
+
 	Bronze = 1000
 	Silver = 1200
 	Gold = 1400
@@ -25,6 +25,7 @@ class EloBadge(IntEnum):
 	Master = 2000
 	Grandmaster = 2500
 	Elite = 3000
+
 
 class Elo(DictWrapper):
 	"""Elo data for one player for one game
@@ -35,12 +36,22 @@ class Elo(DictWrapper):
 	@classmethod
 	def all(cls) -> Collection['Elo']:
 		"""Returns all Elo records for all games if you really wanted to do that"""
-		return tuple(itertools.chain.from_iterable(cls.wrap_many(call_api(e['APILink'])) for e in call_api('/elo')))
+		return tuple(
+			itertools.chain.from_iterable(
+				cls.wrap_many(call_api(e['APILink'])) for e in call_api('/elo')
+			)
+		)
 
 	@classmethod
-	def for_game(cls, game: Game | str, region: Region | str | None = None) -> Collection['Elo']:
+	def for_game(
+		cls, game: Game | str, region: Region | str | None = None
+	) -> Collection['Elo']:
 		"""All Elo records for a game, optionally only players in a certain region"""
-		params = {'region': region.short_name if isinstance(region, Region) else region} if region else None
+		params = (
+			{'region': region.short_name if isinstance(region, Region) else region}
+			if region
+			else None
+		)
 		if isinstance(game, str):
 			game = Game(game)
 		return cls.wrap_many(call_api(f'elo/game/{game.id}', params))
@@ -53,12 +64,16 @@ class Elo(DictWrapper):
 		return {elo.game: elo for elo in elos}
 
 	@staticmethod
-	def last_updated(day: date|None=None) -> datetime:
+	def last_updated(day: date | None = None) -> datetime:
 		"""Time when the Elo was last recalculated, ie. last Thursday.
 		Can't remember the exact time but it's not like midnight, I think it was like 5am?"""
 		if day is None:
 			day = date.today()
-		return datetime.combine(day + timedelta(days=4 - day.isoweekday()), time(5, 0), ZoneInfo('Australia/Queensland'))
+		return datetime.combine(
+			day + timedelta(days=4 - day.isoweekday()),
+			time(5, 0),
+			ZoneInfo('Australia/Queensland'),
+		)
 
 	@property
 	def id(self) -> ID:
@@ -101,20 +116,20 @@ class Elo(DictWrapper):
 		"""What Elo was last week
 		Returns None if player was only added last week and did not have Elo calculated then"""
 		return cast(int | None, self['EloPrevious'])
-	
+
 	@property
 	def local_rank(self) -> int | None:
 		"""Rank of this player's elo amongst the rest of their region
 		Returns None if player is not active"""
 		return cast(int, self['RankLocal'])
-	
+
 	@property
 	def national_rank(self) -> int | None:
 		"""Rank of this player's elo amongst the rest of Australia (and maybe NZ? (TODO check that))
 		Returns None if player is not active"""
 		return cast(int, self['RankNational'])
 
-	#TODO: Local/national previous/movement/peak, also all nullable
+	# TODO: Local/national previous/movement/peak, also all nullable
 
 	@property
 	def movement(self) -> int | None:
@@ -128,7 +143,7 @@ class Elo(DictWrapper):
 		"""Highest Elo this player has ever had
 		None if this player's Elo has always been lower than the starting amount (oof!)"""
 		if self['PeakDate'] is None:
-			#Otherwise it is still filled in as 1000, but that's not useful
+			# Otherwise it is still filled in as 1000, but that's not useful
 			return None
 		return cast(int, self['PeakElo'])
 
@@ -136,12 +151,14 @@ class Elo(DictWrapper):
 	def badge(self) -> EloBadge | None:
 		"""Badge tier that should be displayed for this user"""
 		if not self.peak:
-			#Presumably, since the peak Elo is technically 1000, though badges are only shown on the Elo breakdown page on the site anyway (I think)
+			# Presumably, since the peak Elo is technically 1000, though badges are only shown on the Elo breakdown page on the site anyway (I think)
 			return EloBadge.Bronze
 		for badge in EloBadge:
 			if self.peak >= badge:
 				return badge
-		assert False, "This shouldn't happen unless I did something wrong, Elo.peak is not None but it is under 1000"
+		raise AssertionError(
+			"This shouldn't happen unless I did something wrong, Elo.peak is not None but it is under 1000"
+		)
 
 	@property
 	def peak_date(self) -> date | None:
@@ -173,10 +190,13 @@ class Elo(DictWrapper):
 	@property
 	def is_active(self) -> bool:
 		"""If this player is considered active in this game
-		https://twitter.com/URNotShitashi/status/1621768528586997760: "Been to a tournament in the last 3 months\""""
+		https://twitter.com/URNotShitashi/status/1621768528586997760: "Been to a tournament in the last 3 months\" """
 		today = date.today()
-		months = ((today.year - self.last_active.year) * 12) + (today.month - self.last_active.month)
+		months = ((today.year - self.last_active.year) * 12) + (
+			today.month - self.last_active.month
+		)
 		return months < 3
+
 
 def probability_of_winning(player_elo: int, opponent_elo: int) -> float:
 	"""Returns what is mathematically the chance that one player will win a match against another

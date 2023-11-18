@@ -4,11 +4,14 @@ import re
 
 from ausmash.typedefs import JSON
 
-#Weird nonsense (also known as a regex) that ensures we can still have // inside a string literal
+# Weird nonsense (also known as a regex) that ensures we can still have // inside a string literal
 json_comment_reg = re.compile(r'(\".*?\")|(?://.*$)')
+
+
 def parse_jsonc(text: str) -> JSON:
 	lines = [json_comment_reg.sub(r'\1', line) for line in text.splitlines()]
 	return json.loads('\n'.join(lines))
+
 
 def parse_data(name: str) -> JSON:
 	data = importlib.resources.files('ausmash.data')

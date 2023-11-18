@@ -1,6 +1,5 @@
 
 import pytest
-
 from ausmash import Result, Tournament
 
 

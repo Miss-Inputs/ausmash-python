@@ -1,5 +1,4 @@
 import pytest
-
 from ausmash import Tournament
 
 #TODO: This is probably the wrong way to unit test since it relies on online data, but I dunno what I'm doing yet
