@@ -106,7 +106,7 @@ class Result(ResultMixin, DictWrapper):
 
 	def __lt__(self, other: object) -> bool:
 		if not isinstance(other, Result):
-			raise TypeError(type(other))
+			return NotImplemented
 		return self.placing > other.placing #Not a typo, future me! For some reason I keep forgetting when I look at this code again that 1st place is better than 2nd place
 
 	def __hash__(self) -> int:

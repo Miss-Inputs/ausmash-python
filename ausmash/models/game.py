@@ -99,7 +99,7 @@ class Game(Resource):
 
 	def __lt__(self, other: object) -> bool:
 		if not isinstance(other, Game):
-			raise TypeError(type(other))
+			return NotImplemented
 		return self.sort_order < other.sort_order	
 
 	@property

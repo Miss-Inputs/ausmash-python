@@ -90,7 +90,7 @@ class Elo(DictWrapper):
 
 	def __lt__(self, other: object) -> bool:
 		if not isinstance(other, Elo):
-			raise TypeError(type(other))
+			return NotImplemented
 		return self.elo < other.elo
 
 	@property
