@@ -29,7 +29,9 @@ class Video(Match):
 	@classmethod
 	def all(cls) -> Collection['Video']:
 		"""All videos tagged on the site. This will probably hit the API a lot"""
-		return set(itertools.chain.from_iterable(channel.videos for channel in Channel.all()))
+		return frozenset(
+			itertools.chain.from_iterable(channel.videos for channel in Channel.all())
+		)
 
 	@classmethod
 	def for_match(cls, match: Match) -> 'Video | None':
@@ -38,7 +40,7 @@ class Video(Match):
 			if video.match_id == match.id:
 				return video
 		return None
-	
+
 	@classmethod
 	def iter_all_for_match(cls, match: Match) -> Iterator['Video']:
 		"""Iterates all videos associated with a Match"""
@@ -47,7 +49,13 @@ class Video(Match):
 				yield video
 
 	@classmethod
-	def videos_of_player(cls, player: Player, start_date: date | None=None, end_date: date | None=None, character: Character | None=None) -> Sequence['Video']:
+	def videos_of_player(
+		cls,
+		player: Player,
+		start_date: date | None = None,
+		end_date: date | None = None,
+		character: Character | None = None,
+	) -> Sequence['Video']:
 		"""Videos featuring this player, newest to oldest"""
 		params = {}
 		if start_date:
@@ -55,7 +63,9 @@ class Video(Match):
 		if end_date:
 			params['endDate'] = end_date.isoformat()
 		if character:
-			return cls.wrap_many(call_api(f'players/{player.id}/videos/{character.id}', params))
+			return cls.wrap_many(
+				call_api(f'players/{player.id}/videos/{character.id}', params)
+			)
 		return cls.wrap_many(call_api(f'players/{player.id}/videos', params))
 
 	@classmethod
@@ -73,7 +83,7 @@ class Video(Match):
 	def id(self) -> ID:
 		"""There is no /videos/{id} URL, so it is not a Resource, but it has an ID anyway"""
 		return ID(self['ID'])
-	
+
 	@property
 	def match_id(self) -> ID:
 		"""ID in the Match property"""
@@ -86,14 +96,16 @@ class Video(Match):
 
 	def __hash__(self) -> int:
 		return hash(self.id)
-	
+
 	@property
 	def url(self) -> URL:
 		"""URL to watch this video (for now, YouTube watch link)"""
 		return cast(URL, self['Url'])
 
+
 class Channel(Resource):
 	"""A YouTube channel that has had videos of matches uploaded to it"""
+
 	base_url = 'channels'
 
 	@classmethod
