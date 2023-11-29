@@ -5,19 +5,19 @@ from typing import cast
 
 from ausmash.api import call_api
 from ausmash.resource import Resource
-from ausmash.typedefs import URL, JSONDict
+from ausmash.typedefs import JSON, URL, JSONDict
 from ausmash.utils import parse_data
 
 from .game import Game
 
 
 @lru_cache(maxsize=1)
-def _load_character_info():
+def _load_character_info() -> JSON:
 	return parse_data('character_info')
 
 
 @lru_cache(maxsize=1)
-def _load_character_game_info():
+def _load_character_game_info() -> JSON:
 	return parse_data('character_game_info')
 
 
@@ -41,7 +41,7 @@ class Character(Resource):
 		if isinstance(game, str):
 			game = Game(game)
 		return {
-			cls(c).updated_copy({'Game': game._data})
+			cls(c).updated_copy({'Game': game._data})  # pylint: disable=protected-access #It's my class, I'm allowed
 			for c in call_api(f'characters/bygame/{game.id}')
 		}  # pylint: disable=protected-access
 
@@ -52,6 +52,7 @@ class Character(Resource):
 
 	@property
 	def name(self) -> str:
+		"""This character's full name, as defined by Ausmash."""
 		return cast(str, self['Name'])
 
 	def __str__(self) -> str:
@@ -59,6 +60,7 @@ class Character(Resource):
 
 	@property
 	def game(self) -> Game:
+		"""Game that this character is from."""
 		# Game, GameShort and GameID are all here… on partial data just GameShort
 		game_dict = self.get('Game')
 		if game_dict:
@@ -95,14 +97,17 @@ class Character(Resource):
 
 	@property
 	def match_count(self) -> int:
+		"""Number of matches this character has been recorded as having been used in."""
 		return cast(int, self['MatchCount'])
 
 	@property
 	def result_count(self) -> int:
+		"""Number of results this character has been recorded for."""
 		return cast(int, self['ResultCount'])
 
 	@property
 	def player_count(self) -> int:
+		"""Number of players that record using this character."""
 		return cast(int, self['PlayerCount'])
 
 	def __add_info(self):
@@ -179,7 +184,7 @@ class Character(Resource):
 	def character_groups(self) -> Collection[str]:
 		"""If this character is similar enough to another in their game that they might be grouped together, returns the names of those combined groups, if any"""
 		self.__add_game_info()
-		groups = self.get('groups')
+		groups: list[str] | None = self.get('groups')
 		if groups:
 			return groups
 		return []
@@ -195,6 +200,42 @@ class Character(Resource):
 		if self.echo_fighter_group and other.echo_fighter_group:
 			return self.echo_fighter_group == other.echo_fighter_group
 		return self == other
+
+	@property
+	def first_appearance(self) -> tuple[str | None, date | None, str | None]:
+		"""The game this character first appeared in, returned as (name, date, platform)
+		Returns (None, None, None) if this data is not available"""
+		self.__add_info()
+		first: JSONDict | None = self.get('first_appearance')
+		if not first:
+			return None, None, None
+		game = first.get('game')
+		d = first.get('date')
+		platform = first.get('platform')
+		if d:
+			d = date.fromisoformat(d)
+		return game, d, platform
+
+	@property
+	def abbrev_name(self) -> str | None:
+		"""Commonly used abbrevation for this character's name, if any"""
+		self.__add_info()
+		return self.get('abbrev')
+
+	@property
+	def other_names(self) -> Collection[str]:
+		"""Aliases, alternate spellings, grammatical forms, etc that might be used to refer to this character"""
+		self.__add_info()
+		names: list[str] | None = self.get('other_names')
+		if not names:
+			return []
+		return names
+
+	@property
+	def full_name(self) -> str | None:
+		"""This character's canon full name (for whichever definition of canon is most funny), or None if not available"""
+		self.__add_info()
+		return self.get('full_name')
 
 
 class CombinedCharacter(Character):
@@ -224,7 +265,7 @@ class CombinedCharacter(Character):
 		"""Return the complete version of the first character.
 
 		This ensures all inherited properties and methods will at least do something, although it might not always make sense. Most things should probably be overridden directly."""
-		return self._first_char._complete
+		return self._first_char._complete  # pylint: disable=protected-access
 
 	def __hash__(self) -> int:
 		return hash((self.group_name, self.game))
@@ -251,10 +292,7 @@ def _echo_groups_in_game(game: Game | str) -> Mapping[str, CombinedCharacter]:
 	for char_name, char in game_info.items():
 		if 'echo_group' in char:
 			groups.setdefault(char['echo_group'], []).append(chars[char_name])
-	return {
-		name: CombinedCharacter(name, group_chars)
-		for name, group_chars in groups.items()
-	}
+	return {name: CombinedCharacter(name, group_chars) for name, group_chars in groups.items()}
 
 
 @cache
