@@ -69,15 +69,7 @@ class Character(Resource):
 
 		groups: defaultdict[str, set[Character]] = defaultdict(set)
 		for char in chars:
-			if name in {char.name, char.abbrev_name, char.full_name}:
-				return char
-			if char.other_names and name in char.other_names:
-				return char
-			if (
-				name.startswith('#')
-				and char.fighter_number
-				and str(char.fighter_number) == name[1:]
-			):
+			if char._extra_info_matches(name):
 				return char
 
 			for group_name in char.character_groups:
@@ -91,6 +83,15 @@ class Character(Resource):
 					return CombinedCharacter(group_name, group)
 
 		return None
+
+	def _extra_info_matches(self, name: str) -> bool:
+		if name in {self.name, self.abbrev_name, self.full_name}:
+			return True
+		if self.other_names and name in self.other_names:
+			return True
+		if name.startswith('#') and self.fighter_number and str(self.fighter_number) == name[1:]:
+			return True
+		return False
 
 	@property
 	def name(self) -> str:
