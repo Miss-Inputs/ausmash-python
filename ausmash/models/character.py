@@ -1,3 +1,4 @@
+from collections import defaultdict
 from collections.abc import Collection, Mapping, MutableMapping
 from datetime import date
 from functools import cache, lru_cache
@@ -49,6 +50,47 @@ class Character(Resource):
 	def game_characters_by_name(cls, game: Game | str) -> Mapping[str, 'Character']:
 		"""Returns a mapping of name > character for all characters in a game"""
 		return {c.name: c for c in cls.characters_in_game(game)}
+
+	@classmethod
+	def parse(
+		cls,
+		game: Game | str,
+		name: str,
+		*,
+		use_extra_info: bool = False,
+		return_groups: bool = True,
+	) -> 'Character | None':
+		"""Find a character in a certain game matching a certain name
+		If use_extra_info, use aliases and abbreviations and such
+		If return_groups (and use_extra_info), may return a CombinedCharacter for a grouping of characters"""
+		chars = cls.characters_in_game(game)
+		if not use_extra_info:
+			return next((char for char in chars if char.name == name), None)
+
+		groups: defaultdict[str, set[Character]] = defaultdict(set)
+		for char in chars:
+			if name in {char.name, char.abbrev_name, char.full_name}:
+				return char
+			if char.other_names and name in char.other_names:
+				return char
+			if (
+				name.startswith('#')
+				and char.fighter_number
+				and str(char.fighter_number) == name[1:]
+			):
+				return char
+
+			for group_name in char.character_groups:
+				groups[group_name].add(char)
+			if char.echo_fighter_group:
+				groups[char.echo_fighter_group].add(char)
+
+		if return_groups:
+			for group_name, group in groups.items():
+				if name == group_name:
+					return CombinedCharacter(group_name, group)
+
+		return None
 
 	@property
 	def name(self) -> str:
