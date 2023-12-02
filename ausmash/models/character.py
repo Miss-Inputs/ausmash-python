@@ -3,7 +3,7 @@ from collections import defaultdict
 from collections.abc import Collection, Mapping, MutableMapping
 from datetime import date
 from functools import cache, lru_cache
-from typing import cast
+from typing import Literal, cast, overload
 
 from ausmash.api import call_api
 from ausmash.resource import Resource
@@ -58,6 +58,32 @@ class Character(Resource):
 		name = name.replace('.', '')
 		return name.casefold()
 
+	@overload
+	@classmethod
+	def parse(
+		cls,
+		game: Game | str,
+		name: str,
+		*,
+		use_extra_info: bool = False,
+		return_groups: bool = True,
+		error_if_not_found: Literal[True],
+	) -> 'Character':
+		...
+
+	@overload
+	@classmethod
+	def parse(
+		cls,
+		game: Game | str,
+		name: str,
+		*,
+		use_extra_info: bool = False,
+		return_groups: bool = True,
+		error_if_not_found: Literal[False],
+	) -> 'Character | None':
+		...
+
 	@classmethod
 	def parse(
 		cls,
@@ -99,8 +125,20 @@ class Character(Resource):
 				if name == cls._normalize_name(group_name):
 					return CombinedCharacter(group_name, group)
 			if ' and ' in name:
-				group = {cls.parse(game, c, use_extra_info=True, return_groups=False, error_if_not_found=False) for c in name.split(' and ')}
-				if None not in group:
+				try:
+					group = {
+						cls.parse(
+							game,
+							c,
+							use_extra_info=True,
+							return_groups=False,
+							error_if_not_found=True,
+						)
+						for c in name.split(' and ')
+					}
+				except KeyError:
+					pass
+				else:
 					return CombinedCharacter(orig_name, group)
 
 		if error_if_not_found:
