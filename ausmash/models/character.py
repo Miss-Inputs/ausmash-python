@@ -1,3 +1,4 @@
+import re
 from collections import defaultdict
 from collections.abc import Collection, Mapping, MutableMapping
 from datetime import date
@@ -51,6 +52,10 @@ class Character(Resource):
 		"""Returns a mapping of name > character for all characters in a game"""
 		return {c.name: c for c in cls.characters_in_game(game)}
 
+	@staticmethod
+	def _normalize_name(name: str) -> str:
+		return re.sub(r'\s*(?:&|/)\s*', ' and ', name).casefold()
+
 	@classmethod
 	def parse(
 		cls,
@@ -59,13 +64,20 @@ class Character(Resource):
 		*,
 		use_extra_info: bool = False,
 		return_groups: bool = True,
+		error_if_not_found: bool = False,
 	) -> 'Character | None':
 		"""Find a character in a certain game matching a certain name
-		If use_extra_info, use aliases and abbreviations and such
-		If return_groups (and use_extra_info), may return a CombinedCharacter for a grouping of characters"""
+		:param use_extra_info: Use aliases and abbreviations and such
+		:param return_groups: If use_extra_info (otherwise ignored), may return a CombinedCharacter for a grouping of characters
+		:param error_if_not_found: Raise an error if could not find any characters that match, instead of returning None
+		:raises KeyError: If error_if_not_found is True and no character in game matched"""
 		chars = cls.characters_in_game(game)
+		name = cls._normalize_name(name)
 		if not use_extra_info:
-			return next((char for char in chars if char.name == name), None)
+			char = next((char for char in chars if cls._normalize_name(char.name) == name), None)
+			if char is None and error_if_not_found:
+				raise KeyError(name)
+			return char
 
 		groups: defaultdict[str, set[Character]] = defaultdict(set)
 		for char in chars:
@@ -79,15 +91,21 @@ class Character(Resource):
 
 		if return_groups:
 			for group_name, group in groups.items():
-				if name == group_name:
+				if name == cls._normalize_name(group_name):
 					return CombinedCharacter(group_name, group)
 
+		if error_if_not_found:
+			raise KeyError(name)
 		return None
 
 	def _extra_info_matches(self, name: str) -> bool:
-		if name in {self.name, self.abbrev_name, self.full_name}:
-			return True
-		if self.other_names and name in self.other_names:
+		names = {
+			self._normalize_name(n) for n in (self.name, self.abbrev_name, self.full_name) if n
+		}
+		if self.other_names:
+			names.update(self._normalize_name(n) for n in self.other_names)
+
+		if name in names:
 			return True
 		if name.startswith('#') and self.fighter_number and str(self.fighter_number) == name[1:]:
 			return True
