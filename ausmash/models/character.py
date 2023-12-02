@@ -54,7 +54,7 @@ class Character(Resource):
 
 	@staticmethod
 	def _normalize_name(name: str) -> str:
-		name = re.sub(r'\s*(?:&|/)\s*', ' and ', name)
+		name = re.sub(r'\s*(?:&|/|\+)\s*', ' and ', name)
 		name = name.replace('.', '')
 		return name.casefold()
 
@@ -76,11 +76,12 @@ class Character(Resource):
 		:param error_if_not_found: Raise an error if could not find any characters that match, instead of returning None
 		:raises KeyError: If error_if_not_found is True and no character in game matched"""
 		chars = cls.characters_in_game(game)
+		orig_name = name
 		name = cls._normalize_name(name)
 		if not use_extra_info:
 			char = next((char for char in chars if cls._normalize_name(char.name) == name), None)
 			if char is None and error_if_not_found:
-				raise KeyError(name)
+				raise KeyError(orig_name)
 			return char
 
 		groups: defaultdict[str, set[Character]] = defaultdict(set)
@@ -97,9 +98,13 @@ class Character(Resource):
 			for group_name, group in groups.items():
 				if name == cls._normalize_name(group_name):
 					return CombinedCharacter(group_name, group)
+			if ' and ' in name:
+				group = {cls.parse(game, c, use_extra_info=True, return_groups=False, error_if_not_found=False) for c in name.split(' and ')}
+				if None not in group:
+					return CombinedCharacter(orig_name, group)
 
 		if error_if_not_found:
-			raise KeyError(name)
+			raise KeyError(orig_name)
 		return None
 
 	def _extra_info_matches(self, name: str) -> bool:
