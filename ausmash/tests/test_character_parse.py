@@ -50,3 +50,15 @@ def test_parse_group(ssbu):
 	assert pits, 'Did not find Pits'
 	assert isinstance(pits, CombinedCharacter), 'Pits are not combined'
 	assert {ch.name for ch in pits.chars} == {'Pit', 'Dark Pit'}, 'Pits should be Pit and Dark Pit'
+
+
+def test_parse_normalized(ssbu: Game):
+	mr_game_and_watch = Character.parse(ssbu, 'mr. game and watch')
+	assert mr_game_and_watch, 'Did not find Mr. Game & Watch in lowercase'
+	assert mr_game_and_watch.name == 'Mr. Game and Watch', 'Got some other character'
+	mr_game_and_watch = Character.parse(ssbu, 'Mr. Game & Watch')
+	assert mr_game_and_watch, 'Did not find Mr. Game & Watch with ampersand'
+	assert mr_game_and_watch.name == 'Mr. Game and Watch', 'Got some other character'
+	mr_game_and_watch = Character.parse(ssbu, 'Game and Watch', use_extra_info=True)
+	assert mr_game_and_watch, 'Did not find Mr. Game & Watch with abbrev name'
+	assert mr_game_and_watch.name == 'Mr. Game and Watch', 'Got some other character'
