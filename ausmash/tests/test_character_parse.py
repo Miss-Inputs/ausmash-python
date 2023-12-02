@@ -62,3 +62,6 @@ def test_parse_normalized(ssbu: Game):
 	mr_game_and_watch = Character.parse(ssbu, 'Game and Watch', use_extra_info=True)
 	assert mr_game_and_watch, 'Did not find Mr. Game & Watch with abbrev name'
 	assert mr_game_and_watch.name == 'Mr. Game and Watch', 'Got some other character'
+	mr_game_and_watch = Character.parse(ssbu, 'Mr Game and Watch')
+	assert mr_game_and_watch, 'Did not find Mr. Game & Watch without dot'
+	assert mr_game_and_watch.name == 'Mr. Game and Watch', 'Got some other character'

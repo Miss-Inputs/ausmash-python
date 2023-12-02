@@ -54,7 +54,9 @@ class Character(Resource):
 
 	@staticmethod
 	def _normalize_name(name: str) -> str:
-		return re.sub(r'\s*(?:&|/)\s*', ' and ', name).casefold()
+		name = re.sub(r'\s*(?:&|/)\s*', ' and ', name)
+		name = name.replace('.', '')
+		return name.casefold()
 
 	@classmethod
 	def parse(
@@ -67,6 +69,8 @@ class Character(Resource):
 		error_if_not_found: bool = False,
 	) -> 'Character | None':
 		"""Find a character in a certain game matching a certain name
+		:param game: Game to find characters in
+		:param name: Name of character
 		:param use_extra_info: Use aliases and abbreviations and such
 		:param return_groups: If use_extra_info (otherwise ignored), may return a CombinedCharacter for a grouping of characters
 		:param error_if_not_found: Raise an error if could not find any characters that match, instead of returning None
