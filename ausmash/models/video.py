@@ -30,7 +30,7 @@ class Video(Match):
 	def all(cls) -> Collection['Video']:
 		"""All videos tagged on the site. This will probably hit the API a lot"""
 		return frozenset(
-			itertools.chain.from_iterable(channel.videos for channel in Channel.all())
+			itertools.chain.from_iterable(channel.videos for channel in Channel.all() if channel.video_count)
 		)
 
 	@classmethod
