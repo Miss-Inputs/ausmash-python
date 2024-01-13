@@ -15,7 +15,7 @@ from ausmash.models.character_info import (
 	FirstAppearance,
 )
 from ausmash.resource import Resource
-from ausmash.typedefs import URL, JSONDict
+from ausmash.typedefs import URL
 from ausmash.utils import parse_data
 
 from .game import Game
@@ -386,7 +386,9 @@ def _echo_groups_in_game(game: Game | str) -> Mapping[str, CombinedCharacter]:
 	if isinstance(game, Game):
 		game = game.short_name
 	groups: dict[str, list[Character]] = {}
-	game_info: dict[str, CharacterGameInfo] = _load_character_game_info().get(game)
+	game_info: dict[str, CharacterGameInfo] | None = _load_character_game_info().get(game)
+	if not game_info:
+		return {}
 	for char_name, char in game_info.items():
 		if char.echo_group:
 			groups.setdefault(char.echo_group, []).append(chars[char_name])
