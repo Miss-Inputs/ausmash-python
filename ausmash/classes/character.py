@@ -386,10 +386,10 @@ def _echo_groups_in_game(game: Game | str) -> Mapping[str, CombinedCharacter]:
 	if isinstance(game, Game):
 		game = game.short_name
 	groups: dict[str, list[Character]] = {}
-	game_info: JSONDict = _load_character_game_info().get(game)
+	game_info: dict[str, CharacterGameInfo] = _load_character_game_info().get(game)
 	for char_name, char in game_info.items():
-		if 'echo_group' in char:
-			groups.setdefault(char['echo_group'], []).append(chars[char_name])
+		if char.echo_group:
+			groups.setdefault(char.echo_group, []).append(chars[char_name])
 	return {name: CombinedCharacter(name, group_chars) for name, group_chars in groups.items()}
 
 
