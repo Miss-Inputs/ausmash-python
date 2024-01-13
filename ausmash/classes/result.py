@@ -3,16 +3,18 @@ from collections.abc import Collection, Sequence
 from datetime import date
 from fractions import Fraction
 from functools import cached_property
-from typing import Any, Protocol, cast
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 from ausmash.api import call_api
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import ID, JSONDict
 
 from .character import Character
 from .event import Event, possible_placings
 from .player import Player
 from .tournament import Tournament
+
+if TYPE_CHECKING:
+	from ausmash.typedefs import ID, JSONDict
 
 
 class _Result(Protocol):
@@ -49,7 +51,7 @@ class Result(ResultMixin, DictWrapper):
 	"""Player's result at an event, returned from event/{id}/results or players/{id}/results"""
 	
 	@classmethod
-	def results_for_event(cls, event: Event | ID) -> Sequence['Result']:
+	def results_for_event(cls, event: 'Event | ID') -> Sequence['Result']:
 		"""Results for an Event, or event ID
 		Adds an Entrants field to avoid an extra API call for total_entrants
 		Should be ordered from highest placing to lowest?"""
