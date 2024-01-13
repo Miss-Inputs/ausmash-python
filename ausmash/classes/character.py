@@ -80,7 +80,7 @@ class Character(Resource):
 		*,
 		use_extra_info: bool = False,
 		return_groups: bool = True,
-		error_if_not_found: Literal[False],
+		error_if_not_found: Literal[False] = False,
 	) -> 'Character | None':
 		...
 

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, NewType
+from typing import NewType
 
 from pydantic import JsonValue
 
