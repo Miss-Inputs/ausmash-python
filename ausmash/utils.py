@@ -24,5 +24,7 @@ def parse_data(name: str) -> 'JsonValue':
 
 
 ModelType = TypeVar('ModelType', bound='BaseModel')
-def parse_model_list(data: str, model: type[ModelType]) -> ModelType:
+
+
+def parse_model_list(data: str | bytes, model: type[ModelType]) -> list[ModelType]:
 	return pydantic.TypeAdapter(list[model]).validate_json(data)

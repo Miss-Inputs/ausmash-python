@@ -5,7 +5,7 @@ from fractions import Fraction
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 
 from .character import Character
@@ -57,7 +57,7 @@ class Result(ResultMixin, DictWrapper):
 		Should be ordered from highest placing to lowest?"""
 		if isinstance(event, Event):
 			event = event.id
-		response: Sequence[dict[str, Any]] = call_api(f'events/{event}/results')
+		response: Sequence[dict[str, Any]] = call_api_json(f'events/{event}/results')
 		for r in response:
 			r['Entrants'] = len(response)
 		return cls.wrap_many(response)
@@ -71,13 +71,13 @@ class Result(ResultMixin, DictWrapper):
 			params['startDate'] = start_date.isoformat()
 		if end_date:
 			params['endDate'] = end_date.isoformat()
-		return cls.wrap_many(call_api(f'players/{player.id}/results', params))
+		return cls.wrap_many(call_api_json(f'players/{player.id}/results', params))
 	
 	@classmethod
 	def featuring_character(cls, character: Character) -> Sequence['Result']:
 		"""Results with character data recorded as using this character, newest to oldest
 		Not necessarily any result where a match was played using this character, as the match-level character data can be different and more specific if the player so desires"""
-		return cls.wrap_many(call_api(f'characters/{character.id}/results'))
+		return cls.wrap_many(call_api_json(f'characters/{character.id}/results'))
 
 	@staticmethod
 	def get_pools_drown_placing(pool_result: int, people_who_made_it_out: int, highest_drown_placing: int, number_of_pools: int, lowest_placing: int, number_of_people_in_this_pools_round: int) -> int:

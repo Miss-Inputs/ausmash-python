@@ -3,7 +3,7 @@ from datetime import date, datetime
 from functools import cached_property
 from typing import Protocol, cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import ID, JSON, URL
 
@@ -149,7 +149,7 @@ class PocketMatch(_BasePocketMatch):
 		"""Returns matches from this tournament where a certain game was played
 		TODO: Sorted by presumably round? Event order?"""
 		matches = []
-		d: MutableMapping[str, JSON] = call_api(f'/pocket/result/matches/{tournament.id}/{game.id}')
+		d: MutableMapping[str, JSON] = call_api_json(f'/pocket/result/matches/{tournament.id}/{game.id}')
 		tournament_name: str = d.pop('ResultName') #Just easier that way to rename it for compatibility with _BasePocketMatch
 		region_short: str = d.pop('ResultRegionShort')
 		events: Sequence[MutableMapping[str, JSON]] = d.pop('Events')

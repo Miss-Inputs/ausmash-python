@@ -7,7 +7,7 @@ from typing import Literal, cast, overload
 
 import pydantic
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.models.character_info import (
 	CharacterGameInfo,
 	CharacterInfo,
@@ -43,7 +43,7 @@ class Character(Resource):
 		"""All characters in all games (using the pocket API)"""
 		return {
 			Character(c).updated_copy({'IconUrl': c['ImageUrl']})
-			for c in call_api('pocket/characters')
+			for c in call_api_json('pocket/characters')
 		}
 
 	@classmethod
@@ -54,7 +54,7 @@ class Character(Resource):
 			game = Game(game)
 		return {
 			cls(c).updated_copy({'Game': game._data})  # pylint: disable=protected-access #It's my class, I'm allowed
-			for c in call_api(f'characters/bygame/{game.id}')
+			for c in call_api_json(f'characters/bygame/{game.id}')
 		}  # pylint: disable=protected-access
 
 	@classmethod

@@ -2,7 +2,7 @@ from collections.abc import Mapping, Sequence
 from functools import cached_property
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, URL, JSONDict
 
@@ -23,7 +23,7 @@ class Game(Resource):
 	def all(cls) -> Sequence['Game']:
 		"""Returns all known games, ordered from newest to oldest.
 		Uses the pocket API, which has the ImageUrl field accessible already without another request to get by ID, though there is no APILink field (but that might not be needed)"""
-		return cls.wrap_many(call_api('pocket/games'))
+		return cls.wrap_many(call_api_json('pocket/games'))
 
 	@classmethod
 	def from_name(cls, name: str) -> 'Game':

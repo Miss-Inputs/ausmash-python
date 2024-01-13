@@ -4,7 +4,7 @@ from datetime import date
 from fractions import Fraction
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 
 from .game import Game
@@ -35,7 +35,7 @@ class Comparison(DictWrapper):
 			params['startDate'] = start_date
 		if end_date:
 			params['endDate'] = end_date
-		return Comparison(call_api(f'compare/{game.id}/{player1.id}/{player2.id}/stats', params))
+		return Comparison(call_api_json(f'compare/{game.id}/{player1.id}/{player2.id}/stats', params))
 
 	@classmethod
 	def compare_players_by_name(cls, game_shortname: str, player1_region: str, player1_name: str, player2_region: str, player2_name: str, start_date: date | None=None, end_date: date | None=None) -> 'Comparison':
@@ -45,7 +45,7 @@ class Comparison(DictWrapper):
 			params['startDate'] = start_date.isoformat()
 		if end_date:
 			params['endDate'] = end_date.isoformat()
-		return Comparison(call_api(f'compare/{game_shortname}/{player1_region}/{player1_name}/{player2_region}/{player2_name}/stats', params))
+		return Comparison(call_api_json(f'compare/{game_shortname}/{player1_region}/{player1_name}/{player2_region}/{player2_name}/stats', params))
 
 	@property
 	def player_1(self) -> Player:
@@ -114,7 +114,7 @@ def head_to_head(game: Game | str, player: Player, other: Player, start_date: da
 		params['startDate'] = start_date.isoformat()
 	if end_date:
 		params['endDate'] = end_date.isoformat()
-	return Match.wrap_many(call_api(f'compare/{game.id}/{player.id}/{other.id}/matches', params)['Matches'])
+	return Match.wrap_many(call_api_json(f'compare/{game.id}/{player.id}/{other.id}/matches', params)['Matches'])
 
 def head_to_head_videos(game: Game | str, player: Player, other: Player, start_date: date | None=None, end_date: date | None=None) -> Sequence[Video]:
 	"""Videos featuring one player vs another player, sorted newest to oldest"""
@@ -125,7 +125,7 @@ def head_to_head_videos(game: Game | str, player: Player, other: Player, start_d
 		params['startDate'] = start_date.isoformat()
 	if end_date:
 		params['endDate'] = end_date.isoformat()
-	return Video.wrap_many(call_api(f'compare/{game.id}/{player.id}/{other.id}/videos', params)['Videos'])
+	return Video.wrap_many(call_api_json(f'compare/{game.id}/{player.id}/{other.id}/videos', params)['Videos'])
 
 def compare_common_rankings(player: Player, game: Game, other: Player, start_date: date | None=None, end_date: date | None=None) -> Sequence[tuple[Ranking, int, int]]:
 	"""(Ranking, player 1 rank, player 2 rank) for rankings that both of these players appear on (excluding HMs)"""
@@ -134,6 +134,6 @@ def compare_common_rankings(player: Player, game: Game, other: Player, start_dat
 		params['startDate'] = start_date.isoformat()
 	if end_date:
 		params['endDate'] = end_date.isoformat()
-	return tuple((Ranking(ranking['Ranking']), ranking['Player1Rank'], ranking['Player2Rank']) for ranking in call_api(f'compare/{game.id}/{player.id}/{other.id}/rankings', params)['Rankings'])
+	return tuple((Ranking(ranking['Ranking']), ranking['Player1Rank'], ranking['Player2Rank']) for ranking in call_api_json(f'compare/{game.id}/{player.id}/{other.id}/rankings', params)['Rankings'])
 
 #TODO: /compare/{gameid}/{player1id}/{player2id}/characters (not sure what it would be useful for, but it is there)

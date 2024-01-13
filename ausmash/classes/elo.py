@@ -5,7 +5,7 @@ from enum import IntEnum
 from typing import cast
 from zoneinfo import ZoneInfo
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import ID
 
@@ -38,7 +38,7 @@ class Elo(DictWrapper):
 		"""Returns all Elo records for all games if you really wanted to do that"""
 		return tuple(
 			itertools.chain.from_iterable(
-				cls.wrap_many(call_api(e['APILink'])) for e in call_api('/elo')
+				cls.wrap_many(call_api_json(e['APILink'])) for e in call_api_json('/elo')
 			)
 		)
 
@@ -54,13 +54,13 @@ class Elo(DictWrapper):
 		)
 		if isinstance(game, str):
 			game = Game(game)
-		return cls.wrap_many(call_api(f'elo/game/{game.id}', params))
+		return cls.wrap_many(call_api_json(f'elo/game/{game.id}', params))
 
 	@classmethod
 	def for_player(cls, player: Player) -> Mapping[Game, 'Elo']:
 		"""Returns empty dict if this player has never had Elo calculated - either they were just added to the database this week, or have never lived in Australia or New Zealand
 		If a player used to live in Australia or New Zealand and is now tagged as being from some other country, then they will have an Elo of 1000 for every game they have played, but the peak Elo and last active date are still the same"""
-		elos = Elo.wrap_many(call_api(f'players/{player.id}/elo'))
+		elos = Elo.wrap_many(call_api_json(f'players/{player.id}/elo'))
 		return {elo.game: elo for elo in elos}
 
 	@staticmethod

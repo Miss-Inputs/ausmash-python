@@ -2,7 +2,7 @@ from collections.abc import Collection, Sequence
 from datetime import date, datetime
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 
 from ..character import Character
@@ -21,7 +21,7 @@ class PocketResult(ResultMixin, DictWrapper):
 
 	@classmethod
 	def get_results(cls, player: Player, game: Game) -> Sequence['PocketResult']:
-		return PocketResult.wrap_many(call_api(f'pocket/player/results/{player.id}/{game.id}')['Items'])
+		return PocketResult.wrap_many(call_api_json(f'pocket/player/results/{player.id}/{game.id}')['Items'])
 
 	@property
 	def tournament(self) -> Tournament:

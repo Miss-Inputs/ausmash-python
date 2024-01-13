@@ -1,20 +1,21 @@
 
 from collections.abc import Iterable, Sequence
-from typing import Any, TypeVar, overload
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
-from typing_extensions import Self
+if TYPE_CHECKING:
+	from typing_extensions import Self
 
-from .typedefs import JSON, JSONDict
+	from .typedefs import JSON, JSONDict
 
 _T = TypeVar('_T', bound='DictWrapper')
 _GetDefaultType = TypeVar('_GetDefaultType')
 class DictWrapper:
 	"""Wrapper around a dict/mapping, usually from JSON, providing attribute access as well as dict access"""
-	def __init__(self, d: JSONDict) -> None:
+	def __init__(self, d: 'JSONDict') -> None:
 		self._data = d
 
 	@classmethod
-	def wrap_many(cls, datas: Iterable[JSONDict]) -> Sequence[Self]:
+	def wrap_many(cls, datas: Iterable['JSONDict']) -> Sequence['Self']:
 		"""Wraps a sequence/iterable of JSON dicts into a sequence of this type"""
 		return tuple(cls(data) for data in datas)
 
@@ -31,10 +32,10 @@ class DictWrapper:
 		return self._data[name]
 
 	@overload
-	def get(self, key: str) -> JSON | None: ...
+	def get(self, key: str) -> 'JSON | None': ...
 	@overload
-	def get(self, key: str, default: JSON | _T) -> JSON | _GetDefaultType: ...
-	def get(self, key: str, default: _GetDefaultType | None=None) -> JSON | _GetDefaultType | None:
+	def get(self, key: str, default: 'JSON | _T') -> 'JSON | _GetDefaultType': ...
+	def get(self, key: str, default: _GetDefaultType | None=None) -> 'JSON | _GetDefaultType | None':
 		"""Implements collections.abc.Mapping.get"""
 		try:
 			return self[key]
@@ -54,9 +55,7 @@ class DictWrapper:
 	def __repr__(self) -> str:
 		return f'{self.__class__.__qualname__}({self._data!r})'
 
-	def updated_copy(self: Self, new_data: JSONDict) -> Self:
+	def updated_copy(self: 'Self', new_data: 'JSONDict') -> 'Self':
 		"""Returns a new instance with the same data as this, but with fields updated as specified by new_data"""
 		data = self._data
-		if not isinstance(data, dict):
-			data = dict(data)
 		return type(self)(data | new_data)

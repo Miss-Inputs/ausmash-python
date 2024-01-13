@@ -4,7 +4,7 @@ from copy import deepcopy
 from datetime import date
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, URL, JSONDict
 
@@ -64,20 +64,20 @@ class Video(Match):
 			params['endDate'] = end_date.isoformat()
 		if character:
 			return cls.wrap_many(
-				call_api(f'players/{player.id}/videos/{character.id}', params)
+				call_api_json(f'players/{player.id}/videos/{character.id}', params)
 			)
-		return cls.wrap_many(call_api(f'players/{player.id}/videos', params))
+		return cls.wrap_many(call_api_json(f'players/{player.id}/videos', params))
 
 	@classmethod
 	def videos_at_event(cls, event: Event) -> Sequence['Video']:
 		"""All videos for matches at this event that have a video tagged
 		TODO: What is this sorted by, if anything meaningful?"""
-		return cls.wrap_many(call_api(f'events/{event.id}/videos'))
+		return cls.wrap_many(call_api_json(f'events/{event.id}/videos'))
 
 	@classmethod
 	def videos_of_character(cls, character: Character) -> Sequence['Video']:
 		"""Videos featuring this character being played, newest to oldest"""
-		return cls.wrap_many(call_api(f'characters/{character.id}/videos'))
+		return cls.wrap_many(call_api_json(f'characters/{character.id}/videos'))
 
 	@property
 	def id(self) -> ID:
@@ -111,7 +111,7 @@ class Channel(Resource):
 	@classmethod
 	def all(cls) -> Collection['Channel']:
 		"""All known channels on Ausmash"""
-		return cls.wrap_many(call_api('channels'))
+		return cls.wrap_many(call_api_json('channels'))
 
 	@property
 	def name(self) -> str:

@@ -2,7 +2,7 @@ from collections.abc import Collection, Sequence
 from datetime import date
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, URL
@@ -23,18 +23,18 @@ class Ranking(Resource):
 
 	@classmethod
 	def all(cls) -> Sequence['Ranking']:
-		return cls.wrap_many(call_api('rankings'))
+		return cls.wrap_many(call_api_json('rankings'))
 
 	@classmethod
 	def all_active(cls) -> Collection['Ranking']:
 		"""All rankings that are currently the current one in their sequence"""
-		return cls.wrap_many(call_api('rankings/active'))
+		return cls.wrap_many(call_api_json('rankings/active'))
 
 	@classmethod
 	def for_region(cls, region: Region | str) -> Sequence['Ranking']:
 		if isinstance(region, Region):
 			region = region.short_name
-		return cls.wrap_many(call_api(f'rankings/byregion/{region}'))
+		return cls.wrap_many(call_api_json(f'rankings/byregion/{region}'))
 
 	@classmethod
 	def featuring_player(cls, player: Player, start_date: date | None=None, end_date: date | None=None) -> Sequence['Ranking']:
@@ -45,7 +45,7 @@ class Ranking(Resource):
 			params['startDate'] = start_date.isoformat()
 		if end_date:
 			params['endDate'] = end_date.isoformat()
-		return Ranking.wrap_many(call_api(f'players/{player.id}/rankings', params))
+		return Ranking.wrap_many(call_api_json(f'players/{player.id}/rankings', params))
 
 	@property
 	def game(self) -> Game:
@@ -151,7 +151,7 @@ class RankingSequence(DictWrapper):
 
 	@classmethod
 	def all(cls) -> Collection['RankingSequence']:
-		return cls.wrap_many(call_api('rankingsequences'))
+		return cls.wrap_many(call_api_json('rankingsequences'))
 	
 	@property
 	def id(self) -> ID:
@@ -174,7 +174,7 @@ class RankingSequence(DictWrapper):
 	@property
 	def rankings(self) -> Sequence[Ranking]:
 		"""Presumably, the first element is the most recent?"""
-		return Ranking.wrap_many(call_api(f'rankings/bysequence/{self.id}'))
+		return Ranking.wrap_many(call_api_json(f'rankings/bysequence/{self.id}'))
 	
 	def get_ranks_for_player_during_time(self, player: Player, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> Sequence['Rank']:
 		"""Return any ranks in this sequence the player had during a timeframe"""

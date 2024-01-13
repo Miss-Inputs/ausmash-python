@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.typedefs import ID, URL
 
 from ..game import Game
@@ -18,7 +18,7 @@ class PocketPlayer(Player):
 	def get_for_game(cls, player: Player, game: Game | str) -> 'PocketPlayer':
 		if isinstance(game, str):
 			game = Game(game)
-		return cls(call_api(f'pocket/player/{player.id}/{game.id}'))
+		return cls(call_api_json(f'pocket/player/{player.id}/{game.id}'))
 	
 	@property
 	def game(self) -> Game:

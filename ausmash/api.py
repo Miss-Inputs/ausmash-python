@@ -5,9 +5,9 @@ from datetime import date, datetime, timedelta
 from functools import cache
 from pathlib import Path
 from time import sleep
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
-from pydantic_core import Url
+from pydantic_core import Url, from_json
 from requests_cache import EXPIRE_IMMEDIATELY, CachedSession, FileCache, FileDict
 
 from .exceptions import NotFoundError, RateLimitError
@@ -19,8 +19,6 @@ if TYPE_CHECKING:
 	from requests_cache.backends.sqlite import AnyPath
 	from requests_cache.models import AnyRequest
 	from requests_cache.serializers import SerializerType
-
-	from .typedefs import JSON
 
 _settings = AusmashAPISettings()
 
@@ -145,7 +143,7 @@ class _SessionSingleton:
 
 
 @cache
-def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> 'JSON':
+def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> 'bytes':
 	ss = _SessionSingleton()
 
 	response = ss.sesh.get(str(url), params=params)
@@ -187,10 +185,10 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> 'JSON'
 	if response.status_code == 404:
 		raise NotFoundError(response.reason)
 	response.raise_for_status()
-	return response.json()
+	return response.content
 
 
-def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> 'JSON':
+def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> bytes:
 	"""Calls an API request on the Ausmash endpoint, reusing the same session
 	If provided a complete URL it will use that, otherwise it will append the URL fragment to the endpoint (the former is useful for APILink fields)"""
 	if isinstance(url, str):
@@ -209,3 +207,8 @@ def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -
 		if params
 		else None,
 	)
+
+
+def call_api_json(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> 'Any':
+	#We should use JSON as the type hint here, but for now that just generates too much spam
+	return from_json(call_api(url, params))

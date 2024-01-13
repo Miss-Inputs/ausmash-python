@@ -4,7 +4,7 @@ from fractions import Fraction
 from typing import cast
 
 from ausmash import startgg_api
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.exceptions import NotFoundError
 from ausmash.resource import Resource
@@ -25,20 +25,20 @@ class Player(Resource):
 		"""Gets all players, or all players currently in a region"""
 		if region:
 			if isinstance(region, str):
-				return cls.wrap_many(call_api(f'players/byregion/{region}'))
-			return {cls(p).updated_copy({'Region': region._data}) for p in call_api(f'players/byregion/{region.short_name}')} #pylint: disable=protected-access
-		return cls.wrap_many(call_api('players'))
+				return cls.wrap_many(call_api_json(f'players/byregion/{region}'))
+			return {cls(p).updated_copy({'Region': region._data}) for p in call_api_json(f'players/byregion/{region.short_name}')} #pylint: disable=protected-access
+		return cls.wrap_many(call_api_json('players'))
 
 	@classmethod
 	def get_player(cls, region: 'Region | str', name: str) -> 'Player':
 		"""Gets the player from this region with this name
 		:raises NotFoundException: If the region does not have a player with that name"""
 		region_short = region.short_name if isinstance(region, Region) else region
-		return cls(call_api(f'players/find/{name}/{region_short}'))
+		return cls(call_api_json(f'players/find/{name}/{region_short}'))
 		
 	@classmethod
 	def search(cls, query: str) -> Collection['Player']:
-		return cls.wrap_many(call_api('players/search', {'q': query}))
+		return cls.wrap_many(call_api_json('players/search', {'q': query}))
 		
 	@classmethod
 	def reverse_lookup_start_gg_player_id(cls, player_id: str, player_name_hint: str | None=None, player_region_hint: Region | str | None=None, skip_searching_all: bool=False) -> 'Player | None':
@@ -153,7 +153,7 @@ class Player(Resource):
 			params['startDate'] = start_date.isoformat()
 		if end_date:
 			params['endDate'] = end_date.isoformat()
-		response = call_api(f'compare/{game.id}/{self.id}/{other.id}/winrates', params)
+		response = call_api_json(f'compare/{game.id}/{self.id}/{other.id}/winrates', params)
 		return WinRate.wrap_many(response['Player1WinRates']), WinRate.wrap_many(response['Player2WinRates'])
 
 	def compare_common_results(self, game: Game, other: 'Player', start_date: date | None=None, end_date: date | None=None) -> Sequence[tuple[Event, int, int]]:
@@ -163,7 +163,7 @@ class Player(Resource):
 			params['startDate'] = start_date.isoformat()
 		if end_date:
 			params['endDate'] = end_date.isoformat()
-		return tuple((Event(result['Event']), result['Player1Result'], result['Player1Result']) for result in call_api(f'compare/{game.id}/{self.id}/{other.id}/results', params)['Results'])
+		return tuple((Event(result['Event']), result['Player1Result'], result['Player1Result']) for result in call_api_json(f'compare/{game.id}/{self.id}/{other.id}/results', params)['Results'])
 	
 	def get_win_rates(self, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> Sequence['WinRate']:
 		"""Win rates against every opponent this player has ever played a singles match against for a certain game, from highest Elo to lowest"""
@@ -175,7 +175,7 @@ class Player(Resource):
 		if isinstance(game, str):
 			game = Game(game)
 		#I guess /pocket/player/winrates/{player ID}/{game ID} ['Items'] does the same thing but without date params?
-		return WinRate.wrap_many(call_api(f'players/{self.id}/winrates/{game.id}', params))
+		return WinRate.wrap_many(call_api_json(f'players/{self.id}/winrates/{game.id}', params))
 
 	def get_win_rate_dict(self, game: Game | str, start_date: date | None=None, end_date: date | None=None) -> Mapping['Player', 'WinRate']:
 		"""get_win_rates as a mapping of {opponent: win rate}"""

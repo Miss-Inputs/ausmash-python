@@ -1,7 +1,7 @@
 from collections.abc import Collection
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import ID
 
@@ -18,7 +18,7 @@ class PocketElo(DictWrapper):
 	def pocket_elo(cls, game: Game | str) -> Collection['PocketElo']:
 		if isinstance(game, str):
 			game = Game(game)
-		return cls.wrap_many(call_api(f'pocket/elo/{game.id}'))
+		return cls.wrap_many(call_api_json(f'pocket/elo/{game.id}'))
 
 	@property
 	def player(self) -> Player:

@@ -3,7 +3,7 @@ from collections.abc import Collection, MutableMapping, Sequence
 from datetime import date
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from .api import call_api
+from .api import call_api_json
 from .classes.character_player import CharacterPlayer
 from .classes.elo import Elo
 from .classes.event import EventType
@@ -30,7 +30,7 @@ __all__ = [
 
 def get_players_of_character(char: 'Character') -> Collection[CharacterPlayer]:
 	"""Players who play this character"""
-	return CharacterPlayer.wrap_many(call_api(f'characters/{char.id}/players'))
+	return CharacterPlayer.wrap_many(call_api_json(f'characters/{char.id}/players'))
 
 
 _PlayerPocketMatchType = TypeVar('_PlayerPocketMatchType', bound=_BasePocketMatch)
@@ -80,7 +80,7 @@ def get_videos_of_player_in_game(player: Player, game: Game | str) -> Sequence[P
 	if isinstance(game, str):
 		game = Game(game)
 	return __flatten_pocket_match_array(
-		player, call_api(f'pocket/player/videos/{player.id}/{game.id}'), PocketVideo
+		player, call_api_json(f'pocket/player/videos/{player.id}/{game.id}'), PocketVideo
 	)
 
 
@@ -89,7 +89,7 @@ def get_matches_of_player_in_game(player: Player, game: Game | str) -> Sequence[
 	if isinstance(game, str):
 		game = Game(game)
 	return __flatten_pocket_match_array(
-		player, call_api(f'pocket/player/matches/{player.id}/{game.id}'), PocketMatchWithPOV
+		player, call_api_json(f'pocket/player/matches/{player.id}/{game.id}'), PocketMatchWithPOV
 	)
 
 

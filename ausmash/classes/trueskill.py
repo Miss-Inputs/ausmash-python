@@ -2,7 +2,7 @@ import random
 from collections.abc import Mapping
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 
 from .game import Game
@@ -20,7 +20,7 @@ class TrueSkill(DictWrapper):
 
 	@classmethod
 	def get_trueskill(cls, player: Player) -> Mapping[Game, 'TrueSkill']:
-		trueskills = cls.wrap_many(call_api(f'players/{player.id}/trueskill'))
+		trueskills = cls.wrap_many(call_api_json(f'players/{player.id}/trueskill'))
 		return {trueskill.game: trueskill for trueskill in trueskills}
 
 	@property

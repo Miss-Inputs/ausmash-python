@@ -2,7 +2,7 @@ from collections.abc import Collection, Mapping
 from functools import cached_property
 from typing import cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, JSONDict
 
@@ -22,7 +22,7 @@ class Region(Resource):
 	@classmethod
 	def all(cls) -> Collection['Region']:
 		"""All regions known to Ausmash, i.e. all states of Australia, ACT, NT, New Zealand, and some other countries where other players who have competed in Australian tournaments live (where whoever added that player to Ausmash would decide what counts as a country and what part of the world counts as which country)"""
-		return cls.wrap_many(call_api('regions'))
+		return cls.wrap_many(call_api_json('regions'))
 	
 	@classmethod
 	def all_oceania(cls) -> Collection['Region']:

@@ -5,7 +5,7 @@ from datetime import (
 from functools import cache, cached_property
 from typing import TYPE_CHECKING, cast
 
-from ausmash.api import call_api
+from ausmash.api import call_api_json
 from ausmash.classes.result import rounds_from_victory
 from ausmash.dictwrapper import DictWrapper
 from ausmash.typedefs import ID, JSONDict
@@ -30,7 +30,7 @@ class Match(DictWrapper):
 	@classmethod
 	def matches_at_event(cls, event: Event) -> Sequence['Match']:
 		"""Ordered from last rounds to starting rounds"""
-		match_data = call_api(f'events/{event.id}/matches')
+		match_data = call_api_json(f'events/{event.id}/matches')
 		# Not much point copying event._data into here
 		if (len(match_data) > 1) and (
 			match_data[0]['MatchName'] == 'GF' and match_data[1]['MatchName'] == 'GF'
@@ -50,22 +50,22 @@ class Match(DictWrapper):
 			params['startDate'] = start_date.isoformat()
 		if end_date:
 			params['endDate'] = end_date.isoformat()
-		return Match.wrap_many(call_api(f'players/{player.id}/matches', params))
+		return Match.wrap_many(call_api_json(f'players/{player.id}/matches', params))
 
 	@classmethod
 	def matches_of_character(cls, character: Character) -> Sequence['Match']:
 		"""Matches that have character data recorded as this character being used, newest to oldest"""
-		return Match.wrap_many(call_api(f'characters/{character.id}/matches'))
+		return Match.wrap_many(call_api_json(f'characters/{character.id}/matches'))
 
 	@classmethod
 	def wins_of_character(cls, character: Character) -> Sequence['Match']:
 		"""Matches that have character data recorded as the winner using this character, newest to oldest"""
-		return Match.wrap_many(call_api(f'characters/{character.id}/matcheswins'))
+		return Match.wrap_many(call_api_json(f'characters/{character.id}/matcheswins'))
 
 	@classmethod
 	def losses_of_character(cls, character: Character) -> Sequence['Match']:
 		"""Matches that have character data recorded as the loser using this character, newest to oldest"""
-		return Match.wrap_many(call_api(f'characters/{character.id}/matcheslosses'))
+		return Match.wrap_many(call_api_json(f'characters/{character.id}/matcheslosses'))
 
 	@property
 	def id(self) -> ID:
