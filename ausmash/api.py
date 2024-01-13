@@ -5,18 +5,22 @@ from datetime import date, datetime, timedelta
 from functools import cache
 from pathlib import Path
 from time import sleep
-from urllib.parse import unquote_plus
+from typing import TYPE_CHECKING
 
-from requests import Response
+from pydantic_core import Url
 from requests_cache import EXPIRE_IMMEDIATELY, CachedSession, FileCache, FileDict
-from requests_cache.backends.sqlite import AnyPath
-from requests_cache.models import AnyRequest
-from requests_cache.serializers import SerializerType
 
 from .exceptions import NotFoundError, RateLimitError
 from .settings import AusmashAPISettings
-from .typedefs import JSON, URL
 from .version import __version__, get_git_version
+
+if TYPE_CHECKING:
+	from requests import Response
+	from requests_cache.backends.sqlite import AnyPath
+	from requests_cache.models import AnyRequest
+	from requests_cache.serializers import SerializerType
+
+	from .typedefs import JSON
 
 _settings = AusmashAPISettings()
 
@@ -33,7 +37,7 @@ RATE_LIMIT_DAY = 8000000  # Probably we won't have to think _this_ far ahead
 RATE_LIMIT_WEEK = 40000000
 
 
-def _hax_content_type(r: Response, **_):
+def _hax_content_type(r: 'Response', **_):
 	"""requests-cache hardcodes "application/json" without a startswith, so it won't decode the "application/json; charset=utf-8"""
 	r.headers['Content-Type'] = 'application/json'
 	return r
@@ -44,10 +48,10 @@ class _FileCacheWithDirectories(FileCache):
 
 	def __init__(
 		self,
-		cache_name: AnyPath = 'http_cache',
+		cache_name: 'AnyPath' = 'http_cache',
 		use_temp: bool = False,  # noqa: FBT001, FBT002 #It's how requests_cache works
 		decode_content: bool = True,  # noqa: FBT001, FBT002
-		serializer: SerializerType | None = None,
+		serializer: 'SerializerType | None' = None,
 		**kwargs,
 	):
 		super().__init__(cache_name, use_temp, decode_content, serializer, **kwargs)
@@ -57,12 +61,15 @@ class _FileCacheWithDirectories(FileCache):
 		)
 
 	def create_key(
-		self, request: AnyRequest, match_headers: Iterable[str] | None = None, **kwargs
+		self, request: 'AnyRequest', match_headers: Iterable[str] | None = None, **_kwargs
 	) -> str:
-		url = request.url.split('://', 1)[1]
-		url = url.split('/', 1)[1]  # Don't need hostname here
-		url = url.replace('?', '/')
-		return unquote_plus(url)
+		if not request.url:
+			return 'wat'
+		url = Url(request.url)
+		key = url.path.removeprefix('/') if url.path else (url.host if url.host else 'wat')
+		if url.query:
+			key += f'/{url.query}'
+		return key
 
 
 class _FileDictWithDirectories(FileDict):
@@ -110,9 +117,7 @@ class _SessionSingleton:
 
 		if cache_expiry is None:
 			cache_expiry = (
-				EXPIRE_IMMEDIATELY
-				if _settings.cache_timeout is None
-				else _settings.cache_timeout
+				EXPIRE_IMMEDIATELY if _settings.cache_timeout is None else _settings.cache_timeout
 			)
 		self.sesh = CachedSession(
 			'ausmash',
@@ -130,7 +135,7 @@ class _SessionSingleton:
 
 		if _settings.api_key:
 			# Well, good luck without it… I suppose if you have cache it'd work
-			self.sesh.headers['X-ApiKey'] = _settings.api_key
+			self.sesh.headers['X-ApiKey'] = _settings.api_key.get_secret_value()
 
 	def __new__(cls: type['_SessionSingleton']) -> '_SessionSingleton':
 		if not cls.__instance:
@@ -140,10 +145,10 @@ class _SessionSingleton:
 
 
 @cache
-def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
+def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> 'JSON':
 	ss = _SessionSingleton()
 
-	response = ss.sesh.get(url, params=params)
+	response = ss.sesh.get(str(url), params=params)
 	if not response.from_cache:
 		last_sent = ss.last_sent
 		if last_sent is None or (datetime.now() - last_sent) >= __second:
@@ -185,17 +190,22 @@ def _call_api(url: URL, params: tuple[tuple[str, str]] | None) -> JSON:
 	return response.json()
 
 
-def call_api(url: str, params: Mapping[str, str | date] | None = None) -> JSON:
+def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> 'JSON':
 	"""Calls an API request on the Ausmash endpoint, reusing the same session
 	If provided a complete URL it will use that, otherwise it will append the URL fragment to the endpoint (the former is useful for APILink fields)"""
-	endpoint = _settings.endpoint
-	if not url.startswith(endpoint):
-		url = endpoint + url if url[0] == '/' else f'{endpoint}/{url}'
+	if isinstance(url, str):
+		if '://' in url:
+			# Complete URL with host
+			url = Url(url)
+		else:
+			endpoint = _settings.endpoint
+			assert endpoint.host, 'Endpoint should have a host'
+			if not url.startswith(endpoint.host):
+				url = url.removeprefix('/')
+				url = f'{endpoint!s}{url}'
 	return _call_api(
 		url,
-		tuple(
-			(k, v.isoformat() if isinstance(v, date) else v) for k, v in params.items()
-		)
+		tuple((k, v.isoformat() if isinstance(v, date) else v) for k, v in params.items())
 		if params
 		else None,
 	)
