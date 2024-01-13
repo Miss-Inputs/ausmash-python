@@ -1,14 +1,3 @@
-//Info about characters that applies to all games they are in, because why not
-//Okay yeah I've definitely gotten carried away here
-//universe: Franchise, universe, whichever, I think universe is the official term
-//owner: Copyright owner if not Nintendo (i.e. specify this if third party)
-//abbrev: Commonly used abbreviation if any
-//number: Official fighter number
-//gender: male, female, etc, could theoretically include all sorts of things but Nintendo are cowards, otherwise selectable (via alts) or unspecified (if a species etc) or multiple (if character is two characters in one that are different)
-//first_appearance: {game: game this character first appeared in ever, date: first date that game was released anywhere, platform}
-//full_name: Canonical full name because I don't know why
-//other_names: Other names for the character that might be used (why am I doing this?)
-//costume_for: If this character appears as a costume for another, which one
 {
 	"Alex": {
 		"costume_for": "Steve",

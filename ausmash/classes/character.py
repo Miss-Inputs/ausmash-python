@@ -1,26 +1,36 @@
 import re
 from collections import defaultdict
-from collections.abc import Collection, Mapping, MutableMapping
+from collections.abc import Collection, Mapping
 from datetime import date
-from functools import cache, lru_cache
+from functools import cache, cached_property, lru_cache
 from typing import Literal, cast, overload
 
+import pydantic
+
 from ausmash.api import call_api
+from ausmash.models.character_info import (
+	CharacterGameInfo,
+	CharacterInfo,
+	CharacterType,
+	FirstAppearance,
+)
 from ausmash.resource import Resource
-from ausmash.typedefs import JSON, URL, JSONDict
+from ausmash.typedefs import URL, JSONDict
 from ausmash.utils import parse_data
 
 from .game import Game
 
 
 @lru_cache(maxsize=1)
-def _load_character_info() -> JSON:
-	return parse_data('character_info')
+def _load_character_info() -> dict[str, CharacterInfo]:
+	data = parse_data('character_info')
+	return pydantic.TypeAdapter(dict[str, CharacterInfo]).validate_python(data)
 
 
 @lru_cache(maxsize=1)
-def _load_character_game_info() -> JSON:
-	return parse_data('character_game_info')
+def _load_character_game_info() -> dict[str, dict[str, CharacterGameInfo]]:
+	data = parse_data('character_game_info')
+	return pydantic.TypeAdapter(dict[str, dict[str, CharacterGameInfo]]).validate_python(data)
 
 
 class Character(Resource):
@@ -218,55 +228,44 @@ class Character(Resource):
 		"""Number of players that record using this character."""
 		return cast(int, self['PlayerCount'])
 
-	def __add_info(self):
-		if 'has_info' in self._data:
-			return
-		data = _load_character_info()
-		if self.name in data:
-			extra_data = data[self.name]
-			extra_data['has_info'] = True
-			if isinstance(self._data, MutableMapping):
-				self._data.update(extra_data)
-			else:
-				self._data = self._data | extra_data
+	@cached_property
+	def __extra_info(self) -> CharacterInfo | None:
+		return _load_character_info().get(self.name)
 
-	def __add_game_info(self):
-		if 'has_game_info' in self._data:
-			return
-		data = _load_character_game_info()
-		if self.game.short_name in data:
-			game_info = data[self.game.short_name]
-			if self.name in game_info:
-				extra_data = game_info[self.name]
-				extra_data['has_game_info'] = True
-				if isinstance(self._data, MutableMapping):
-					self._data.update(extra_data)
-				else:
-					self._data = self._data | extra_data
+	@cached_property
+	def __extra_game_info(self) -> CharacterGameInfo | None:
+		game = _load_character_game_info().get(self.game.short_name)
+		if not game:
+			return None
+		return game.get(self.name)
 
 	@property
 	def universe(self) -> str | None:
 		"""Universe/series/etc this character is from"""
-		self.__add_info()
-		return self.get('universe')
+		if not self.__extra_info:
+			return None
+		return self.__extra_info.universe
 
 	@property
 	def gender(self) -> str | None:
 		"""Gender of this character: "male", "female", "non-binary", "agender", "selectable", "multiple" if multiple characters, "unspecified" if nondescript species, etc"""
-		self.__add_info()
-		return self.get('gender')
+		if not self.__extra_info:
+			return None
+		return self.__extra_info.gender
 
 	@property
 	def fighter_number(self) -> int | None:
 		"""Official fighter number for this character"""
-		self.__add_info()
-		return self.get('number')
+		if not self.__extra_info:
+			return None
+		return self.__extra_info.number
 
 	@property
 	def owner(self) -> str:
 		"""Company that owns this character"""
-		self.__add_info()
-		return self.get('owner', 'Nintendo')
+		if not self.__extra_info:
+			return 'Nintendo'
+		return self.__extra_info.owner
 
 	@property
 	def is_third_party(self) -> bool:
@@ -274,34 +273,32 @@ class Character(Resource):
 		return self.owner != 'Nintendo'
 
 	@property
-	def type(self) -> str:
+	def type(self) -> CharacterType:
 		"""How the character is obtained: starter, unlockable, transformation, creatable, dlc"""
-		self.__add_game_info()
-		return self.get('type', 'starter')
+		if not self.__extra_game_info:
+			return 'starter'
+		return self.__extra_game_info.type
 
 	@property
 	def release_date(self) -> date | None:
 		"""If this is a DLC character, when they were released"""
-		self.__add_game_info()
-		release_date = self.get('release_date')
-		if release_date:
-			return date.fromisoformat(release_date)
-		return None
+		if not self.__extra_game_info:
+			return None
+		return self.__extra_game_info.release_date
 
 	@property
 	def character_groups(self) -> Collection[str]:
 		"""If this character is similar enough to another in their game that they might be grouped together, returns the names of those combined groups, if any"""
-		self.__add_game_info()
-		groups: list[str] | None = self.get('groups')
-		if groups:
-			return groups
-		return []
+		if not self.__extra_game_info:
+			return ()
+		return self.__extra_game_info.groups
 
 	@property
 	def echo_fighter_group(self) -> str | None:
 		"""If this character is an echo fighter or has one, that is more often than not similar enough to be combined in tier lists etc or other statistics, return the combined name for those characters, else None"""
-		self.__add_game_info()
-		return self.get('echo_group')
+		if not self.__extra_game_info:
+			return None
+		return self.__extra_game_info.echo_group
 
 	def effectively_equal(self, other: 'Character') -> bool:
 		"""Returns true if these objects refer to the same character, or if one is the echo fighter of another"""
@@ -310,40 +307,33 @@ class Character(Resource):
 		return self == other
 
 	@property
-	def first_appearance(self) -> tuple[str | None, date | None, str | None]:
+	def first_appearance(self) -> FirstAppearance | None:
 		"""The game this character first appeared in, returned as (name, date, platform)
 		Returns (None, None, None) if this data is not available"""
-		self.__add_info()
-		first: JSONDict | None = self.get('first_appearance')
-		if not first:
-			return None, None, None
-		game = first.get('game')
-		d = first.get('date')
-		platform = first.get('platform')
-		if d:
-			d = date.fromisoformat(d)
-		return game, d, platform
+		if not self.__extra_info:
+			return None
+		return self.__extra_info.first_appearance
 
 	@property
 	def abbrev_name(self) -> str | None:
 		"""Commonly used abbrevation for this character's name, if any"""
-		self.__add_info()
-		return self.get('abbrev')
+		if not self.__extra_info:
+			return None
+		return self.__extra_info.abbrev
 
 	@property
 	def other_names(self) -> Collection[str]:
 		"""Aliases, alternate spellings, grammatical forms, etc that might be used to refer to this character"""
-		self.__add_info()
-		names: list[str] | None = self.get('other_names')
-		if not names:
-			return []
-		return names
+		if not self.__extra_info:
+			return ()
+		return self.__extra_info.other_names
 
 	@property
 	def full_name(self) -> str | None:
 		"""This character's canon full name (for whichever definition of canon is most funny), or None if not available"""
-		self.__add_info()
-		return self.get('full_name')
+		if not self.__extra_info:
+			return None
+		return self.__extra_info.full_name
 
 
 class CombinedCharacter(Character):
@@ -384,7 +374,7 @@ class CombinedCharacter(Character):
 		# TODO: Should this compare true with Character objects that have this as an echo group? Or would that just be weird
 		return self.group_name == __o.name and self.game == __o.game
 
-	# TODO: add_info() should add instead any information that is common between .chars, e.g. Peach + Daisy should end up having gender = female still
+	# TODO: __extra_info should add instead any information that is common between .chars, e.g. Peach + Daisy should end up having gender = female still
 	# TODO: colour and colour_string should maybe be averaged
 	# TODO: match_count, player_count, result_count should be added together
 	# TODO: effectively_equal should check that other CombinedCharacter has chars all effectively equal, or other Character is part of this? maybe

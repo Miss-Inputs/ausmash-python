@@ -1,16 +1,3 @@
-//Some character info specific to that character's appearance in each game
-//Type == individual isn't represented on Ausmash, but I guess I got carried away, so whatever
-//groups: If this character is sometimes grouped together with another for statistical purposes, the names of those groups
-//echo_group: Like groups, but where a character is almost the same as one another (an echo fighter, officially in Ultimate), the name of that combination, only one is allowed
-//type: starter (assumed if omitted), unlockable, transformation, creatable, dlc, individual
-//vs_matches_to_unlock: How many VS mode matches required to unlock the character, if relevant to that game
-//component_of: If type == individual, which composite character this is an individual part of
-//transformation_of: If type == transformation, the character that this character transforms from, else leave out
-//unlock_order: For Ultimate, order in the Classic Mode unlock tree if type == unlockable
-//unlock_tree: For Ultimate, starter character of this character's Classic Mode unlock tree if type == unlockable
-//release_date: If type == dlc, date this character became available
-//bundle: If type == dlc, bundle this character is available in if any
-//internal_name: Internal name/filename/etc inside the game code
 {
 	"SSB3DS": {
 		"Bayonetta": {
