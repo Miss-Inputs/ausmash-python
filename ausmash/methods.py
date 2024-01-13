@@ -4,20 +4,20 @@ from datetime import date
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from .api import call_api
-from .models.character import Character
-from .models.character_player import CharacterPlayer
-from .models.elo import Elo
-from .models.event import EventType
-from .models.game import Game
-from .models.match import Match
-from .models.player import Player
-from .models.pocket.match import PocketMatchWithPOV, PocketVideo, _BasePocketMatch
-from .models.ranking import Ranking
-from .models.region import Region
-from .models.result import Result
+from .classes.character_player import CharacterPlayer
+from .classes.elo import Elo
+from .classes.event import EventType
+from .classes.game import Game
+from .classes.player import Player
+from .classes.pocket.match import PocketMatchWithPOV, PocketVideo, _BasePocketMatch
+from .classes.ranking import Ranking
+from .classes.region import Region
+from .classes.result import Result
 
 if TYPE_CHECKING:
-	from ausmash.typedefs import ID
+	from .classes.character import Character
+	from .classes.match import Match
+	from .typedefs import ID
 
 __all__ = [
 	'get_active_players',
@@ -28,7 +28,7 @@ __all__ = [
 ]
 
 
-def get_players_of_character(char: Character) -> Collection[CharacterPlayer]:
+def get_players_of_character(char: 'Character') -> Collection[CharacterPlayer]:
 	"""Players who play this character"""
 	return CharacterPlayer.wrap_many(call_api(f'characters/{char.id}/players'))
 
@@ -50,16 +50,12 @@ def __flatten_pocket_match_array(
 			if match['WinnerID'] == player.id:
 				match['is_winner'] = True
 				match['Opponent'] = {
-					k.removeprefix('Loser'): v
-					for k, v in match.items()
-					if k.startswith('Loser')
+					k.removeprefix('Loser'): v for k, v in match.items() if k.startswith('Loser')
 				}
 			else:
 				match['is_winner'] = False
 				match['Opponent'] = {
-					k.removeprefix('Winner'): v
-					for k, v in match.items()
-					if k.startswith('Winner')
+					k.removeprefix('Winner'): v for k, v in match.items() if k.startswith('Winner')
 				}
 
 			matches.append(cls(match))
@@ -74,16 +70,12 @@ def is_current_pr(player: Player, game: Game | str) -> bool:
 	# Ignore top 40 rankings etc
 	return any(
 		ranking
-		for ranking in (
-			ranking for ranking in rankings if not ranking.is_probably_player_showcase
-		)
+		for ranking in (ranking for ranking in rankings if not ranking.is_probably_player_showcase)
 		if ranking.is_active and ranking.game == game
 	)
 
 
-def get_videos_of_player_in_game(
-	player: Player, game: Game | str
-) -> Sequence[PocketVideo]:
+def get_videos_of_player_in_game(player: Player, game: Game | str) -> Sequence[PocketVideo]:
 	"""Uses the Pocket API to return videos featuring a specified player playing a specified game"""
 	if isinstance(game, str):
 		game = Game(game)
@@ -92,20 +84,16 @@ def get_videos_of_player_in_game(
 	)
 
 
-def get_matches_of_player_in_game(
-	player: Player, game: Game | str
-) -> Sequence[PocketMatchWithPOV]:
+def get_matches_of_player_in_game(player: Player, game: Game | str) -> Sequence[PocketMatchWithPOV]:
 	"""Uses the Pocket API to return matches featuring a specified player playing a specified game"""
 	if isinstance(game, str):
 		game = Game(game)
 	return __flatten_pocket_match_array(
-		player,
-		call_api(f'pocket/player/matches/{player.id}/{game.id}'),
-		PocketMatchWithPOV,
+		player, call_api(f'pocket/player/matches/{player.id}/{game.id}'), PocketMatchWithPOV
 	)
 
 
-def is_pr_win(self: _BasePocketMatch | Match) -> bool:
+def is_pr_win(self: '_BasePocketMatch | Match') -> bool:
 	"""Returns true if a Match represents a win against a player that was PR at the time
 	This might not work properly…"""
 	if not self.loser:
@@ -171,8 +159,7 @@ def get_active_players(
 
 			event = result.event
 			if game and (
-				event.game.short_name
-				!= (game.short_name if isinstance(game, Game) else game)
+				event.game.short_name != (game.short_name if isinstance(game, Game) else game)
 			):
 				continue
 			if only_count_main_bracket and (
@@ -182,9 +169,7 @@ def get_active_players(
 			):
 				continue
 
-			players.setdefault(player, (set(), set()))[0 if is_local else 1].add(
-				tournament.id
-			)
+			players.setdefault(player, (set(), set()))[0 if is_local else 1].add(tournament.id)
 
 	return {
 		p

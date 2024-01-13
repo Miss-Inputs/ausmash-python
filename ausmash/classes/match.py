@@ -3,29 +3,25 @@ from datetime import (
 	date,  # pylint: disable=unused-import #Pylint, are you on drugs? (I guess it's confused by a property being named date?)
 )
 from functools import cache, cached_property
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api
+from ausmash.classes.result import rounds_from_victory
 from ausmash.dictwrapper import DictWrapper
-from ausmash.models.result import rounds_from_victory
 from ausmash.typedefs import ID, JSONDict
 
 from .character import Character
 from .event import BracketStyle, Event, EventType
-from .game import Game
 from .player import Player
 from .tournament import Tournament
+
+if TYPE_CHECKING:
+	from .game import Game
 
 
 @cache
 def _number_of_rounds_in_event(event: Event, bracket_side: str | None) -> int:
-	return len(
-		[
-			m
-			for m in Match.matches_at_event(event)
-			if m.round_bracket_side == bracket_side
-		]
-	)
+	return len([m for m in Match.matches_at_event(event) if m.round_bracket_side == bracket_side])
 
 
 class Match(DictWrapper):
@@ -46,10 +42,7 @@ class Match(DictWrapper):
 
 	@classmethod
 	def get_matches_from_time(
-		cls,
-		player: Player,
-		start_date: date | None = None,
-		end_date: date | None = None,
+		cls, player: Player, start_date: date | None = None, end_date: date | None = None
 	) -> Sequence['Match']:
 		"""All singles matches that this player was in, optionally within a certain timeframe, from newest to oldest"""
 		params = {}
@@ -124,9 +117,7 @@ class Match(DictWrapper):
 			return 'Grand Finals'
 		if round_name == 'GF2':
 			return 'Grand Finals Bracket Reset'
-		number_of_rounds = _number_of_rounds_in_event(
-			self.event, self.round_bracket_side
-		)
+		number_of_rounds = _number_of_rounds_in_event(self.event, self.round_bracket_side)
 		side = self.round_bracket_side
 
 		if round_number == number_of_rounds:
@@ -173,11 +164,7 @@ class Match(DictWrapper):
 		"""All players that are involved in this match and tagged"""
 		return cast(
 			set[Player],
-			(
-				{self.winner, self.loser}.union(self.doubles_winner).union(
-					self.doubles_loser
-				)
-			)
+			({self.winner, self.loser}.union(self.doubles_winner).union(self.doubles_loser))
 			- {None},
 		)
 
@@ -192,7 +179,7 @@ class Match(DictWrapper):
 		return Event(self['Event'])
 
 	@property
-	def game(self) -> Game:
+	def game(self) -> 'Game':
 		"""Which video game was being played (by looking up Event)"""
 		return self.event.game
 
@@ -251,15 +238,11 @@ class Match(DictWrapper):
 		winner_name_a, winner_name_b = self.winner_name.split(' / ', 1)
 		if winner_1:
 			# Winner 1 is tagged but winner 2 is not, but winner_name can be out of order, so winner 2's name is whichever one winner 1 is not
-			winner_name_2 = (
-				winner_name_a if winner_1.name == winner_name_b else winner_name_b
-			)
+			winner_name_2 = winner_name_a if winner_1.name == winner_name_b else winner_name_b
 			return str(winner_1), f'[???] {winner_name_2}'
 		if winner_2:
 			# winner 1 is not tagged but winner 2 is, but winner_name can be out of order, so their name is whichever one winner 2 is not
-			winner_name_1 = (
-				winner_name_a if winner_2.name == winner_name_b else winner_name_b
-			)
+			winner_name_1 = winner_name_a if winner_2.name == winner_name_b else winner_name_b
 			return f'[???] {winner_name_1}', str(winner_2)
 		return f'[???] {winner_name_a}', f'[???] {winner_name_b}'
 
@@ -275,14 +258,10 @@ class Match(DictWrapper):
 			return f'{self.loser_name} 1', f'{self.loser_name} 2'
 		loser_name_a, loser_name_b = self.loser_name.split(' / ', 1)
 		if loser_1:
-			loser_name_2 = (
-				loser_name_a if loser_1.name == loser_name_b else loser_name_b
-			)
+			loser_name_2 = loser_name_a if loser_1.name == loser_name_b else loser_name_b
 			return str(loser_1), f'[???] {loser_name_2}'
 		if loser_2:
-			loser_name_1 = (
-				loser_name_a if loser_2.name == loser_name_b else loser_name_b
-			)
+			loser_name_1 = loser_name_a if loser_2.name == loser_name_b else loser_name_b
 			return f'[???] {loser_name_1}', str(loser_2)
 		return f'[???] {loser_name_a}', f'[???] {loser_name_b}'
 

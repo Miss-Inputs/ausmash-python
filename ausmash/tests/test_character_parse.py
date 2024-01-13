@@ -1,6 +1,6 @@
 import pytest
 from ausmash import Character, Game
-from ausmash.models.character import CombinedCharacter
+from ausmash.classes.character import CombinedCharacter
 
 
 @pytest.fixture()

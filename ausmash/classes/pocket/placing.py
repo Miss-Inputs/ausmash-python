@@ -2,8 +2,8 @@ from collections.abc import Collection, Sequence
 from datetime import date, datetime
 from typing import cast
 
+from ausmash.classes.result import ResultMixin
 from ausmash.dictwrapper import DictWrapper
-from ausmash.models.result import ResultMixin
 from ausmash.typedefs import ID
 
 from ..character import Character
@@ -16,14 +16,20 @@ from ..tournament import Tournament
 
 class PocketPlacings(DictWrapper):
 	"""Returned from /pocket/result/placings"""
-	
+
 	@property
 	def game(self) -> Game:
 		return Game(self['GameID'])
 
 	@property
 	def tournament(self) -> Tournament:
-		return Tournament({'ID': self['TourneyID'], 'Name': self['ResultName'], 'Region': self['ResultRegionShort']})
+		return Tournament(
+			{
+				'ID': self['TourneyID'],
+				'Name': self['ResultName'],
+				'Region': self['ResultRegionShort'],
+			}
+		)
 
 	@property
 	def date(self) -> date:
@@ -37,8 +43,10 @@ class PocketPlacings(DictWrapper):
 	def events(self) -> Sequence['PocketPlacingsEvent']:
 		return PocketPlacingsEvent.wrap_many(self['Events'])
 
+
 class PocketPlacingsEvent(DictWrapper):
 	"""Item of Events field in PocketPlacings"""
+
 	@property
 	def number_of_entrants(self) -> int:
 		return cast(int, self['Entrants'])
@@ -52,8 +60,10 @@ class PocketPlacingsEvent(DictWrapper):
 		"""Should already be ordered by ResultNumber"""
 		return PocketPlacing.wrap_many(placing | self._data for placing in self['Placings'])
 
+
 class PocketPlacing(ResultMixin, DictWrapper):
 	"""Placings field of PocketPlacingsEvent"""
+
 	@property
 	def id(self) -> ID:
 		"""ID of some kind
@@ -62,7 +72,13 @@ class PocketPlacing(ResultMixin, DictWrapper):
 
 	@property
 	def player(self) -> Player:
-		return Player({'ID': self['PlayerID'], 'Name': self['PlayerName'], 'RegionShort': self['PlayerRegionShort']})
+		return Player(
+			{
+				'ID': self['PlayerID'],
+				'Name': self['PlayerName'],
+				'RegionShort': self['PlayerRegionShort'],
+			}
+		)
 
 	@property
 	def placing(self) -> int:
@@ -77,7 +93,7 @@ class PocketPlacing(ResultMixin, DictWrapper):
 		"""I don't think this is in any particular order"""
 		return {Character(c).updated_copy({'IconUrl': c['ImageUrl']}) for c in self['Characters']}
 
-	#These two are on PocketPlacingEvent, but we put them in here so we can use ResultMixin
+	# These two are on PocketPlacingEvent, but we put them in here so we can use ResultMixin
 	@property
 	def total_entrants(self) -> int:
 		return cast(int, self['Entrants'])
