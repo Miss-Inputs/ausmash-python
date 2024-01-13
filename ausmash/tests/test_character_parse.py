@@ -8,14 +8,14 @@ def ssbu() -> Game:
 	return Game('SSBU')
 
 
-def test_parse_character(ssbu):
+def test_parse_character(ssbu: Game):
 	jiggs = Character.parse(ssbu, 'Jigglypuff')
 	assert jiggs, 'Did not find Jigglypuff'
 	assert jiggs.name == 'Jigglypuff', 'Found some other character instead'
 	assert jiggs.game == ssbu, 'Got the wrong game'
 
 
-def test_parse_character_extra(ssbu):
+def test_parse_character_extra(ssbu: Game):
 	falco = Character.parse(ssbu, 'Falco Lombardi', use_extra_info=True)
 	assert falco, 'Did not find Falco'
 	assert falco.name == 'Falco', "That ain't Falco"
@@ -28,7 +28,7 @@ def test_parse_character_extra(ssbu):
 	), "Should still work with the character's usual name"
 
 
-def test_parse_group(ssbu):
+def test_parse_group(ssbu: Game):
 	rats = Character.parse(ssbu, 'Rats', use_extra_info=True)
 	assert rats, 'Did not find Rats'
 	assert isinstance(rats, CombinedCharacter), 'Rats are not combined'
