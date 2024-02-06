@@ -5,7 +5,7 @@ from typing import cast
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.resource import Resource
-from ausmash.typedefs import ID, URL
+from ausmash.typedefs import IntID, URL
 
 from .character import Character
 from .game import Game
@@ -154,8 +154,8 @@ class RankingSequence(DictWrapper):
 		return cls.wrap_many(call_api_json('rankingsequences'))
 	
 	@property
-	def id(self) -> ID:
-		return ID(self['ID'])
+	def id(self) -> IntID:
+		return IntID(self['ID'])
 
 	@property
 	def name(self) -> str:

@@ -8,7 +8,7 @@ from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.exceptions import NotFoundError
 from ausmash.resource import Resource
-from ausmash.typedefs import ID, URL
+from ausmash.typedefs import IntID, URL
 
 from .event import Event
 from .game import Game
@@ -142,10 +142,10 @@ class Player(Resource):
 		return cast(int, self['VideoCount'])
 
 	@property
-	def start_gg_player_id(self) -> ID | None:
+	def start_gg_player_id(self) -> IntID | None:
 		"""start.gg player ID associated with this player, can be used in conjuction with start.gg's API and a query on player"""
 		player_id: int | None = self['SmashGGPlayerID']
-		return ID(player_id) if player_id else None
+		return IntID(player_id) if player_id else None
 
 	def compare_common_winrates(self, game: Game, other: 'Player', start_date: date | None=None, end_date: date | None=None) -> tuple[Sequence['WinRate'], Sequence['WinRate']]:
 		params = {}

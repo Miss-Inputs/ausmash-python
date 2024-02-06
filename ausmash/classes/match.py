@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, cast
 from ausmash.api import call_api_json
 from ausmash.classes.result import rounds_from_victory
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import ID, JSONDict
+from ausmash.typedefs import IntID, JSONDict
 
 from .character import Character
 from .event import BracketStyle, Event, EventType
@@ -68,9 +68,9 @@ class Match(DictWrapper):
 		return Match.wrap_many(call_api_json(f'characters/{character.id}/matcheslosses'))
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""Unique ID"""
-		return ID(self['ID'])
+		return IntID(self['ID'])
 
 	def __hash__(self) -> int:
 		return hash(self.id)

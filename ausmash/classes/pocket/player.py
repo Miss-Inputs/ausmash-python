@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from typing import cast
 
 from ausmash.api import call_api_json
-from ausmash.typedefs import ID, URL
+from ausmash.typedefs import IntID, URL
 
 from ..game import Game
 from ..player import Player
@@ -22,7 +22,7 @@ class PocketPlayer(Player):
 	
 	@property
 	def game(self) -> Game:
-		return Game(ID(self['GameID']))
+		return Game(IntID(self['GameID']))
 
 	@property
 	def elo(self) -> int:

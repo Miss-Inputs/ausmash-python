@@ -1,6 +1,6 @@
-from typing import Any, NewType
+from typing import Any
 
-ID = NewType('ID', int)
+IntID = int
 JSON = Any
 """Just used as a placeholder for return types etc to indicate they are parsed JSON of some kind"""
 JSONDict = dict[str, JSON]

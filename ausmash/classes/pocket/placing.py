@@ -4,7 +4,7 @@ from typing import cast
 
 from ausmash.classes.result import ResultMixin
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import ID
+from ausmash.typedefs import IntID
 
 from ..character import Character
 from ..event import Event
@@ -65,10 +65,10 @@ class PocketPlacing(ResultMixin, DictWrapper):
 	"""Placings field of PocketPlacingsEvent"""
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""ID of some kind
 		TODO: What does this refer to? (e.g. 261969, 262198)"""
-		return ID(self['ResultID'])
+		return IntID(self['ResultID'])
 
 	@property
 	def player(self) -> Player:

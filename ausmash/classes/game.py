@@ -4,14 +4,14 @@ from typing import cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
-from ausmash.typedefs import ID, URL, JSONDict
+from ausmash.typedefs import IntID, URL, JSONDict
 
 
 class Game(Resource):
 	"""A video game that people play competitively and data is recorded on Ausmash for it"""
 	base_url = 'games'
 
-	def __init__(self, d: JSONDict | str | ID) -> None:
+	def __init__(self, d: JSONDict | str | IntID) -> None:
 		"""For convenience, allow using just a short name, which will look up any additional properties automatically"""
 		if isinstance(d, str):
 			super().__init__({'Short': d})

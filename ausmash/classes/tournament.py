@@ -6,13 +6,14 @@ import logging
 import operator
 from collections.abc import Collection, Mapping, Sequence
 from functools import cached_property
-from typing import cast
+from typing import Any, cast
 
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
+from ausmash.models.start_gg_responses import TournamentLocationResponse
 from ausmash.resource import Resource
 from ausmash.startgg_api import get_tournament_location, has_startgg_api_key
-from ausmash.typedefs import ID, JSON
+from ausmash.typedefs import IntID
 
 from .event import Event
 from .region import Region
@@ -179,7 +180,7 @@ class Tournament(Resource):
 		return None
 
 	@cached_property
-	def __start_gg_location(self) -> Mapping[str, JSON] | None:
+	def __start_gg_location(self) -> TournamentLocationResponse | None:
 		if not has_startgg_api_key():
 			return None
 		if not self.start_gg_slug:
@@ -193,7 +194,7 @@ class Tournament(Resource):
 		If not or if the city is not listed on the start.gg page, returns the city that the series of this tournament usually takes place in"""
 		location = self.__start_gg_location
 		if location:
-			city = location['city']
+			city = location.city
 			if city:
 				return city
 		return self.series.city
@@ -205,7 +206,7 @@ class Tournament(Resource):
 		Presumably, this is WGS84"""
 		location = self.__start_gg_location
 		if location:
-			return location['lat']
+			return location.lat
 		return None
 
 	@property
@@ -215,7 +216,7 @@ class Tournament(Resource):
 		Presumably, this is WGS84"""
 		location = self.__start_gg_location
 		if location:
-			return location['lng']
+			return location.lng
 		return None
 
 	@property
@@ -224,7 +225,7 @@ class Tournament(Resource):
 		Otherwise returns None"""
 		location = self.__start_gg_location
 		if location:
-			return location['postalCode']
+			return location.postalCode
 		return None
 
 	@property
@@ -233,7 +234,7 @@ class Tournament(Resource):
 		Otherwise returns None"""
 		location = self.__start_gg_location
 		if location:
-			return location['mapsPlaceId']
+			return location.mapsPlaceId
 		return None
 
 	@property
@@ -242,7 +243,7 @@ class Tournament(Resource):
 		Otherwise returns None"""
 		location = self.__start_gg_location
 		if location:
-			return location['venueAddress']
+			return location.venueAddress
 		return None
 
 	@property
@@ -251,14 +252,14 @@ class Tournament(Resource):
 		Otherwise returns None"""
 		location = self.__start_gg_location
 		if location:
-			return location['venueName']
+			return location.venueName
 		return None
 
 	def __other_phase_for_event(self, e: Event, previous=False) -> Event | None:
 		# Can't use functools.cache here… or we could, but it'd cause a memory leak
 
 		if not hasattr(self, '__phase_event_cache'):
-			self.__phase_event_cache = {}
+			self.__phase_event_cache: dict[tuple[IntID, bool], Event | None | Any] = {}
 		cached = self.__phase_event_cache.get((e.id, previous), ...)
 		if cached is not ...:
 			return cached
@@ -314,13 +315,13 @@ class Tournament(Resource):
 		"""If e has a next phase as an Event, e.g. e is a round robin pools that progresses into a pro bracket, return that next phase
 		If e is not, or could not tell what the next is, return None
 		:raises ValueError: if e is not part of this tournament"""
-		return self.__other_phase_for_event(e, False)
+		return self.__other_phase_for_event(e, previous=False)
 
 	def previous_phase_for_event(self, e: Event) -> Event | None:
 		"""If e has a previous phase as an Event, e.g. e is a pro bracket that is progressed from a round robin pools, return that previous phase
 		If e is not, or could not tell what the next is, return None
 		:raises ValueError: if e is not part of this tournament"""
-		return self.__other_phase_for_event(e, True)
+		return self.__other_phase_for_event(e, previous=True)
 
 	def start_phase_for_event(self, e: Event) -> Event:
 		"""If e has any previous phases, returns the first one that players start in, or returns e
@@ -342,7 +343,7 @@ class Tournament(Resource):
 class TournamentSeries(DictWrapper):
 	"""Series of tournaments, returned from /series or as part of of /tournament/{id}"""
 
-	name_abbreviations = {
+	name_abbreviations: Mapping[str, str] = {
 		# TODO: Move to data folder
 		# Does not have to be an acronym necessarily, just as long as it's still distintinguishable by the average person interested in those tournaments
 		'Ultimate Pop-Off Village': 'UPOV',
@@ -361,9 +362,9 @@ class TournamentSeries(DictWrapper):
 		return cls.wrap_many(call_api_json('series'))
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""Opaque ID identifying this series, though there is no /series/{id} (all fields are here anyway)"""
-		return ID(self['ID'])
+		return IntID(self['ID'])
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, TournamentSeries):

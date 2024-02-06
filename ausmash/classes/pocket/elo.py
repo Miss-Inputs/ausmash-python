@@ -3,7 +3,7 @@ from typing import cast
 
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import ID
+from ausmash.typedefs import IntID
 
 from ..character import Character
 from ..game import Game
@@ -27,10 +27,10 @@ class PocketElo(DictWrapper):
 		return Player(data)
 
 	@property
-	def start_gg_player_id(self) -> ID | None:
+	def start_gg_player_id(self) -> IntID | None:
 		"""start.gg player ID associated with this player, can be used in conjuction with start.gg's API and a query on player"""
 		player_id: int | None = self['SmashGGPlayerID']
-		return ID(player_id) if player_id else None
+		return IntID(player_id) if player_id else None
 
 	@property
 	def elo(self) -> int:

@@ -7,7 +7,7 @@ from zoneinfo import ZoneInfo
 
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import ID
+from ausmash.typedefs import IntID
 
 from .game import Game
 from .player import Player
@@ -76,9 +76,9 @@ class Elo(DictWrapper):
 		)
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""Mysteriously there is an ID field on here that doesn't seem to represent anything else, and doesn't have any operations using it"""
-		return ID(self['ID'])
+		return IntID(self['ID'])
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, Elo):

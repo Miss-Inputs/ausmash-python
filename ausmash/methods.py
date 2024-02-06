@@ -17,7 +17,7 @@ from .classes.result import Result
 if TYPE_CHECKING:
 	from .classes.character import Character
 	from .classes.match import Match
-	from .typedefs import ID
+	from .typedefs import IntID
 
 __all__ = [
 	'get_active_players',
@@ -129,7 +129,7 @@ def get_active_players(
 	"""
 
 	players: dict[
-		Player, tuple[set['ID'], set['ID']]
+		Player, tuple[set['IntID'], set['IntID']]
 	] = {}  # Locals tournament IDs, interstate tournament IDs
 
 	players_to_check = (

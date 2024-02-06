@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, cast
 
 from ausmash.dictwrapper import DictWrapper
 from ausmash.startgg_api import get_event_entrants
-from ausmash.typedefs import ID, URL
+from ausmash.typedefs import URL, IntID
 
 from .game import Game
 
@@ -56,8 +56,7 @@ class Event(DictWrapper):
 	can't really be used to do anything?"""
 
 	__redemption_bracket_name = re.compile(
-		r'\b(?:amateur|amateurs|ammies|redemption|redemmies|ammys|no cigar)\b',
-		re.IGNORECASE,
+		r'\b(?:amateur|amateurs|ammies|redemption|redemmies|ammys|no cigar)\b', re.IGNORECASE
 	)  # I thiiink Pissmas 2: No Cigar is some kind of redemption for 49th place?
 	__side_bracket_name = re.compile(r'\b(?:mega smash|squad strike)\b', re.IGNORECASE)
 	__startgg_url = re.compile(
@@ -65,9 +64,9 @@ class Event(DictWrapper):
 	)
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""Used to look up results/matches/videos"""
-		return ID(self['ID'])
+		return IntID(self['ID'])
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, Event):
@@ -147,19 +146,14 @@ class Event(DictWrapper):
 		seeds_by_id: dict[int, int | None] = {}
 		seeds_by_tag: dict[str, int | None] = {}
 		for entrant in entrants:
-			if len(entrant['participants']) != 1:
+			if len(entrant.participants) != 1:
 				continue  # TODO: Doubles team seeds, this would need to return Player | str | tuple[Player | str, Player | str] instead
 			seed = next(
-				(
-					seed['seedNum']
-					for seed in entrant['seeds']
-					if seed['progressionSource'] is None
-				),
-				None,
+				(seed.seedNum for seed in entrant.seeds if seed.progressionSource is None), None
 			)
-			seeds_by_id[entrant['participants'][0]['player']['id']] = seed
-			seeds_by_tag[entrant['participants'][0]['gamerTag'].lower()] = seed
-			seeds_by_tag[entrant['name'].lower()] = seed
+			seeds_by_id[entrant.participants[0].player['id']] = seed
+			seeds_by_tag[entrant.participants[0].gamerTag.lower()] = seed
+			seeds_by_tag[entrant.name.lower()] = seed
 
 		from .result import (
 			Result,  # Bugger it, naughty import outside of the top to avoid circular nonsense

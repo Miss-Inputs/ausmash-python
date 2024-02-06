@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
-from ausmash.typedefs import ID, URL, JSONDict
+from ausmash.typedefs import IntID, URL, JSONDict
 
 from .match import Match
 from .player import Player
@@ -84,14 +84,14 @@ class Video(Match):
 		return cls.wrap_many(call_api_json(f'characters/{character.id}/videos'))
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""There is no /videos/{id} URL, so it is not a Resource, but it has an ID anyway"""
-		return ID(self['ID'])
+		return IntID(self['ID'])
 
 	@property
-	def match_id(self) -> ID:
+	def match_id(self) -> IntID:
 		"""ID in the Match property"""
-		return ID(self['match_id'])
+		return IntID(self['match_id'])
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, Video):

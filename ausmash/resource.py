@@ -6,7 +6,7 @@ from ausmash.api import call_api_json
 from ausmash.exceptions import NotFoundError
 
 from .dictwrapper import DictWrapper
-from .typedefs import ID, URL, JSONDict
+from .typedefs import IntID, URL, JSONDict
 
 if TYPE_CHECKING:
 	from typing_extensions import Self
@@ -35,10 +35,10 @@ class Resource(DictWrapper):
 		return super().__init_subclass__()
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""Opaque ID used to request the resource again for more fields, or compare stuff, etc
 		Would normally always be present, though if potentially not (such as with Game or Region, due to accepting a str in constructor to use just short name), _complete should be overridden"""
-		return ID(self['ID'])
+		return IntID(self['ID'])
 
 	def __repr__(self) -> str:
 		return f'{self.__class__.__qualname__}({self.id!r})'
@@ -52,7 +52,7 @@ class Resource(DictWrapper):
 		return hash(self.id)
 
 	@classmethod
-	def get_by_id(cls: type['Self'], id_: ID) -> 'Self':
+	def get_by_id(cls: type['Self'], id_: IntID) -> 'Self':
 		"""Gets a new instance of this resource from an ID representing it
 		:raises NotFoundError: If the request for this ID did not find anything
 		:raises HTTPError: If some other HTTP error happens"""

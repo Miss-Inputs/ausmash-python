@@ -5,7 +5,7 @@ from typing import Protocol, cast
 
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
-from ausmash.typedefs import ID, JSON, URL
+from ausmash.typedefs import JSON, URL, IntID
 
 from ..character import Character
 from ..event import Event
@@ -20,9 +20,9 @@ class _BasePocketMatch(DictWrapper):
 	"""Base class for match objects returned from pocket API"""
 
 	@property
-	def id(self) -> ID:
+	def id(self) -> IntID:
 		"""There is nothing to directly get a match with just an ID, so it is not a Resource, but it has an ID anyway"""
-		return ID(self['MatchID'])
+		return IntID(self['MatchID'])
 
 	def __eq__(self, __o: object) -> bool:
 		if not isinstance(__o, type(self)):
@@ -40,7 +40,7 @@ class _BasePocketMatch(DictWrapper):
 
 	@property
 	def game(self) -> Game:
-		return Game(ID(self['GameID']))
+		return Game(IntID(self['GameID']))
  
 	@property
 	def tournament_name(self) -> str:

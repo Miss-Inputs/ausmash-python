@@ -4,7 +4,7 @@ from typing import cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
-from ausmash.typedefs import ID, JSONDict
+from ausmash.typedefs import IntID, JSONDict
 
 
 class Region(Resource):
@@ -12,7 +12,7 @@ class Region(Resource):
 	Note that players can be from anywhere, but tournament data on Ausmash is only for Australia and New Zealand"""
 	base_url = 'regions'
 
-	def __init__(self, d: JSONDict | str | ID) -> None:
+	def __init__(self, d: JSONDict | str | IntID) -> None:
 		"""For convenience, allow using just a short name, which will look up any additional properties automatically"""
 		if isinstance(d, str):
 			super().__init__({'Short': d})
