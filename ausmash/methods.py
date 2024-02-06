@@ -42,7 +42,7 @@ def __flatten_pocket_match_array(
 	matches = []
 	events: Sequence[MutableMapping[str, Any]] = d.pop('Events')
 	for event in events:
-		event_matches: Sequence[MutableMapping[str, Any]] = event.pop('Matches')
+		event_matches: Sequence[dict[str, Any]] = event.pop('Matches')
 		for match in event_matches:
 			# Both event and match have a PlayerCharacterIDs, but that might not be needed
 			match.update(d)  # Contains Player* fields, and GameID

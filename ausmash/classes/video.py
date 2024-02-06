@@ -2,16 +2,18 @@ import itertools
 from collections.abc import Collection, Iterator, Sequence
 from copy import deepcopy
 from datetime import date
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
 from ausmash.typedefs import ID, URL, JSONDict
 
-from .character import Character
-from .event import Event
 from .match import Match
 from .player import Player
+
+if TYPE_CHECKING:
+	from .character import Character
+	from .event import Event
 
 
 class Video(Match):
@@ -19,7 +21,7 @@ class Video(Match):
 
 	def __init__(self, d: JSONDict) -> None:
 		"""Instead of bothering with a .match property, just use Video as a Match"""
-		new_dict = deepcopy(d) if isinstance(d, dict) else dict(d)
+		new_dict = deepcopy(d)
 		match = new_dict.pop('Match')
 		match = deepcopy(match) if isinstance(match, dict) else dict(match)
 		new_dict['match_id'] = match.pop('ID')
@@ -30,7 +32,9 @@ class Video(Match):
 	def all(cls) -> Collection['Video']:
 		"""All videos tagged on the site. This will probably hit the API a lot"""
 		return frozenset(
-			itertools.chain.from_iterable(channel.videos for channel in Channel.all() if channel.video_count)
+			itertools.chain.from_iterable(
+				channel.videos for channel in Channel.all() if channel.video_count
+			)
 		)
 
 	@classmethod
@@ -54,7 +58,7 @@ class Video(Match):
 		player: Player,
 		start_date: date | None = None,
 		end_date: date | None = None,
-		character: Character | None = None,
+		character: 'Character | None' = None,
 	) -> Sequence['Video']:
 		"""Videos featuring this player, newest to oldest"""
 		params = {}
@@ -69,13 +73,13 @@ class Video(Match):
 		return cls.wrap_many(call_api_json(f'players/{player.id}/videos', params))
 
 	@classmethod
-	def videos_at_event(cls, event: Event) -> Sequence['Video']:
+	def videos_at_event(cls, event: 'Event') -> Sequence['Video']:
 		"""All videos for matches at this event that have a video tagged
 		TODO: What is this sorted by, if anything meaningful?"""
 		return cls.wrap_many(call_api_json(f'events/{event.id}/videos'))
 
 	@classmethod
-	def videos_of_character(cls, character: Character) -> Sequence['Video']:
+	def videos_of_character(cls, character: 'Character') -> Sequence['Video']:
 		"""Videos featuring this character being played, newest to oldest"""
 		return cls.wrap_many(call_api_json(f'characters/{character.id}/videos'))
 
