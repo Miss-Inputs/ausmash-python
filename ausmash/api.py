@@ -124,7 +124,7 @@ class _SessionSingleton:
 			stale_if_error=True,
 			headers={'User-Agent': get_user_agent()},
 		)
-		self.sesh.cache.delete(expired=True)
+		# self.sesh.cache.delete(expired=True)
 		self.sesh.hooks = {'response': _hax_content_type}
 		self.last_sent: datetime | None = None
 		self.requests_per_second = 0
