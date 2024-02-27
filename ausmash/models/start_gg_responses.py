@@ -33,7 +33,7 @@ class EventEntrantSeed(BaseModel):
 class EventParticipant(BaseModel):
 	model_config = {'extra': 'forbid'}
 	gamerTag: str
-	prefix: str
+	prefix: str | None
 	player: dict[Literal['id'], IntID]
 	"""We only bother getting the ID here, otherwise this should be typed as another layer of BaseModel instead"""
 
