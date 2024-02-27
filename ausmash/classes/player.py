@@ -8,7 +8,7 @@ from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.exceptions import NotFoundError
 from ausmash.resource import Resource
-from ausmash.typedefs import IntID, URL
+from ausmash.typedefs import URL, IntID
 
 from .event import Event
 from .game import Game
