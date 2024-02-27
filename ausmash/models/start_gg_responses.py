@@ -21,9 +21,13 @@ class PhaseGroup(BaseModel):
 	"""We only bother getting the name of the wave here, otherwise this should be typed as another layer of BaseModel instead"""
 
 
+class ProgressionSource(BaseModel, extra='forbid'):
+	id: IntID
+
+
 class EventEntrantSeed(BaseModel):
 	model_config = {'extra': 'forbid'}
-	progressionSource: IntID | None
+	progressionSource: ProgressionSource | None
 	"""Indicates where this entrant came from in later phases, or none if it is the start phases"""
 	phaseGroup: PhaseGroup
 	"""Which pool this entrant is in"""
@@ -52,14 +56,17 @@ class EventEntrantsResponse(BaseModel):
 	pageInfo: PageInfo
 	nodes: list[EventEntrant]
 
+
 class User(BaseModel):
 	model_config = {'extra': 'forbid'}
 	genderPronoun: str | None
 	name: str | None
 
+
 class PlayerPronounsResponse(BaseModel):
 	model_config = {'extra': 'forbid'}
 	user: User | None
+
 
 class TournamentLocationResponse(BaseModel):
 	model_config = {'extra': 'forbid'}
