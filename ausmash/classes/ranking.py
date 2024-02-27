@@ -5,7 +5,7 @@ from typing import cast
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 from ausmash.resource import Resource
-from ausmash.typedefs import IntID, URL
+from ausmash.typedefs import URL, IntID
 
 from .character import Character
 from .game import Game

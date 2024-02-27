@@ -1,4 +1,4 @@
-from collections.abc import Collection, MutableMapping, Sequence
+from collections.abc import Collection, Sequence
 from datetime import date, datetime
 from functools import cached_property
 from typing import Protocol, cast
@@ -149,12 +149,12 @@ class PocketMatch(_BasePocketMatch):
 		"""Returns matches from this tournament where a certain game was played
 		TODO: Sorted by presumably round? Event order?"""
 		matches = []
-		d: MutableMapping[str, JSON] = call_api_json(f'/pocket/result/matches/{tournament.id}/{game.id}')
+		d: dict[str, JSON] = call_api_json(f'/pocket/result/matches/{tournament.id}/{game.id}')
 		tournament_name: str = d.pop('ResultName') #Just easier that way to rename it for compatibility with _BasePocketMatch
 		region_short: str = d.pop('ResultRegionShort')
-		events: Sequence[MutableMapping[str, JSON]] = d.pop('Events')
+		events: Sequence[dict[str, JSON]] = d.pop('Events')
 		for event in events:
-			event_matches: Sequence[MutableMapping[str, JSON]] = event.pop('Matches')
+			event_matches: Sequence[dict[str, JSON]] = event.pop('Matches')
 			for match in event_matches:
 				#Both event and match have a PlayerCharacterIDs, but that might not be needed
 				match.update(d)

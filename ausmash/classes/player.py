@@ -41,7 +41,7 @@ class Player(Resource):
 		return cls.wrap_many(call_api_json('players/search', {'q': query}))
 		
 	@classmethod
-	def reverse_lookup_start_gg_player_id(cls, player_id: str, player_name_hint: str | None=None, player_region_hint: Region | str | None=None, skip_searching_all: bool=False) -> 'Player | None':
+	def reverse_lookup_start_gg_player_id(cls, player_id: str, player_name_hint: str | None=None, player_region_hint: Region | str | None=None, *, skip_searching_all: bool=False) -> 'Player | None':
 		"""Given a player ID from start.gg's API, returns an Ausmash Player that is associated with that Start.gg player, or None if could not be found
 		Will search for a player name first or get all players in a region first if hint for either is given, but these are not restrictive filters, it will fall back to checking all players if it cannot find a match
 		:raises HTTPError: If some other HTTP error occurs other than not being found"""

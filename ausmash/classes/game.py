@@ -4,7 +4,7 @@ from typing import cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
-from ausmash.typedefs import IntID, URL, JSONDict
+from ausmash.typedefs import URL, IntID, JSONDict
 
 
 class Game(Resource):

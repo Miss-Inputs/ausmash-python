@@ -88,4 +88,4 @@ class Resource(DictWrapper):
 				logger.debug('Requesting complete %s to get %s', type(self).__qualname__, name)
 				return self._complete[name]
 			except (NotImplementedError, NotFoundError):
-				raise e  # pylint: disable=raise-missing-from #That would be weird actually
+				raise e  # noqa: B904 #pylint: disable=raise-missing-from #That would be weird actually

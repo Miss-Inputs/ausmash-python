@@ -1,12 +1,11 @@
 import importlib.resources
 import re
-from typing import TYPE_CHECKING, TypeVar, cast
+from typing import TYPE_CHECKING, cast
 
-import pydantic
 from pydantic_core import from_json
 
 if TYPE_CHECKING:
-	from pydantic import BaseModel, JsonValue
+	from pydantic import JsonValue
 
 # Weird nonsense (also known as a regex) that ensures we can still have // inside a string literal
 json_comment_reg = re.compile(r'(\".*?\")|(?://.*$)')
