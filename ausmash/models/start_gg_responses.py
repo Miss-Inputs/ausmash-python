@@ -55,7 +55,7 @@ class EventEntrantsResponse(BaseModel):
 class User(BaseModel):
 	model_config = {'extra': 'forbid'}
 	genderPronoun: str | None
-	name: str
+	name: str | None
 
 class PlayerPronounsResponse(BaseModel):
 	model_config = {'extra': 'forbid'}
