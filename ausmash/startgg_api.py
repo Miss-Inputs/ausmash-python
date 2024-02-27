@@ -122,6 +122,8 @@ def get_tournament_location(tournament_slug: str) -> TournamentLocationResponse 
 	if not result:
 		# e.g. if tournament does not exist
 		return None
+	if not result['tournament']:
+		return None
 	return TournamentLocationResponse.model_validate(result['tournament'])
 
 

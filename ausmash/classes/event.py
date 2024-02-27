@@ -1,3 +1,4 @@
+import contextlib
 import itertools
 import re
 from collections.abc import Mapping, Sequence
@@ -5,9 +6,11 @@ from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, cast
 
+from pydantic_core import Url, ValidationError
+
 from ausmash.dictwrapper import DictWrapper
 from ausmash.startgg_api import get_event_entrants
-from ausmash.typedefs import URL, IntID
+from ausmash.typedefs import IntID
 
 from .game import Game
 
@@ -59,9 +62,7 @@ class Event(DictWrapper):
 		r'\b(?:amateur|amateurs|ammies|redemption|redemmies|ammys|no cigar)\b', re.IGNORECASE
 	)  # I thiiink Pissmas 2: No Cigar is some kind of redemption for 49th place?
 	__side_bracket_name = re.compile(r'\b(?:mega smash|squad strike)\b', re.IGNORECASE)
-	__startgg_url = re.compile(
-		r'https?://.*start.gg/tournament/(?P<tournament>[^/]+)/event/(?P<event>[^/]+)'
-	)
+	__startgg_url_path = re.compile(r'^/?tournament/(?P<tournament>[^/]+)/event/(?P<event>[^/]+)')
 
 	@property
 	def id(self) -> IntID:
@@ -109,17 +110,30 @@ class Event(DictWrapper):
 		"""If this is presumably not the main bracket of the tournament"""
 		return self.__side_bracket_name.search(self.name) is not None
 
-	@property
-	def source_url(self) -> URL | None:
-		"""Returns the link to start.gg or Challonge that this was imported from, or null if it was imported before this field was added to the API (or presumably if tournaments are ever uploaded from TioPro); for usage with those site's APIs to get seeds and things"""
-		return cast(URL | None, self['SourceUrl'])
+	@cached_property
+	def source_url(self) -> Url | None:
+		"""Returns the link to start.gg or Challonge that this was imported from, or None if it was imported before this field was added to the API (or presumably if tournaments are ever uploaded from TioPro) or if it was not a valid URL; for usage with those site's APIs to get seeds and things"""
+		source_url: str | None = self['SourceUrl']
+		if source_url:
+			with contextlib.suppress(ValidationError):
+				return Url(source_url)
+		return None
+
+	@cached_property
+	def __startgg_url_match(self) -> re.Match[str] | None:
+		if not self.source_url or not self.source_url.path:
+			return None
+		if self.source_url.host != 'start.gg':
+			return None
+		match = self.__startgg_url_path.match(self.source_url.path)
+		if not match:
+			return None
+		return match
 
 	@property
 	def startgg_slug(self) -> str | None:
 		"""The event part of the slug (after /event/ in the URL) for this event, or None if this is not from start.gg"""
-		if not self.source_url:
-			return None
-		match = self.__startgg_url.match(self.source_url)
+		match = self.__startgg_url_match
 		if not match:
 			return None
 		return match['event']
@@ -127,9 +141,7 @@ class Event(DictWrapper):
 	@property
 	def tournament_startgg_slug(self) -> str | None:
 		"""The tournament part of the slug (after /tournament/ in the URL) for this event, or None if this is not from start.gg"""
-		if not self.source_url:
-			return None
-		match = self.__startgg_url.match(self.source_url)
+		match = self.__startgg_url_match
 		if not match:
 			return None
 		return match['tournament']

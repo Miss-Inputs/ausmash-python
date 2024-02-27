@@ -6,17 +6,19 @@ import logging
 import operator
 from collections.abc import Collection, Mapping, Sequence
 from functools import cached_property
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
-from ausmash.models.start_gg_responses import TournamentLocationResponse
 from ausmash.resource import Resource
 from ausmash.startgg_api import get_tournament_location, has_startgg_api_key
 from ausmash.typedefs import IntID
 
 from .event import Event
 from .region import Region
+
+if TYPE_CHECKING:
+	from ausmash.models.start_gg_responses import TournamentLocationResponse
 
 logger = logging.getLogger(__name__)
 
@@ -174,13 +176,13 @@ class Tournament(Resource):
 	def start_gg_slug(self) -> str | None:
 		"""Gets the start.gg slug for this tournament by looking at the source_url of this tournament's events, or None if no event was imported from start.gg or had its source URL set."""
 		for event in self.events:
-			url = event.source_url
-			if url and 'start.gg/tournament/' in url:
-				return url.rsplit('/', 1)[-1]
+			slug = event.tournament_startgg_slug
+			if slug:
+				return None
 		return None
 
 	@cached_property
-	def __start_gg_location(self) -> TournamentLocationResponse | None:
+	def __start_gg_location(self) -> 'TournamentLocationResponse | None':
 		if not has_startgg_api_key():
 			return None
 		if not self.start_gg_slug:
@@ -255,7 +257,7 @@ class Tournament(Resource):
 			return location.venueName
 		return None
 
-	def __other_phase_for_event(self, e: Event, previous=False) -> Event | None:
+	def __other_phase_for_event(self, e: Event, *, previous=False) -> Event | None:
 		# Can't use functools.cache here… or we could, but it'd cause a memory leak
 
 		if not hasattr(self, '__phase_event_cache'):
