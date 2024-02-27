@@ -15,8 +15,10 @@ class DictWrapper:
 		self._data = d
 
 	@classmethod
-	def wrap_many(cls, datas: Iterable['JSONDict']) -> Sequence['Self']:
+	def wrap_many(cls, datas: Iterable['JSONDict'] | None) -> Sequence['Self']:
 		"""Wraps a sequence/iterable of JSON dicts into a sequence of this type"""
+		if not datas:
+			return []
 		return tuple(cls(data) for data in datas)
 
 	def __eq__(self, __o: object) -> bool:

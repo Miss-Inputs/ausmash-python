@@ -6,7 +6,7 @@ from ausmash.api import call_api_json
 from ausmash.exceptions import NotFoundError
 
 from .dictwrapper import DictWrapper
-from .typedefs import IntID, URL, JSONDict
+from .typedefs import URL, IntID, JSONDict
 
 if TYPE_CHECKING:
 	from typing_extensions import Self

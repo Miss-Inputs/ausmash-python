@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
-from ausmash.typedefs import IntID, URL, JSONDict
+from ausmash.typedefs import URL, IntID, JSONDict
 
 from .match import Match
 from .player import Player
@@ -70,7 +70,10 @@ class Video(Match):
 			return cls.wrap_many(
 				call_api_json(f'players/{player.id}/videos/{character.id}', params)
 			)
-		return cls.wrap_many(call_api_json(f'players/{player.id}/videos', params))
+		data = call_api_json(f'players/{player.id}/videos', params)
+		if not data:
+			return []
+		return cls.wrap_many(data)
 
 	@classmethod
 	def videos_at_event(cls, event: 'Event') -> Sequence['Video']:

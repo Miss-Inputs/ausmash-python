@@ -16,7 +16,6 @@ from .version import __version__, get_git_version
 
 if TYPE_CHECKING:
 	from requests import Response
-	from requests_cache.backends.sqlite import AnyPath
 	from requests_cache.models import AnyRequest
 	from requests_cache.serializers import SerializerType
 
@@ -46,7 +45,7 @@ class _FileCacheWithDirectories(FileCache):
 
 	def __init__(
 		self,
-		cache_name: 'AnyPath' = 'http_cache',
+		cache_name = 'http_cache',
 		use_temp: bool = False,  # noqa: FBT001, FBT002 #It's how requests_cache works
 		decode_content: bool = True,  # noqa: FBT001, FBT002
 		serializer: 'SerializerType | None' = None,
@@ -143,7 +142,7 @@ class _SessionSingleton:
 
 
 @cache
-def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> 'bytes':
+def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> bytes | None:
 	ss = _SessionSingleton()
 
 	response = ss.sesh.get(str(url), params=params)
@@ -188,7 +187,7 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> 'bytes
 	return response.content
 
 
-def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> bytes:
+def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> bytes | None:
 	"""Calls an API request on the Ausmash endpoint, reusing the same session
 	If provided a complete URL it will use that, otherwise it will append the URL fragment to the endpoint (the former is useful for APILink fields)"""
 	if isinstance(url, str):
@@ -210,5 +209,8 @@ def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -
 
 
 def call_api_json(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> 'Any':
-	#We should use JSON as the type hint here, but for now that just generates too much spam
-	return from_json(call_api(url, params))
+	# We should use JSON as the type hint here, but for now that just generates too much spam
+	response = call_api(url, params)
+	if response is None:
+		return None
+	return from_json(response)
