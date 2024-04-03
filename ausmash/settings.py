@@ -19,4 +19,4 @@ class AusmashAPISettings(BaseSettings):
 	startgg_api_key: str | None = Field(default=None, alias='startgg_api_key')
 	"""API key for start.gg, to enable usage of that"""
 
-	model_config = {'env_prefix': 'ausmash_', 'env_file': '.env', 'env_file_encoding': 'utf-8'}
+	model_config = {'env_prefix': 'ausmash_', 'env_file': '.env', 'env_file_encoding': 'utf-8', 'extra': 'ignore'}

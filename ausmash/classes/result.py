@@ -58,6 +58,8 @@ class Result(ResultMixin, DictWrapper):
 		if isinstance(event, Event):
 			event = event.id
 		response: Sequence[dict[str, Any]] = call_api_json(f'events/{event}/results')
+		if not response:
+			return []
 		for r in response:
 			r['Entrants'] = len(response)
 		return cls.wrap_many(response)
