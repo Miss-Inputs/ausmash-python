@@ -276,7 +276,7 @@ class Tournament(Resource):
 		# Just to be really sure, make sure players from the next phase are all in the previous one
 		results = Result.results_for_event(e)
 		if not results:
-			self.__phase_event_cache[(e.id, previous)] = None
+			self.__phase_event_cache[e.id, previous] = None
 			return None
 		result_players = {result.player_name for result in results}
 
@@ -310,7 +310,7 @@ class Tournament(Resource):
 			phase = max(potential_events_and_indexes, key=operator.itemgetter(1))[0]
 		else:
 			phase = min(potential_events_and_indexes, key=operator.itemgetter(1))[0]
-		self.__phase_event_cache[(e.id, previous)] = phase
+		self.__phase_event_cache[e.id, previous] = phase
 		return phase
 
 	def next_phase_for_event(self, e: Event) -> Event | None:

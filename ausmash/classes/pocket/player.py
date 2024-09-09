@@ -2,7 +2,7 @@ from collections.abc import Sequence
 from typing import cast
 
 from ausmash.api import call_api_json
-from ausmash.typedefs import IntID, URL
+from ausmash.typedefs import URL, IntID
 
 from ..game import Game
 from ..player import Player

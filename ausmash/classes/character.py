@@ -78,8 +78,7 @@ class Character(Resource):
 		use_extra_info: bool = False,
 		return_groups: bool = True,
 		error_if_not_found: Literal[True],
-	) -> 'Character':
-		...
+	) -> 'Character': ...
 
 	@overload
 	@classmethod
@@ -91,8 +90,7 @@ class Character(Resource):
 		use_extra_info: bool = False,
 		return_groups: bool = True,
 		error_if_not_found: Literal[False] = False,
-	) -> 'Character | None':
-		...
+	) -> 'Character | None': ...
 
 	@classmethod
 	def parse(
@@ -164,9 +162,9 @@ class Character(Resource):
 
 		if name in names:
 			return True
-		if name.startswith('#') and self.fighter_number and str(self.fighter_number) == name[1:]:
-			return True
-		return False
+		return bool(
+			name.startswith('#') and self.fighter_number and str(self.fighter_number) == name[1:]
+		)
 
 	@property
 	def name(self) -> str:

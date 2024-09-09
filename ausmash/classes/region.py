@@ -1,10 +1,12 @@
 from collections.abc import Collection, Mapping
 from functools import cached_property
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api_json
 from ausmash.resource import Resource
-from ausmash.typedefs import IntID, JSONDict
+
+if TYPE_CHECKING:
+	from ausmash.typedefs import IntID, JSONDict
 
 
 class Region(Resource):
@@ -12,7 +14,7 @@ class Region(Resource):
 	Note that players can be from anywhere, but tournament data on Ausmash is only for Australia and New Zealand"""
 	base_url = 'regions'
 
-	def __init__(self, d: JSONDict | str | IntID) -> None:
+	def __init__(self, d: 'JSONDict | str | IntID') -> None:
 		"""For convenience, allow using just a short name, which will look up any additional properties automatically"""
 		if isinstance(d, str):
 			super().__init__({'Short': d})

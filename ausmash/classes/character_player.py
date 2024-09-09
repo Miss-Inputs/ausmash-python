@@ -1,19 +1,21 @@
 from collections.abc import Sequence
 from copy import deepcopy
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api_json
-from ausmash.typedefs import JSONDict
 
 from .character import Character
 from .player import Player
 from .video import Video
 
+if TYPE_CHECKING:
+	from ausmash.typedefs import JSONDict
+
 
 class CharacterPlayer(Player):
 	"""An item in players_of_character, has Player but also containing a few other fields"""
 
-	def __init__(self, d: JSONDict) -> None:
+	def __init__(self, d: 'JSONDict') -> None:
 		"""Rather than having a .player property, just make the fields in Player part of this directly, so it acts as a Player"""
 		new_dict = deepcopy(d)
 		new_dict.update(new_dict.pop('Player'))

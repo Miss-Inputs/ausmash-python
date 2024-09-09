@@ -1,17 +1,19 @@
 from collections.abc import Collection, Sequence
 from datetime import date, datetime
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from ausmash.api import call_api_json
 from ausmash.dictwrapper import DictWrapper
 
 from ..character import Character
-from ..event import Event
-from ..game import Game
-from ..player import Player
 from ..region import Region
 from ..result import ResultMixin
 from ..tournament import Tournament
+
+if TYPE_CHECKING:
+	from ..event import Event
+	from ..game import Game
+	from ..player import Player
 
 
 class PocketResult(ResultMixin, DictWrapper):
@@ -20,7 +22,7 @@ class PocketResult(ResultMixin, DictWrapper):
 	Seems to only return singles double elimination results"""
 
 	@classmethod
-	def get_results(cls, player: Player, game: Game) -> Sequence['PocketResult']:
+	def get_results(cls, player: 'Player', game: 'Game') -> Sequence['PocketResult']:
 		return PocketResult.wrap_many(call_api_json(f'pocket/player/results/{player.id}/{game.id}')['Items'])
 
 	@property
@@ -34,7 +36,7 @@ class PocketResult(ResultMixin, DictWrapper):
 		return cast(str, self['EventName'])
 
 	@property
-	def event(self) -> Event:
+	def event(self) -> 'Event':
 		"""Because Event is not a Resource, we would need to look it up from the tournament to access any properties"""
 		return next(e for e in self.tournament.events if e.id == self['EventID'])
 	

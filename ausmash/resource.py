@@ -54,8 +54,13 @@ class Resource(DictWrapper):
 	@classmethod
 	def get_by_id(cls: type['Self'], id_: IntID) -> 'Self':
 		"""Gets a new instance of this resource from an ID representing it
-		:raises NotFoundError: If the request for this ID did not find anything
-		:raises HTTPError: If some other HTTP error happens"""
+		
+		Raises:
+			NotFoundError: If the request for this ID did not find anything
+
+		Returns:
+			The complete instance of whatever class this is
+		"""
 		try:
 			return cls(call_api_json(f'{cls.base_url}/{id_}'))
 		except NotFoundError as e:

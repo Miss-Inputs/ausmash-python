@@ -3,7 +3,7 @@ import logging
 from collections.abc import Mapping, Sequence
 from datetime import datetime, timedelta
 from time import sleep
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pydantic_core
 from requests_cache import CachedSession
@@ -16,9 +16,11 @@ from ausmash.models.start_gg_responses import (
 	TournamentLocationResponse,
 )
 from ausmash.settings import AusmashAPISettings
-from ausmash.typedefs import JSON
 
 from .api import get_user_agent
+
+if TYPE_CHECKING:
+	from ausmash.typedefs import JSON
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +69,13 @@ def has_startgg_api_key() -> bool:
 
 
 def __call_api_json(query_name: str, variables: Mapping[str, Any] | None) -> bytes:
-	"""Calls the API and returns a JSON byte string"""
+	"""Calls the API and returns a JSON byte string
+
+	Raises:
+		RateLimitError: If sleep_on_rate_limit in settings is False, and the rate limit was exceeded
+
+	Returns:
+		JSON as bytes"""
 	ss = _SessionSingleton()
 	body: dict[str, Any] = {'query': __queries.joinpath(f'{query_name}.gql').read_text('utf-8')}
 	if variables:
@@ -92,8 +100,14 @@ def __call_api_json(query_name: str, variables: Mapping[str, Any] | None) -> byt
 	return response.content
 
 
-def __call_api(query_name: str, variables: Mapping[str, Any] | None) -> JSON:
-	"""Calls the API and returns a parsed JSON object (probably a dict). This is why GraphQL is annoying"""
+def __call_api(query_name: str, variables: Mapping[str, Any] | None) -> 'JSON':
+	"""Calls the API and returns a parsed JSON object (probably a dict). This is why GraphQL is annoying
+
+	Raises:
+		StartGGError: If the API decided to return an error
+
+	Returns:
+		JSON object as dict/list/etc."""
 	response = __call_api_json(query_name, variables)
 	j = pydantic_core.from_json(response)
 	# j also has annoying extra fields like "extensions" and "actionRecords"
