@@ -1,9 +1,10 @@
 import pytest
+
 from ausmash import Character, Game
 from ausmash.classes.character import CombinedCharacter
 
 
-@pytest.fixture()
+@pytest.fixture
 def ssbu() -> Game:
 	return Game('SSBU')
 

@@ -33,13 +33,17 @@ from .methods import (
 )
 
 __all__ = [
+	'BracketStyle',
 	'Channel',
 	'Character',
 	'Comparison',
 	'Elo',
+	'EloBadge',
 	'Event',
+	'EventType',
 	'Game',
 	'Match',
+	'NotFoundError',
 	'Player',
 	'PocketElo',
 	'PocketMatch',
@@ -50,6 +54,7 @@ __all__ = [
 	'PocketVideo',
 	'Ranking',
 	'RankingSequence',
+	'RateLimitError',
 	'Region',
 	'Result',
 	'Tournament',
@@ -57,9 +62,6 @@ __all__ = [
 	'TrueSkill',
 	'Video',
 	'WinRate',
-	'BracketStyle',
-	'EloBadge',
-	'EventType',
 	'combine_echo_fighters',
 	'compare_common_rankings',
 	'get_active_players',
@@ -74,6 +76,4 @@ __all__ = [
 	'possible_placings',
 	'probability_of_winning',
 	'rounds_from_victory',
-	'NotFoundError',
-	'RateLimitError',
 ]
