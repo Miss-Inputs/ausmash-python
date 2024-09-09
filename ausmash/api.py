@@ -15,7 +15,6 @@ from .settings import AusmashAPISettings
 from .version import __version__, get_git_version
 
 if TYPE_CHECKING:
-	from requests import Response
 	from requests_cache.models import AnyRequest
 	from requests_cache.serializers import SerializerType
 
@@ -32,16 +31,6 @@ RATE_LIMIT_MINUTE = 5000
 RATE_LIMIT_HOUR = 300000
 RATE_LIMIT_DAY = 8000000  # Probably we won't have to think _this_ far ahead
 RATE_LIMIT_WEEK = 40000000
-
-
-def _hax_content_type(r: 'Response', **_):
-	"""requests-cache hardcodes "application/json" without a startswith, so it won't decode the "application/json; charset=utf-8"
-	(TODO: Is this even true anymore?)
-	Returns:
-		`r` but modified
-	"""
-	r.headers['Content-Type'] = 'application/json'
-	return r
 
 
 class _FileCacheWithDirectories(FileCache):
@@ -129,7 +118,6 @@ class _SessionSingleton:
 			headers={'User-Agent': get_user_agent()},
 		)
 		# self.sesh.cache.delete(expired=True)
-		self.sesh.hooks = {'response': _hax_content_type}
 		self.last_sent: datetime | None = None
 		self.requests_per_second = 0
 		self.requests_per_minute = 0
@@ -149,7 +137,7 @@ class _SessionSingleton:
 			self.requests_per_hour = 0
 		self.last_sent = datetime.now()
 
-	def __new__(cls: type['_SessionSingleton']) -> '_SessionSingleton':
+	def __new__(cls) -> '_SessionSingleton':
 		if not cls.__instance:
 			cls.__instance = super().__new__(cls)
 			cls.__instance._inited = False
