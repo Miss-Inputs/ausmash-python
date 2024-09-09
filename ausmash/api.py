@@ -35,7 +35,11 @@ RATE_LIMIT_WEEK = 40000000
 
 
 def _hax_content_type(r: 'Response', **_):
-	"""requests-cache hardcodes "application/json" without a startswith, so it won't decode the "application/json; charset=utf-8"""
+	"""requests-cache hardcodes "application/json" without a startswith, so it won't decode the "application/json; charset=utf-8"
+	(TODO: Is this even true anymore?)
+	Returns:
+		`r` but modified
+	"""
 	r.headers['Content-Type'] = 'application/json'
 	return r
 
@@ -45,7 +49,7 @@ class _FileCacheWithDirectories(FileCache):
 
 	def __init__(
 		self,
-		cache_name = 'http_cache',
+		cache_name='http_cache',
 		use_temp: bool = False,  # noqa: FBT001, FBT002 #It's how requests_cache works
 		decode_content: bool = True,  # noqa: FBT001, FBT002
 		serializer: 'SerializerType | None' = None,
@@ -53,7 +57,8 @@ class _FileCacheWithDirectories(FileCache):
 	):
 		super().__init__(cache_name, use_temp, decode_content, serializer, **kwargs)
 		skwargs = {'serializer': serializer, **kwargs} if serializer else kwargs
-		self.responses: _FileDictWithDirectories = _FileDictWithDirectories(
+
+		self.responses: _FileDictWithDirectories = _FileDictWithDirectories(  # pyright: ignore[reportIncompatibleVariableOverride]
 			cache_name, use_temp=use_temp, decode_content=decode_content, **skwargs
 		)
 
@@ -63,7 +68,7 @@ class _FileCacheWithDirectories(FileCache):
 		if not request.url:
 			return 'wat'
 		url = Url(request.url)
-		key = url.path.removeprefix('/') if url.path else (url.host if url.host else 'wat')
+		key = url.path.removeprefix('/') if url.path else (url.host or 'wat')
 		if url.query:
 			key += f'/{url.query}'
 		return key
@@ -134,6 +139,16 @@ class _SessionSingleton:
 			# Well, good luck without it… I suppose if you have cache it'd work
 			self.sesh.headers['X-ApiKey'] = _settings.api_key.get_secret_value()
 
+	def set_last_sent(self):
+		last_sent = self.last_sent
+		if last_sent is None or (datetime.now() - last_sent) >= __second:
+			self.requests_per_second = 0
+		if last_sent is None or (datetime.now() - last_sent) >= __minute:
+			self.requests_per_minute = 0
+		if last_sent is None or (datetime.now() - last_sent) >= __hour:
+			self.requests_per_hour = 0
+		self.last_sent = datetime.now()
+
 	def __new__(cls: type['_SessionSingleton']) -> '_SessionSingleton':
 		if not cls.__instance:
 			cls.__instance = super().__new__(cls)
@@ -147,15 +162,7 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> bytes 
 
 	response = ss.sesh.get(str(url), params=params)
 	if not response.from_cache:
-		last_sent = ss.last_sent
-		if last_sent is None or (datetime.now() - last_sent) >= __second:
-			ss.requests_per_second = 0
-		if last_sent is None or (datetime.now() - last_sent) >= __minute:
-			ss.requests_per_minute = 0
-		if last_sent is None or (datetime.now() - last_sent) >= __hour:
-			ss.requests_per_hour = 0
-
-		ss.last_sent = datetime.now()
+		ss.set_last_sent()
 
 		ss.requests_per_second += 1
 		if ss.requests_per_second == RATE_LIMIT_SECOND:
@@ -189,7 +196,9 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> bytes 
 
 def call_api(url: 'str | Url', params: Mapping[str, str | date] | None = None) -> bytes | None:
 	"""Calls an API request on the Ausmash endpoint, reusing the same session
-	If provided a complete URL it will use that, otherwise it will append the URL fragment to the endpoint (the former is useful for APILink fields)"""
+	If provided a complete URL it will use that, otherwise it will append the URL fragment to the endpoint (the former is useful for APILink fields)
+	Returns:
+		API response as bytes"""
 	if isinstance(url, str):
 		if '://' in url:
 			# Complete URL with host

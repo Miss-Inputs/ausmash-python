@@ -23,7 +23,10 @@ class Player(Resource):
 
 	@classmethod
 	def all(cls, region: Region | str | None = None) -> Collection['Player']:
-		"""Gets all players, or all players currently in a region"""
+		"""Gets all players, or all players currently in a region
+		
+		Returns:
+			Collection of players"""
 		if region:
 			if isinstance(region, str):
 				return cls.wrap_many(call_api_json(f'players/byregion/{region}'))
@@ -55,7 +58,10 @@ class Player(Resource):
 	) -> 'Player | None':
 		"""Given a player ID from start.gg's API, returns an Ausmash Player that is associated with that Start.gg player, or None if could not be found
 		Will search for a player name first or get all players in a region first if hint for either is given, but these are not restrictive filters, it will fall back to checking all players if it cannot find a match
-		:raises HTTPError: If some other HTTP error occurs other than not being found"""
+
+		Returns:
+			Ausmash Player object if there was a match, or None if the player could not be found
+		"""
 		if isinstance(player_id, int):
 			player_id = str(player_id)
 		if isinstance(player_region_hint, str):
@@ -190,7 +196,10 @@ class Player(Resource):
 		start_date: date | None = None,
 		end_date: date | None = None,
 	) -> Sequence[tuple[Event, int, int]]:
-		"""(Event, player 1 result, player 2 result) for events that both of these players competed in"""
+		"""Accesses compare API.
+
+		Returns:
+			List of (Event, player 1 result, player 2 result) for events that both of these players competed in"""
 		params = {}
 		if start_date:
 			params['startDate'] = start_date.isoformat()
@@ -206,7 +215,10 @@ class Player(Resource):
 	def get_win_rates(
 		self, game: Game | str, start_date: date | None = None, end_date: date | None = None
 	) -> Sequence['WinRate']:
-		"""Win rates against every opponent this player has ever played a singles match against for a certain game, from highest Elo to lowest"""
+		"""Win rates against every opponent this player has ever played a singles match against for a certain game, from highest Elo to lowest
+
+		Returns:
+			Ordered sequence of WinRate objects"""
 		params = {}
 		if start_date:
 			params['startDate'] = start_date.isoformat()
@@ -220,7 +232,10 @@ class Player(Resource):
 	def get_win_rate_dict(
 		self, game: Game | str, start_date: date | None = None, end_date: date | None = None
 	) -> Mapping['Player', 'WinRate']:
-		"""get_win_rates as a mapping of {opponent: win rate}"""
+		"""Returns get_win_rates as a dictionary.
+		Returns:
+			Mapping of {opponent: WinRate for this player against the opponent}
+		"""
 		return {
 			win_rate.opponent: win_rate
 			for win_rate in self.get_win_rates(game, start_date, end_date)
