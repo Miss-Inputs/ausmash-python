@@ -20,9 +20,9 @@ if TYPE_CHECKING:
 
 _settings = AusmashAPISettings()
 
-__second = timedelta(seconds=1)
-__minute = timedelta(minutes=1)
-__hour = timedelta(hours=1)
+_second = timedelta(seconds=1)
+_minute = timedelta(minutes=1)
+_hour = timedelta(hours=1)
 
 logger = logging.getLogger(__name__)
 
@@ -129,11 +129,11 @@ class _SessionSingleton:
 
 	def set_last_sent(self):
 		last_sent = self.last_sent
-		if last_sent is None or (datetime.now() - last_sent) >= __second:
+		if last_sent is None or (datetime.now() - last_sent) >= _second:
 			self.requests_per_second = 0
-		if last_sent is None or (datetime.now() - last_sent) >= __minute:
+		if last_sent is None or (datetime.now() - last_sent) >= _minute:
 			self.requests_per_minute = 0
-		if last_sent is None or (datetime.now() - last_sent) >= __hour:
+		if last_sent is None or (datetime.now() - last_sent) >= _hour:
 			self.requests_per_hour = 0
 		self.last_sent = datetime.now()
 
@@ -156,7 +156,7 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> bytes 
 		if ss.requests_per_second == RATE_LIMIT_SECOND:
 			if _settings.sleep_on_rate_limit:
 				logger.warning('Sleeping for 1 second to avoid rate limit')
-				sleep(__second.total_seconds())
+				sleep(_second.total_seconds())
 			else:
 				raise RateLimitError(RATE_LIMIT_SECOND, 'second')
 
@@ -164,7 +164,7 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> bytes 
 		if ss.requests_per_minute == RATE_LIMIT_MINUTE:
 			if _settings.sleep_on_rate_limit:
 				logger.warning('Sleeping for 1 minute to avoid rate limit')
-				sleep(__minute.total_seconds())
+				sleep(_minute.total_seconds())
 			else:
 				raise RateLimitError(RATE_LIMIT_MINUTE, 'minute')
 
@@ -172,7 +172,7 @@ def _call_api(url: 'Url | str', params: tuple[tuple[str, str]] | None) -> bytes 
 		if ss.requests_per_hour == RATE_LIMIT_HOUR:
 			if _settings.sleep_on_rate_limit:
 				logger.warning('Sleeping for 1 hour to avoid rate limit, ggs')
-				sleep(__hour.total_seconds())
+				sleep(_hour.total_seconds())
 			else:
 				raise RateLimitError(RATE_LIMIT_HOUR, 'hour')
 
